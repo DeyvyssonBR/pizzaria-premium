@@ -2,13 +2,15 @@
   --ink: #0d0b0a;
   --graphite: #151312;
   --graphite-2: #252220;
-  --red: #e50914;
-  --red-deep: #9b060e;
+  --red: #D50201;             /* Brand Red */
+  --red-deep: #8f0100;        /* Brand Dark Red */
   --tomato: #ff2d3c;
-  --cream: #fff4e4;
-  --cream-2: #f6dfbd;
-  --paper: #fffaf2;
-  --gold: #d9a441;
+  --cream: #F6F2E4;           /* Brand Cream */
+  --cream-2: #e0d7c3;         /* Darker Cream */
+  --paper: #fffcf7;
+  --gold: #F8AA07;            /* Brand Yellow / Gold */
+  --orange: #D67C0E;          /* Brand Orange / Dark Gold */
+  --brown: #C49170;           /* Brand Crust Brown */
   --green: #2f7d4a;
   --text: #fff9ef;
   --muted: rgba(255, 249, 239, 0.72);
@@ -195,11 +197,11 @@ textarea {
 }
 
 .button--add-to-cart {
-  background: linear-gradient(135deg, #ff1f30 0%, #d60814 100%);
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
   color: #fff !important;
   font-weight: 900;
   border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(255, 31, 48, 0.3);
+  box-shadow: 0 6px 20px rgba(213, 2, 1, 0.3);
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -213,9 +215,9 @@ textarea {
 }
 
 .button--add-to-cart:hover {
-  background: linear-gradient(135deg, #ff3848 0%, #e50914 100%);
+  background: linear-gradient(135deg, #ff2a29 0%, var(--red) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 31, 48, 0.45);
+  box-shadow: 0 8px 24px rgba(213, 2, 1, 0.45);
 }
 
 .button--whatsapp {
@@ -230,8 +232,8 @@ textarea {
 
 .button--gold {
   color: #241007;
-  background: linear-gradient(135deg, #f4c96f, var(--gold));
-  box-shadow: 0 14px 34px rgba(217, 164, 65, 0.24);
+  background: linear-gradient(135deg, var(--gold), var(--orange));
+  box-shadow: 0 14px 34px rgba(248, 170, 7, 0.24);
 }
 
 .button--full {
@@ -1577,15 +1579,15 @@ textarea {
 }
 
 .pizza-modal__actions button:not(.button--ghost) {
-  background: linear-gradient(135deg, #e50914 0%, #b71f2d 100%) !important;
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%) !important;
   color: #fff !important;
-  box-shadow: 0 8px 24px rgba(229, 9, 20, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(213, 2, 1, 0.25) !important;
   border: none !important;
 }
 
 .pizza-modal__actions button:not(.button--ghost):hover {
-  background: linear-gradient(135deg, #ff1f30 0%, #d60814 100%) !important;
-  box-shadow: 0 12px 28px rgba(229, 9, 20, 0.4) !important;
+  background: linear-gradient(135deg, #ff2a29 0%, var(--red) 100%) !important;
+  box-shadow: 0 12px 28px rgba(213, 2, 1, 0.4) !important;
   transform: translateY(-2px);
 }
 
@@ -1961,7 +1963,7 @@ textarea {
 }
 
 .button--add-combo {
-  background: linear-gradient(135deg, #ff1f30 0%, #d60814 100%);
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
   color: #fff;
   border: none;
   font-family: var(--font-heading);
@@ -1975,15 +1977,15 @@ textarea {
   gap: 6px;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(255, 31, 48, 0.25);
+  box-shadow: 0 4px 12px rgba(213, 2, 1, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 
 .button--add-combo:hover {
-  background: linear-gradient(135deg, #ff3848 0%, #e50914 100%);
+  background: linear-gradient(135deg, #ff2a29 0%, var(--red) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 31, 48, 0.45);
+  box-shadow: 0 6px 16px rgba(213, 2, 1, 0.45);
 }
 
 .button--add-combo svg {
