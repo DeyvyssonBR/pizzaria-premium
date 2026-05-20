@@ -126,6 +126,195 @@ const menu = [
     description: 'Acompanhamento ideal para combos e família.',
     price: 12,
     image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=1200&q=80'
+  },
+  {
+    id: 'carne-chapa-150',
+    category: 'porcoes',
+    type: 'porcao',
+    name: 'Carne na Chapa (150g)',
+    description: 'Carne acebolada na chapa quente, servida no ponto certo.',
+    price: 15,
+    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'file-fritas-500',
+    category: 'tira-gosto',
+    type: 'tira-gosto',
+    name: 'Filé com Fritas (500g)',
+    description: 'Tiras de filé mignon aceboladas com porção generosa de batatas fritas crocantes.',
+    price: 45,
+    image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'frango-500',
+    category: 'tira-gosto',
+    type: 'tira-gosto',
+    name: 'Frango Frito (500g)',
+    description: 'Pedaços de frango crocantes e suculentos, bem temperados.',
+    price: 35,
+    image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'farofa',
+    category: 'acompanhamentos',
+    type: 'acompanhamento',
+    name: 'Farofa da Casa',
+    description: 'Farofa crocante e temperada, acompanhamento perfeito para carnes.',
+    price: 5,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'maria-isabel',
+    category: 'acompanhamentos',
+    type: 'acompanhamento',
+    name: 'Maria Isabel',
+    description: 'Arroz tradicional piauiense com carne de sol picadinha e temperos regionais.',
+    price: 15,
+    image: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'batata-300',
+    category: 'acompanhamentos',
+    type: 'acompanhamento',
+    name: 'Porção de Batata Frita (300g)',
+    description: 'Batatas fritas douradas e crocantes, sequinhas e salgadas na medida.',
+    price: 16,
+    image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'batata-400',
+    category: 'acompanhamentos',
+    type: 'acompanhamento',
+    name: 'Porção de Batata Frita (400g)',
+    description: 'Porção grande de batatas fritas crocantes, perfeita para compartilhar.',
+    price: 20,
+    image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'vinagrete',
+    category: 'acompanhamentos',
+    type: 'acompanhamento',
+    name: 'Vinagrete Especial',
+    description: 'Molho vinagrete fresco com tomate, cebola e pimentão picadinhos.',
+    price: 5,
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'cerveja-stella',
+    category: 'cervejas',
+    type: 'cerveja',
+    name: 'Cerveja Stella Artois Long Neck',
+    description: 'Cerveja premium Stella Artois, gelada e refrescante.',
+    price: 9,
+    image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'cerveja-skol',
+    category: 'cervejas',
+    type: 'cerveja',
+    name: 'Cerveja Skol Lata',
+    description: 'Cerveja Skol gelada, a preferida para os momentos de descontração.',
+    price: 7,
+    image: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'cerveja-budweiser',
+    category: 'cervejas',
+    type: 'cerveja',
+    name: 'Cerveja Budweiser Long Neck',
+    description: 'Cerveja americana Budweiser long neck bem gelada.',
+    price: 9,
+    image: 'https://images.unsplash.com/photo-1527838832700-50592524df75?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'agua-com-gas',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Água Mineral com Gás 500ml',
+    description: 'Água mineral gaseificada fresca.',
+    price: 4.5,
+    image: 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'agua-sem-gas',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Água Mineral sem Gás 500ml',
+    description: 'Água mineral natural fresca.',
+    price: 4,
+    image: 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'guarana-1l-item',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Guaraná Antarctica 1L',
+    description: 'Refrigerante Guaraná Antarctica 1 litro bem gelado.',
+    price: 8,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'guarana-2l-item',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Guaraná Antarctica 2L',
+    description: 'Refrigerante Guaraná Antarctica tamanho família 2 litros.',
+    price: 12,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'coca-1l',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Coca-Cola 1L',
+    description: 'Refrigerante Coca-Cola garrafa de 1 litro bem gelada.',
+    price: 9,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'guarana-350ml',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Guaraná Antarctica Lata 350ml',
+    description: 'Refrigerante Guaraná Antarctica lata de 350ml gelada.',
+    price: 5,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'coca-350ml',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Coca-Cola Lata 350ml',
+    description: 'Refrigerante Coca-Cola lata de 350ml gelada.',
+    price: 5.5,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'coca-1-5l',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Coca-Cola 1.5L',
+    description: 'Refrigerante Coca-Cola garrafa de 1.5 litros.',
+    price: 11,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'fanta-laranja-retornavel',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Fanta Laranja Retornável 2L',
+    description: 'Refrigerante Fanta Laranja garrafa retornável de 2 litros.',
+    price: 8.5,
+    image: 'https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    id: 'suco-maracuja-300',
+    category: 'bebidas',
+    type: 'bebida',
+    name: 'Suco Natural de Maracujá 300ml',
+    description: 'Suco natural e refrescante de maracujá da fruta.',
+    price: 8,
+    image: 'https://images.unsplash.com/photo-1536746803623-cef87080bfc8?auto=format&fit=crop&w=600&q=80'
   }
 ];
 
@@ -135,6 +324,10 @@ const categories = [
   { id: 'especiais', label: 'Especiais', icon: '✨' },
   { id: 'doces', label: 'Doces', icon: '🍫' },
   { id: 'combos', label: 'Combos', icon: '🎁' },
+  { id: 'porcoes', label: 'Porções', icon: '🥩' },
+  { id: 'tira-gosto', label: 'Tira Gosto', icon: '🍟' },
+  { id: 'acompanhamentos', label: 'Acompanhamentos', icon: '🍚' },
+  { id: 'cervejas', label: 'Cervejas', icon: '🍺' },
   { id: 'bebidas', label: 'Bebidas', icon: '🥤' }
 ];
 
