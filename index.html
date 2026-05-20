@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizzaria Premium Teresina</title>
+    <meta
+      name="description"
+      content="Site premium da Pizzaria Premium Teresina com cardápio visual, promoções, carrinho e pedido rápido pelo WhatsApp."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="store-appbar">
+      <div class="store-appbar__content">
+        <button class="store-appbar__button" type="button" aria-label="Abrir menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <a class="store-appbar__brand" href="#inicio">PIZZARIA <span class="brand-accent">PREMIUM</span></a>
+
+        <a class="store-appbar__search" href="#cardapio" aria-label="Buscar no cardápio">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </a>
+      </div>
+    </header>
+    <div class="site-shell">
+      <main>
+        <section class="store-hero" id="inicio">
+          <div class="store-hero__cover" aria-label="Foto principal da pizzaria"></div>
+
+          <div class="store-hero__identity">
+            <div class="store-hero__logo-wrap">
+              <img class="store-hero__logo" src="assets/img/logo-premium.png" alt="Pizzaria Premium" onerror="this.hidden=true" />
+              <span class="store-hero__logo-fallback">P</span>
+            </div>
+
+            <h1>PIZZARIA PREMIUM TERESINA</h1>
+            <span class="store-status">Aberto • Até às 23h00</span>
+
+            <div class="store-hero__meta">
+              <span>Teresina - PI</span>
+              <span>4.9 ★</span>
+              <span>15min à 40min</span>
+            </div>
+
+            <p class="store-hero__lead">
+              Delivery, retirada, pizzas salgadas, doces, combos e pedido guiado direto no WhatsApp.
+            </p>
+
+            <div class="store-hero__actions">
+              <a class="button button--whatsapp" data-whatsapp-link href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20" height="20" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                <span>WhatsApp oficial</span>
+              </a>
+              <a class="button button--ghost" href="#cardapio">Ver Cardápio</a>
+            </div>
+
+            <div class="category-shortcuts category-shortcuts--centered">
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="todos">🍽️ Ver Tudo</a>
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="tradicionais">🍕 Tradicionais</a>
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="especiais">✨ Especiais</a>
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="doces">🍫 Doces</a>
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="combos">🎁 Combos</a>
+              <a class="category-shortcut" href="#cardapio" data-category-trigger="bebidas">🥤 Bebidas</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Seção de Combos em Carrossel (Destaques) -->
+        <section class="section section--combos-carousel">
+          <div class="section-heading section-heading--centered section-heading--light" style="margin-bottom: 24px;">
+            <span class="kicker">🔥 Combos Imperdíveis</span>
+            <h2>Combos mais pedidos da Pizzaria</h2>
+            <p>Economize e monte a noite perfeita com as nossas melhores combinações.</p>
+          </div>
+
+          <div class="carousel-container">
+            <button class="carousel-nav carousel-nav--prev" type="button" aria-label="Anterior">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            
+            <div class="carousel-track" id="combos-carousel-track">
+              <!-- Dynamically rendered by JavaScript -->
+            </div>
+            
+            <button class="carousel-nav carousel-nav--next" type="button" aria-label="Próximo">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
+            <div class="carousel-dots" id="combos-carousel-dots">
+              <!-- Dynamically rendered dots -->
+            </div>
+          </div>
+        </section>
+
+        <section class="section section--menu-shell" id="cardapio">
+          <div class="section-heading section-heading--centered">
+            <span class="kicker">Nosso Cardápio</span>
+            <h2>Monte sua pizza do seu jeito</h2>
+            <p>Toque em qualquer pizza abaixo para abrir nosso personalizador inteligente.</p>
+          </div>
+
+          <div class="catalog-banner">
+            <strong>Monte meia a meia ou inteira</strong>
+            <span>Você pode dividir os sabores da sua pizza, adicionar borda recheada, bebida trincando de gelada e finalizar pelo WhatsApp em menos de 1 minuto.</span>
+          </div>
+
+          <div class="menu-tabs" id="menu-tabs"></div>
+
+          <div class="menu-grid" id="menu-grid"></div>
+        </section>
+
+
+
+
+        <section class="section section--instagram">
+          <div class="panel panel--gradient">
+            <div class="instagram-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="34" height="34" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-184.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+            </div>
+            <span class="kicker" style="color: #fffaf2; opacity: 0.95;">Instagram</span>
+            <h2>Siga a <span class="wave-text">Pizzaria Premium Teresina</span></h2>
+            <p>Veja promoções, bastidores, pizzas saindo do forno e novidades da semana.</p>
+            <a class="button button--gold" target="_blank" rel="noreferrer" href="https://www.instagram.com/pizzariapremiumteresina/">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle; display: inline-block;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              <span>Ver Instagram</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section section--location" id="contato">
+          <div class="section-heading section-heading--centered section-heading--light">
+            <span class="kicker">Localização e atendimento</span>
+            <h2>Pizzaria Premium Teresina</h2>
+            <p>Teresina - PI • Aberto diariamente até às 23h00 • Delivery, retirada e consumo no local</p>
+          </div>
+
+          <div class="location-grid">
+            <div class="map-placeholder">
+              <strong>Espaço para mapa</strong>
+              <p>Toque em "Como chegar" para abrir a rota no GPS.</p>
+            </div>
+
+            <div class="location-info">
+              <h3>Endereço</h3>
+              <p>Avenida Senador Sigefredo Pacheco, 4727 • Verde Lar • Teresina - PI</p>
+
+              <h3>Horário</h3>
+              <p>Diariamente das 18h às 23h</p>
+
+              <div class="location-actions">
+                <a class="button" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=Avenida+Senador+Sigefredo+Pacheco+4727+Verde+Lar+Teresina+PI">
+                  Como chegar
+                </a>
+                <a class="button button--whatsapp-pulse" data-whatsapp-link href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20" height="20" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                  <span>Chamar no WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div>
+          <strong>Pizzaria Premium Teresina</strong>
+          <p>O sabor premium que combina com sua noite.</p>
+        </div>
+
+        <div class="footer-links">
+          <a href="#inicio">Início</a>
+          <a href="#cardapio">Cardápio</a>
+          <a target="_blank" rel="noreferrer" href="https://www.instagram.com/pizzariapremiumteresina/">Instagram</a>
+          <a target="_blank" rel="noreferrer" href="https://app.zapermenu.com.br/pizzaria-premium">Zapermenu</a>
+        </div>
+
+        <div class="footer-info">
+          <p>Verde Lar / Avenida Senador Sigefredo Pacheco, 4727</p>
+          <p>Teresina - PI</p>
+          <p>2026 — Pizzaria Premium</p>
+          <p class="footer-author">Desenvolvido por Scheeren Company com ☕ & ❤️</p>
+        </div>
+      </footer>
+    </div>
+
+    <a class="floating-whatsapp" data-whatsapp-link href="#" aria-label="Fale conosco no WhatsApp">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="22" height="22" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+    </a>
+
+    <div class="pizza-modal" id="pizza-modal" aria-hidden="true">
+      <div class="pizza-modal__backdrop" data-close-pizza-modal></div>
+      <div class="pizza-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="pizza-modal-title">
+        <button class="pizza-modal__close" type="button" data-close-pizza-modal aria-label="Fechar">×</button>
+        <span class="kicker">Personalize sua pizza</span>
+        <h2 id="pizza-modal-title">Escolha o formato do pedido</h2>
+        <p class="pizza-modal__text">Selecione se deseja sabor inteiro ou meio a meio.</p>
+
+        <div class="pizza-choice" id="pizza-choice-mode"></div>
+        <div class="pizza-choice" id="pizza-choice-flavors"></div>
+
+        <div class="pizza-modal__summary" id="pizza-modal-summary"></div>
+
+        <div class="pizza-modal__actions">
+          <button class="button button--ghost" type="button" data-close-pizza-modal>Cancelar</button>
+          <button class="button" type="button" id="pizza-modal-confirm">Adicionar ao pedido</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+  </body>
+</html>

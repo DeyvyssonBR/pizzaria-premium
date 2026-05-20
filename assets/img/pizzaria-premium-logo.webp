@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Language" content="pt-br">
+        <meta name="description" content="Crie um catálogo digital dos seus produtos para seus clientes e receba os pedidos em um painel completo.">
+        <meta name="keywords" content="zapermenu, menu digital, cardapio online, delivery online, catalogo digital, menu online, menu restaurante">
+        <meta name="facebook-domain-verification" content="303hhviqgotqu36e7yis4aspva0xpe" />
+        <title>ZaperMenu - Cardápio Digital e Comanda Digital</title>
+        <!--links-->
+        <!--favicon-->
+        <link rel="shortcut icon" href="./src/images/favicon.ico" type="image/x-icon">
+        <!--fonts-->
+        <link rel="preconnect" href="https://fonts.gstatic.com/">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&amp;display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100;200;300;400;500;600;700&amp;display=swap" rel="stylesheet">
+        <!--styles-->
+        <link rel="stylesheet" href="src/css/styles.css"/>
+        <link rel="stylesheet" href="src/css/swiper-bundle.min.css"/>
+        <!--jQuery-->
+        <!-- <script src="../code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script> -->
+        <!--page-script-->
+        <script src="src/js/script.js"></script>
+        <script src="src/js/swiper-bundle.min.js"></script>
+
+        <!-- Leadster Code -->
+        <!-- <script type="text/javascript">
+            (function(n,r,l,d){try{var h=r.head||r.getElementsByTagName("head")[0],s=r.createElement("script");s.defer=true;s.setAttribute("type","text/javascript");s.setAttribute("src",l);n.neuroleadId=d;h.appendChild(s);}catch(e){}})(window,document,"https://cdn.leadster.com.br/neurolead/neurolead.min.js", 30680);
+        </script>  -->
+        <!-- End Leadster Code -->
+
+        <!-- Facebook Pixel Code -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const pixel = urlParams.has('pxl2') ? '1207371893452700' : '414269820321293';
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', pixel);
+            fbq('track', 'PageView');
+        </script>
+        <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=414269820321293&ev=PageView&noscript=1"
+        /></noscript>
+        <!-- End Facebook Pixel Code -->
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-157586860-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-157586860-1');
+        </script> -->
+        <!-- End Google Analytics -->
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-05F1HC3BE2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-05F1HC3BE2');
+        </script>
+        <!-- End Google tag (gtag.js) -->
+    </head>
+    <!--.head-->
+    <!--body-->
+    <body class="page">
+        <!--header-->
+        <header class="page-header">
+            <div class="container orange-bck">
+                <div class="page-header-content d-flex al-center">
+                    <div class="page-logo">
+                        <img class="logo-img" src="src/images/logo.png"/>
+                    </div>
+                    <div class="page-nav">
+                        <nav>
+                            <ul class="nav-menu d-flex">
+                                <li onclick="sendWhatsapp()" class="menu-item blog"><a>Cadastrar</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!--.header-->
+        <!--main-->
+        <main class="page-main">
+            <!--home-->
+            <div class="cg-box" id="home">
+                <div class="container orange-bck">
+                    <div class="cg-box-content">
+                        <div class="cg-box-content-">
+                            <div class="cg-box-title">
+                                <h1 class="title">
+                                Sistema de Pedidos para Delivery
+                                </h1>
+                            </div>
+                            <div class="cg-box-description">
+                                <p class="description">
+                                    Automatize os pedidos do seu Delivery com o Cardápio e Comanda Digital ZaperMenu e imprima direto na sua cozinha, com agilidade e sem erros.
+                                </p>
+                            </div>
+                            <div class="cg-box-buttons">
+                                <button onclick="sendWhatsapp()" class="btn-go">Quero testar grátis!</button>
+                            </div>
+                        </div>
+                        <div class="cg-box-image -mockup">
+                            <img class="app-image" src="src/images/equipamentos1.png"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--.home-->
+
+            <!--youtube-video -->
+            <div class="cg-box-title" style="margin-top: 60px">
+                <h2 class="title title-2">
+                    Assista até o final e descubra como funciona
+                </h2>
+            </div>
+            <div class="cg-box" id="youtube-embed" style="padding-bottom: 50px; border-bottom: 8px solid #222;">
+                <div class="container">
+                    <div class="cg-box-content">
+                        <div class="youtube-video d-flex j-center">
+                            <iframe
+                                width="560"
+                                height="315"
+                                src="https://www.youtube.com/embed/3Q41Wtg3q6A?controls=0"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--.youtube-video-->
+            <!--.use-->
+            <!--starting-->
+            <div class="cg-box" id="starting" style="padding-bottom: 50px; border-bottom: 8px solid #222;">
+                <div class="container">
+                    <div class="cg-box-content">
+                        <div class="cg-box-title">
+                            <h2 class="title title-2">
+                                Confira alguns dos principais recursos
+                            </h2>
+                        </div>
+                        <div class="step-by-step images d-flex">
+                            <!--step-1-->
+                            <div class="step step-container">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/printer.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Impressão Automática</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Seu maior aliado no horário de pico, os pedidos são impressos sem necessidade de cliques!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-2-->
+                            <div class="step step-2">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/config.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Adaptável ao Seu Negócio</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Personalize com as cores da sua marca, crie promoções e ofertas, configure e edite tudo com facilidade.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-3-->
+                            <div class="step step-3">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/report.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Painel Completo de Gestão</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Alerta sonoro de novos pedidos e organizado em order de chegada. Controle de caixa e relatórios completos.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-by-step images d-flex">
+                            <!--step-4-->
+                            <div class="step step-1">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/best.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Cardápio Atraente</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Tecnologia de ponta, para você surpreender seus clientes, ter mais agilidade e aumentar os lucros!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-5-->
+                            <div class="step step-2">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/suport.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Treinamento e Suporte VIP</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Garantimos o melhor atendimento que você ja viu. Nossa equipe está sempre a disposição.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-6-->
+                            <div class="step step-3">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/handshake.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Garantia de Satisfação</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Para a maioria dos nossos clientes o investimento já se paga a partir do primeiro mês, além de agilidade também aumenta o faturamento.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-by-step images d-flex">
+                            <!--step-7-->
+                            <div class="step step-3">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/waiter.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>App para Garçom</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Comanda digital simples e ágil com impressão dos pedidos direto no balcão ou cozinha.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-8-->
+                            <div class="step step-3">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/motoboy.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Controle de Motoboys</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Envio do pedido no whatsapp do entregar e Relatório do total a pagar por motoboy.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--step-9-->
+                            <div class="step step-3">
+                                <div class="step-image">
+                                    <img class="image" src="src/images/qrcode.png"/>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-title">
+                                        <h4>Pedidos por QrCode</h4>
+                                    </div>
+                                    <div class="step-description">
+                                        <p class="description">
+                                            Facilidade para seu cliente fazer o pedido sem precisar falar com garçom.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="cg-box-buttons">
+                                <button onclick="sendWhatsapp()" class="btn-go">Mais informações!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--.starting-->
+
+            <div class="cg-box-title" style="margin: 50px 0 20px 0;">
+                <h2 class="title title-2">
+                    Acesse os cardápios demonstrativos e faça um teste
+                </h2>
+            </div>
+
+            <div class="row">
+                <div class="swiper-container" style="width: 60%; margin: auto;"> <!-- width: 60%; -->
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="ui image">
+                                    <img
+                                        class="demonstracao-img"
+                                        src="src/images/modelo-restaurante.png"
+                                        onclick="openDemonstracao('restaurante')"
+                                        style="cursor: pointer;"
+                                    >
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="ui image">
+                                    <img
+                                        class="demonstracao-img"
+                                        src="src/images/modelo-pizzaria.png"
+                                        onclick="openDemonstracao('pizzaria')"
+                                        style="cursor: pointer;"
+                                    >
+                                </div>
+                            </div>
+                            <!-- <div class="swiper-slide">
+                                <div class="ui image">
+                                    <img
+                                        class="demonstracao-img"
+                                        src="src/images/modelo-hamburgueria.png"
+                                        onclick="openDemonstracao('hamburgueria')"
+                                        style="cursor: pointer;"
+                                    >
+                                </div>
+                            </div> -->
+                            <div class="swiper-slide">
+                                <div class="ui image">
+                                    <img
+                                        class="demonstracao-img"
+                                        src="src/images/modelo-acai.png"
+                                        onclick="openDemonstracao('acai')"
+                                        style="cursor: pointer;"
+                                    >
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="ui image">
+                                    <img
+                                        class="demonstracao-img"
+                                        src="src/images/modelo-sushi.png"
+                                        onclick="openDemonstracao('sushi')"
+                                        style="cursor: pointer;"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-button-next mobile hidden"></div>
+                        <div class="swiper-button-prev mobile hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center" style="padding-bottom: 50px; border-bottom: 8px solid #222;">
+                <div class="cg-box-buttons">
+                    <button
+                        onclick="openDemonstracao('restaurante')"
+                        style="border-radius: 10px; padding: 15px 60px; text-align: center;
+                            background-color: #f40612; line-height: 14px; font-size: 16px;
+                            color:#FFF; border: 0; cursor: pointer;"
+                    >Acessar</button>
+                </div>
+            </div>
+
+            <!--DUVIDAS FREQUENTES-->
+            <div class="cg-box" id="why-use">
+                <div class="container">
+                    <div class="cg-box-content-2">
+                        <div class="cg-box-title" style="margin-top: -15px;">
+                            <h2 class="title title-2">Dúvidas frequentes</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 100px;">
+                <div class="collapsible">
+                    <span>Preciso de computador no meu estabelecimento?</span>
+                    <img style="height: 19px; width: 16px;" src="./src/images/arrow-down.png">
+                </div>
+                <div class="content">
+                    <p>Não é necessário ter computador, o sistema também poder ser utilizado pelo celular ou tablet, inclusive com impressão automática dos pedidos.</p>
+                </div>
+                <div class="collapsible">
+                    <span>O ZaperMenu é um robô de atendimento?</span>
+                    <img style="height: 19px; width: 16px;" src="./src/images/arrow-down.png">
+                </div>
+                <div class="content">
+                    <p>O ZaperMenu pode ser conectado ao whatsapp e atenderá mais de 20 clientes ao mesmo tempo, além de enviar o link do Cardápio Digital também avisa seu cliente sobre o status do pedido.</p>
+                </div>
+                <div class="collapsible">
+                    <span>Terei ajuda no cadastro e configurações do sistema?</span>
+                    <img style="height: 19px; width: 16px;" src="./src/images/arrow-down.png">
+                </div>
+                <div class="content">
+                    <p>Com certeza, nosso suporte irá lhe ajudar no passo à passo de todas as funcionalidades. E se preferir, nossa equipe realiza o cadastro completo dos produtos e configurações pra você!</p>
+                </div>
+                <div class="collapsible">
+                    <span>Tem limite de pedidos ou taxas?</span>
+                    <img style="height: 19px; width: 16px;" src="./src/images/arrow-down.png">
+                </div>
+                <div class="content">
+                    <p>Você poderá utilizar o sistema de forma totalmente ilimitada e NÃO cobramos nenhum tipo de taxa sobre os pedidos.</p>
+                </div>
+                <div class="collapsible">
+                    <span>Qual é o horário de atendimento do suporte?</span>
+                    <img style="height: 19px; width: 16px;" src="./src/images/arrow-down.png">
+                </div>
+                <div class="content">
+                    <p>Nosso suporte está disponível via whatsapp todos os dias das 10:00h às 22:00h.</p>
+                </div>
+            </div>
+            <!--DUVIDAS FREQUENTES-->
+
+            <!-- <div class="label-msg">
+                Ficou com alguma dúvida? Envie uma mensagem pra gente.
+            </div>
+            <div style="display: flex; justify-content: center; padding-bottom: 80px; border-bottom: 8px solid #222;">
+                <input type="text" class="input-msg" id="mensagem" value="Olá, gostaria de saber mais sobre o ZaperMenu.">
+                <button class="btn-msg" onclick="sendWhatsapp(false)">Enviar</button>
+            </div> -->
+
+        </main>
+        <!--.main-->
+        <!--footer-->
+        <footer class="page-footer">
+            <div class="container">
+                <div class="page-footer-content  d-flex al-center j-center">
+                    <div class="footer-logo">
+                        <img src="src/images/logo-w.png" class="logo"/>
+                    </div>
+                    <div class="footer-social-medias d-flex al-center">
+                        <a href="https://www.facebook.com/zapermenu" target="_blank">
+                            <div class="d-flex">
+                                <svg width="14" height="26" viewBox="0 0 14 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3.26392 25.6668H8.59725V14.987H13.4027L13.9306 9.67985H8.59725V7.00016C8.59725 6.26378 9.1942 5.66683 9.93058 5.66683H13.9306V0.333496H9.93058C6.24869 0.333496 3.26392 3.31826 3.26392 7.00016V9.67985H0.59725L0.069397 14.987H3.26392V25.6668Z" fill="white"/>
+                                </svg>
+                            </div>
+                        </a>
+                        <a href="https://www.instagram.com/zapermenu" target="_blank">
+                            <div class="d-flex">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.6667 2.6665H9.33335C5.65146 2.6665 2.66669 5.65127 2.66669 9.33317V22.6665C2.66669 26.3484 5.65146 29.3332 9.33335 29.3332H22.6667C26.3486 29.3332 29.3334 26.3484 29.3334 22.6665V9.33317C29.3334 5.65127 26.3486 2.6665 22.6667 2.6665Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M21.3334 15.1599C21.4979 16.2696 21.3084 17.4029 20.7917 18.3986C20.275 19.3943 19.4575 20.2018 18.4555 20.7061C17.4535 21.2105 16.3179 21.386 15.2104 21.2078C14.1029 21.0296 13.0797 20.5067 12.2865 19.7135C11.4932 18.9202 10.9703 17.8971 10.7921 16.7895C10.6139 15.682 10.7894 14.5464 11.2938 13.5444C11.7981 12.5424 12.6056 11.7249 13.6013 11.2082C14.5971 10.6916 15.7304 10.502 16.84 10.6666C17.9719 10.8344 19.0198 11.3619 19.8289 12.171C20.6381 12.9801 21.1655 14.028 21.3334 15.1599Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M23.3333 8.6665H23.3466" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <div id="copyright"></div>
+            </div>
+        </footer>
+        <!--.footer-->
+
+        <div>
+            <img
+                id="whatsIcon"
+                src="src/images/zap1.png" alt="Contato Whatsapp"
+                onclick="sendWhatsapp()"
+                style="position: fixed; z-index: 100; right: 15px; bottom: 15px; height: 85px; cursor: pointer;"
+            >
+        </div>
+    </body>
+    <!--.body-->
+</html>
+
+<script>
+    function sendWhatsapp(padrao = true) {
+        // fbq('track', 'Contact');
+
+        // const isWeekend = [0, 6].includes(new Date().getDay());
+
+        // if (isWeekend) {
+        //     window.location.href = './whatsapp.html';
+        //     return;
+        // }
+
+        // const urlParams = new URLSearchParams(window.location.search);
+
+        // let txt = padrao
+        //     ? (urlParams.has('v')
+        //         ? 'Oi, gostaria de saber mais sobre o Zaper Menu'
+        //         : 'Olá, gostaria de saber mais sobre o Zaper Menu'
+        //     )
+        //     : document.getElementById('mensagem').value;
+
+        // window.open('https://api.whatsapp.com/send?phone=5549989085829&text=' + encodeURIComponent(txt));
+
+        if (urlParams.has('rmkt')) {
+            const txt = 'Oi, tenho interesse no Zaper Menu';
+            window.open('https://api.whatsapp.com/send?phone=5549989085829&text=' + encodeURIComponent(txt));
+            return;
+        }
+
+        const ad = urlParams.get('ad') || '';
+        window.location.href = './whatsapp.html?ad=' + ad;
+    }
+
+    function openDemonstracao(modelo) {
+        window.open(`https://app.zapermenu.com.br/modelo-${modelo}`, '_blank');
+    }
+
+    function animateIcon() {
+        whatsIcon.animate(
+            [
+                { 'right': '15px' },
+                { 'right': '20px' },
+                { 'right': '15px' },
+                { 'right': '10px' },
+                { 'right': '15px' },
+            ],
+            {
+                duration: 80,
+                iterations: 8
+            }
+        );
+    }
+
+    function changeWhatsIcon() {
+        const whatsIcon = document.querySelector('#whatsIcon');
+        whatsIcon.src = 'src/images/zap2.png';
+
+        animateIcon();
+        setInterval(() => animateIcon(), 12000);
+    }
+
+    setTimeout(() => changeWhatsIcon(), 8000);
+</script>

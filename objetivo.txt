@@ -1,0 +1,378 @@
+Crie um site moderno, bonito, profissional e altamente comercial para a Pizzaria Premium Teresina, uma pizzaria localizada em Teresina-PI.
+
+Objetivo do site:
+Transformar visitantes em clientes, destacando a qualidade das pizzas, o atendimento ao público, o delivery e o cardápio digital. O site deve transmitir sabor, confiança, sofisticação acessível e desejo imediato de pedir uma pizza.
+
+Informações da empresa:
+Nome: Pizzaria Premium Teresina
+Instagram: @pizzariapremiumteresina
+Localização: Teresina - PI
+Posicionamento: pizzaria local com proposta de qualidade, sabor e atendimento ao público
+Frase atual da marca: “A melhor pizza da cidade”
+Pedido/cardápio: usar chamada para cardápio digital e WhatsApp/pedido online
+
+Estilo visual:
+Use um design premium, moderno e gastronômico.
+Paleta de cores: vermelho escuro, vinho, preto grafite, creme, branco e detalhes em amarelo/dourado.
+Visual com fotos grandes de pizzas, queijo derretido, massa crocante, forno, ingredientes frescos e ambiente acolhedor.
+Tipografia forte e elegante para títulos, com fonte limpa e legível para textos.
+Layout responsivo, perfeito para celular, já que grande parte dos clientes virá do Instagram.
+
+Estrutura do site:
+
+1. Hero section impactante
+- Foto grande e apetitosa de pizza.
+- Título forte: “Pizzaria Premium Teresina”
+- Subtítulo: “Sabor premium, massa irresistível e pizza feita para reunir momentos especiais.”
+- Botões principais:
+  “Ver Cardápio”
+  “Pedir pelo WhatsApp”
+- Adicionar selo visual: “Aberto ao público em Teresina-PI”
+
+2. Seção de destaque da marca
+Explique que a Pizzaria Premium Teresina oferece pizzas saborosas, bem recheadas, feitas com ingredientes selecionados e pensadas para quem busca qualidade, atendimento rápido e uma experiência deliciosa.
+
+3. Seção “Por que escolher a Pizzaria Premium?”
+Criar cards com ícones:
+- Ingredientes selecionados
+- Massa saborosa e bem assada
+- Pizzas bem recheadas
+- Atendimento rápido
+- Delivery e retirada
+- Ambiente aberto ao público
+
+4. Seção de cardápio
+Criar uma área visual com categorias:
+- Pizzas tradicionais
+- Pizzas especiais
+- Pizzas doces
+- Combos e promoções
+- Bebidas
+
+Mesmo sem preços definidos, deixar cards bonitos com imagens, nome do sabor, descrição curta e botão “Pedir agora”.
+
+Exemplos de sabores para demonstrar:
+- Calabresa Premium
+- Frango com Catupiry
+- Portuguesa
+- Quatro Queijos
+- Bacon Especial
+- Chocolate com Morango
+
+5. Seção de promoções
+Criar uma área chamativa com fundo vermelho/vinho:
+“Promoções especiais da semana”
+Botão: “Consultar promoções no WhatsApp”
+Adicionar espaço para combos, pizza família, desconto em dias específicos ou taxa de entrega.
+
+6. Seção de prova social
+Criar uma área com depoimentos fictícios editáveis:
+“Pizza muito recheada e saborosa!”
+“Atendimento rápido e pedido chegou quentinho.”
+“Uma das melhores pizzas de Teresina.”
+Adicionar estrelas de avaliação visual.
+
+7. Seção Instagram
+Criar bloco convidando o usuário a seguir:
+“Siga a Pizzaria Premium Teresina no Instagram”
+Mostrar espaço para posts/reels, bastidores, pizzas saindo do forno e promoções.
+Botão: “Ver Instagram”
+
+8. Seção localização e atendimento
+Mostrar:
+Pizzaria Premium Teresina
+Teresina - PI
+Aberto ao público
+Delivery, retirada e consumo no local, caso aplicável.
+Adicionar mapa visual ou espaço para Google Maps.
+Botão: “Como chegar”
+
+9. Rodapé profissional
+Incluir:
+Logo/nome da pizzaria
+Links rápidos: Início, Cardápio, Promoções, Instagram, Contato
+Botão fixo de WhatsApp
+Texto: “© Pizzaria Premium Teresina — Todos os direitos reservados.”
+
+Melhorias obrigatórias:
+- Botão de WhatsApp flutuante no canto inferior direito
+- Menu fixo no topo
+- Layout 100% mobile-first
+- Animações suaves ao rolar a página
+- Fotos grandes e apetitosas
+- Seções bem espaçadas
+- Design com aparência profissional, não genérica
+- Chamadas para ação claras em todas as seções
+- Criar sensação de fome, urgência e confiança
+
+Tom da comunicação:
+Acolhedor, saboroso, direto e vendedor.
+Use frases como:
+“Peça agora e receba uma pizza irresistível.”
+“O sabor premium que combina com sua noite.”
+“Escolha seu sabor favorito e faça seu pedido.”
+“Pizza boa é pizza bem feita, bem recheada e entregue quentinha.”
+
+Resultado esperado:
+Um site completo, elegante, moderno e profissional para uma pizzaria local de Teresina, com foco em pedidos pelo WhatsApp/cardápio digital, fortalecimento da marca e aumento de conversões vindas do Instagram.
+
+
+Crie uma versão mais premium e sofisticada do site, com estilo de pizzaria artesanal moderna, porque o nome “Premium” precisa transmitir mais elegância, qualidade e autoridade visual.
+
+Utilize como referência o site atual, caso exista, e principalmente a página do Instagram da empresa @pizzariapremiumteresina para entender a identidade visual, o tipo de produto, as fotos, a linguagem, as cores, os diferenciais e a forma como a pizzaria se apresenta ao público.
+
+A proposta é melhorar a presença digital da pizzaria, transformando as informações do Instagram em um site profissional, bonito, organizado e voltado para pedidos. O design deve aproveitar os conteúdos já existentes da marca, como fotos de pizzas, posts, promoções, cardápio, localização, formas de contato e estilo de comunicação.
+
+O resultado deve parecer uma pizzaria premium, moderna e confiável, não apenas uma página simples de delivery. O site precisa valorizar o produto, criar desejo, destacar o sabor artesanal, organizar melhor as informações e incentivar o cliente a pedir pelo WhatsApp, cardápio digital ou Instagram.
+
+
+Para o site próprio da pizzaria, eu focaria em **reduzir atrito no pedido**. O cliente quer abrir, escolher a pizza e finalizar em poucos cliques. A prioridade não é só “site bonito”, é **site que vende**.
+
+## O que eu recomendo para melhorar os pedidos pelo site
+
+### 1. Botão de pedido sempre visível
+
+No celular, o botão principal deve ficar fixo no rodapé:
+
+**“Fazer pedido agora”**
+ou
+**“Pedir pelo WhatsApp”**
+
+Mesmo que o cliente role a página, o botão continua aparecendo. Isso aumenta muito a chance de conversão.
+
+### 2. Cardápio simples e rápido
+
+Evite cardápio em PDF. O ideal é ter o cardápio direto no site, com:
+
+**Foto da pizza**
+**Nome do sabor**
+**Descrição curta**
+**Tamanhos disponíveis**
+**Preço**
+**Botão “Adicionar ao pedido”**
+
+Exemplo:
+
+**Pizza Premium Calabresa**
+Molho artesanal, mussarela, calabresa, cebola e orégano.
+Pequena R$ 25 | Média R$ 35 | Grande R$ 45
+**Adicionar**
+
+### 3. Pedido em etapas curtas
+
+O fluxo ideal seria:
+
+**1. Escolher pizza**
+**2. Escolher tamanho**
+**3. Escolher borda / adicionais**
+**4. Informar endereço**
+**5. Escolher pagamento**
+**6. Confirmar pedido**
+
+Não coloque tudo em uma tela confusa. Divida em etapas simples.
+
+### 4. Integração com WhatsApp
+
+Mesmo tendo site próprio, eu recomendo finalizar o pedido também pelo WhatsApp, pelo menos no começo.
+
+O site pode montar automaticamente a mensagem:
+
+> Olá, quero fazer um pedido:
+> Pizza Grande Calabresa - R$ 45
+> Borda recheada - R$ 8
+> Refrigerante 2L - R$ 12
+> Entrega: Rua X, nº 123
+> Forma de pagamento: Pix
+> Total: R$ 65
+
+Aí o cliente clica e envia direto para o WhatsApp da pizzaria.
+
+Isso evita perder pedidos por erro no sistema e mantém o atendimento familiar para o cliente.
+
+### 5. Mostrar promoções logo no início
+
+A primeira seção do site deve vender rápido.
+
+Exemplo:
+
+**Pizza grande a partir de R$ 30 hoje!**
+Peça agora pelo site ou WhatsApp.
+**Ver promoções**
+
+Coloque as promoções antes do cardápio completo.
+
+### 6. Combos prontos
+
+Combos vendem mais porque facilitam a decisão.
+
+Sugestões:
+
+**Combo Casal**
+1 pizza média + refrigerante 1L
+
+**Combo Família**
+1 pizza grande + refrigerante 2L
+
+**Combo Premium**
+2 pizzas grandes + borda recheada + refrigerante
+
+Cada combo deve ter botão direto de compra.
+
+### 7. Checkout muito simples
+
+Peça só o necessário:
+
+Nome
+Telefone
+Endereço
+Bairro
+Referência
+Forma de pagamento
+Troco, se for dinheiro
+
+Evite cadastro obrigatório. Cliente com fome não quer criar conta.
+
+### 8. Informações claras de entrega
+
+Antes do cliente finalizar, mostre:
+
+Tempo médio de entrega
+Taxa de entrega
+Bairros atendidos
+Horário de funcionamento
+Pedido mínimo, se houver
+
+Isso evita reclamação e desistência.
+
+### 9. Fotos reais e boas
+
+Use fotos reais das pizzas da pizzaria. Não recomendo usar imagens genéricas de banco de imagem, porque isso pode gerar desconfiança.
+
+Fotos importantes:
+
+Pizza saindo do forno
+Queijo puxando
+Borda recheada
+Embalagem pronta para entrega
+Ambiente da pizzaria
+Equipe preparando pedidos
+
+### 10. Prova social
+
+Coloque no site uma seção com avaliações:
+
+**“O que os clientes dizem”**
+
+Exemplo:
+
+> “Pizza muito recheada e chegou quentinha.”
+> — Cliente no Google
+
+Também coloque prints ou depoimentos reais, se tiver autorização.
+
+## Estrutura ideal da página inicial
+
+Eu faria assim:
+
+1. **Banner principal**
+
+   * Foto bonita da pizza
+   * Frase forte
+   * Botão “Fazer pedido”
+
+2. **Promoções do dia**
+
+   * Pizza grande R$ 30
+   * Combo família
+   * Borda recheada
+
+3. **Cardápio por categorias**
+
+   * Pizzas salgadas
+   * Pizzas doces
+   * Bebidas
+   * Combos
+   * Adicionais
+
+4. **Como pedir**
+
+   * Escolha
+   * Confirme
+   * Receba em casa
+
+5. **Avaliações**
+
+   * Depoimentos de clientes
+
+6. **Localização e horário**
+
+   * Endereço
+   * Mapa
+   * WhatsApp
+   * Instagram
+
+7. **Botão fixo de pedido**
+
+   * Sempre visível no celular
+
+## Funcionalidades que ajudam muito
+
+Para um site de pizzaria, eu colocaria:
+
+**Carrinho de pedido**
+Cliente vê tudo que adicionou.
+
+**Cálculo automático do total**
+Incluindo borda, bebidas e entrega.
+
+**Cupom de desconto**
+Exemplo: PRIMEIRACOMPRA.
+
+**Pedido rápido de promoção**
+Botão “Quero essa promoção”.
+
+**Repetir pedido anterior**
+Bom para clientes frequentes.
+
+**Área administrativa simples**
+Para a pizzaria editar preços, sabores e promoções sem depender do programador.
+
+## Melhor estratégia no começo
+
+Eu faria o site em duas fases.
+
+### Fase 1 — Simples e funcional
+
+Cardápio
+Carrinho
+Finalização pelo WhatsApp
+Promoções
+Localização
+Horário
+Fotos
+Avaliações
+
+Essa fase já resolve o principal: gerar pedidos.
+
+### Fase 2 — Mais avançada
+
+Pagamento online
+Painel de pedidos
+Status do pedido
+Cadastro de clientes
+Programa de fidelidade
+Cupons automáticos
+Relatórios de vendas
+
+## Detalhe importante
+
+O site precisa ser pensado primeiro para **celular**, não para computador. A maioria dos clientes vai pedir pelo smartphone, especialmente pelo Instagram, Google ou WhatsApp.
+
+Então teste sempre assim:
+
+O cliente consegue pedir uma pizza em menos de **1 minuto**?
+
+Se a resposta for sim, o site está no caminho certo.
+
+
+

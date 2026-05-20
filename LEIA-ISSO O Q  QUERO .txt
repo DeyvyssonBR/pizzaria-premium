@@ -1,0 +1,440 @@
+Crie um site próprio premium para a Pizzaria Premium Teresina, usando como referência o Instagram @pizzariapremiumteresina e o cardápio atual https://app.zapermenu.com.br/pizzaria-premium. O site atual é funcional, mas genérico; o novo deve ser mais bonito, profissional e vendedor. Faça layout mobile-first com hero forte, promoções, cardápio visual, carrinho, checkout rápido, botão fixo de WhatsApp, link para Zapermenu, link para Instagram, prova social, localização e rodapé. Visual: vinho, vermelho escuro, preto grafite, creme, branco e dourado. Objetivo: cliente pedir em menos de 1 minuto pelo WhatsApp ou cardápio digital.
+
+# Prompt atualizado para criar o novo site
+
+Crie um site próprio, moderno, premium e altamente comercial para a **Pizzaria Premium Teresina**, localizada em **Teresina-PI**.
+
+Use como referência:
+
+* Instagram: **[https://www.instagram.com/pizzariapremiumteresina/](https://www.instagram.com/pizzariapremiumteresina/)**
+* Site/cardápio atual: **[https://app.zapermenu.com.br/pizzaria-premium](https://app.zapermenu.com.br/pizzaria-premium)**
+
+O site atual funciona como cardápio/pedido, mas parece genérico e pouco persuasivo. O novo site deve ser muito mais bonito, profissional, confiável e vendedor, mantendo integração com WhatsApp, Instagram e, se necessário, o Zapermenu.
+
+## Objetivo do novo site
+
+Transformar visitantes em clientes.
+
+O site precisa:
+
+* Valorizar a marca **Premium**
+* Mostrar fotos apetitosas das pizzas
+* Explicar por que a pizzaria é boa
+* Destacar promoções
+* Facilitar pedidos pelo WhatsApp
+* Levar o cliente ao cardápio digital
+* Passar mais confiança do que o cardápio atual
+* Funcionar perfeitamente no celular
+* Fazer o cliente pedir em menos de 1 minuto
+
+## Problema do site atual
+
+O site atual parece ser apenas uma ferramenta de cardápio/pedido. O novo site precisa resolver estes pontos:
+
+* Falta de identidade visual premium
+* Pouca emoção e desejo de compra
+* Pouca valorização da marca
+* Pouca prova social
+* Pouca explicação dos diferenciais
+* Experiência visual genérica
+* Não parece uma landing page feita para vender
+* Não aproveita bem o Instagram como vitrine
+* Não cria sensação de fome, urgência e confiança
+
+## Direção visual
+
+Criar um site com aparência de pizzaria artesanal moderna.
+
+Paleta:
+
+* Vermelho escuro
+* Vinho
+* Preto grafite
+* Creme
+* Branco
+* Dourado/amarelo em detalhes
+
+Estilo:
+
+* Premium
+* Gastronômico
+* Acolhedor
+* Local
+* Saboroso
+* Profissional
+* Mobile-first
+
+Usar fotos grandes de:
+
+* Pizza saindo do forno
+* Queijo puxando
+* Borda recheada
+* Ingredientes frescos
+* Massa crocante
+* Caixa de entrega
+* Ambiente da pizzaria
+* Bastidores do preparo
+
+## Estrutura do site
+
+### 1. Hero section
+
+Criar primeira dobra impactante.
+
+Título:
+
+**Pizzaria Premium Teresina**
+
+Subtítulo:
+
+**Sabor premium, massa irresistível e pizza feita para reunir momentos especiais.**
+
+Texto complementar:
+
+**Peça agora sua pizza bem recheada, quentinha e feita com ingredientes selecionados.**
+
+Botões principais:
+
+* **Ver Cardápio**
+* **Pedir pelo WhatsApp**
+
+Selo:
+
+**Aberto ao público em Teresina-PI**
+
+Adicionar imagem grande e apetitosa de pizza.
+
+---
+
+### 2. Barra de pedido rápido
+
+Logo abaixo do banner, criar área com 3 opções:
+
+* **Pedir pelo WhatsApp**
+* **Ver cardápio digital**
+* **Consultar promoções**
+
+Essa área deve aparecer cedo porque o cliente pode já estar pronto para comprar.
+
+---
+
+### 3. Promoções em destaque
+
+Criar seção forte:
+
+**Promoções especiais da semana**
+
+Exemplos editáveis:
+
+* Pizza grande a partir de R$ 30
+* Combo Família
+* Combo Casal
+* Borda recheada
+* Promoção do dia
+
+Cada card deve ter botão:
+
+**Quero essa promoção**
+
+Ao clicar, abrir WhatsApp com mensagem automática.
+
+---
+
+### 4. Cardápio visual próprio
+
+Criar cardápio mais bonito que o atual.
+
+Categorias:
+
+* Pizzas tradicionais
+* Pizzas especiais
+* Pizzas doces
+* Combos
+* Bebidas
+* Adicionais
+
+Cada produto deve ter:
+
+* Foto
+* Nome
+* Descrição curta
+* Tamanhos
+* Preço editável
+* Botão **Adicionar ao pedido**
+* Botão **Pedir agora**
+
+Sabores de exemplo:
+
+* Calabresa Premium
+* Frango com Catupiry
+* Portuguesa
+* Quatro Queijos
+* Bacon Especial
+* Chocolate com Morango
+
+---
+
+### 5. Integração com Zapermenu
+
+Adicionar chamada:
+
+**Prefere ver o cardápio completo?**
+
+Botão:
+
+**Abrir cardápio digital**
+
+Link:
+
+**[https://app.zapermenu.com.br/pizzaria-premium](https://app.zapermenu.com.br/pizzaria-premium)**
+
+Mas o site próprio deve continuar sendo a página principal de venda, com visual melhor, mais autoridade e mais desejo.
+
+---
+
+### 6. Carrinho simples
+
+Criar carrinho próprio no site com:
+
+* Itens adicionados
+* Quantidade
+* Tamanho
+* Bordas
+* Bebidas
+* Total automático
+* Observações
+* Botão **Finalizar pelo WhatsApp**
+
+Mensagem automática:
+
+“Olá, quero fazer um pedido na Pizzaria Premium Teresina:
+
+Itens:
+
+* Pizza Grande Calabresa Premium
+* Borda recheada
+* Refrigerante 2L
+
+Nome:
+Endereço:
+Bairro:
+Forma de pagamento:
+Observações:
+
+Total: R$ XX”
+
+---
+
+### 7. Checkout rápido
+
+Não exigir cadastro.
+
+Campos:
+
+* Nome
+* Telefone
+* Endereço
+* Bairro
+* Referência
+* Forma de pagamento
+* Troco, se necessário
+* Observações
+
+O objetivo é permitir que o cliente finalize em menos de 1 minuto.
+
+---
+
+### 8. Por que escolher a Pizzaria Premium?
+
+Criar cards com ícones:
+
+* Ingredientes selecionados
+* Massa bem assada
+* Pizzas bem recheadas
+* Atendimento rápido
+* Delivery e retirada
+* Ambiente aberto ao público
+
+Texto:
+
+**Pizza boa é pizza bem feita, bem recheada e entregue quentinha.**
+
+---
+
+### 9. Como pedir
+
+Criar 3 passos:
+
+1. Escolha seu sabor favorito
+2. Confirme pelo WhatsApp ou cardápio digital
+3. Receba em casa ou retire no local
+
+Botão:
+
+**Fazer pedido agora**
+
+---
+
+### 10. Prova social
+
+Criar seção:
+
+**O que os clientes dizem**
+
+Depoimentos editáveis:
+
+* “Pizza muito recheada e saborosa!”
+* “Pedido chegou rápido e quentinho.”
+* “Uma das melhores pizzas de Teresina.”
+* “Atendimento excelente.”
+
+Adicionar estrelas visuais.
+
+---
+
+### 11. Instagram
+
+Criar seção:
+
+**Siga a Pizzaria Premium Teresina no Instagram**
+
+Texto:
+
+**Veja promoções, bastidores, pizzas saindo do forno e novidades da semana.**
+
+Botão:
+
+**Ver Instagram**
+
+Link:
+
+**[https://www.instagram.com/pizzariapremiumteresina/](https://www.instagram.com/pizzariapremiumteresina/)**
+
+---
+
+### 12. Localização
+
+Mostrar:
+
+**Pizzaria Premium Teresina**
+**Teresina - PI**
+**Aberto ao público**
+**Delivery, retirada e consumo no local**
+
+Adicionar espaço para mapa.
+
+Botões:
+
+* **Como chegar**
+* **Chamar no WhatsApp**
+
+---
+
+### 13. Rodapé
+
+Incluir:
+
+* Logo/nome da pizzaria
+* Instagram
+* WhatsApp
+* Cardápio digital
+* Localização
+* Links rápidos
+* Texto: **© Pizzaria Premium Teresina — Todos os direitos reservados.**
+
+## Funcionalidades obrigatórias
+
+* Layout mobile-first
+* Menu fixo no topo
+* Botão flutuante de WhatsApp
+* Botão fixo inferior no celular: **Fazer pedido agora**
+* Cardápio visual
+* Promoções editáveis
+* Carrinho simples
+* Cálculo automático de total
+* Checkout sem cadastro
+* Finalização pelo WhatsApp
+* Link para Zapermenu
+* Link para Instagram
+* Animações suaves
+* Seções com boa distância visual
+* Visual premium, não genérico
+
+## Tom dos textos
+
+Usar linguagem direta, vendedora e saborosa.
+
+Frases recomendadas:
+
+* **O sabor premium que combina com sua noite.**
+* **Escolha seu sabor favorito e faça seu pedido.**
+* **Peça agora e receba uma pizza irresistível.**
+* **Pizza boa é pizza bem feita, bem recheada e entregue quentinha.**
+* **Transforme sua noite com uma pizza Premium.**
+* **Mais sabor, mais recheio e mais vontade de pedir de novo.**
+
+## Resultado esperado
+
+Criar um site que seja muito melhor que o cardápio atual, com aparência profissional, identidade premium, foco em pedidos, integração com WhatsApp, Instagram e Zapermenu, e experiência simples para o cliente comprar rápido pelo celular.
+
+---
+
+# Agents atualizados para esse projeto
+
+## Agent 1 — Auditor do site atual
+
+**Tarefa:** comparar o Zapermenu atual com o novo site.
+
+**Prompt:**
+
+Você é um auditor de sites para restaurantes. Analise o site/cardápio atual da Pizzaria Premium Teresina no Zapermenu e identifique o que precisa melhorar em identidade visual, clareza, conversão, cardápio, pedidos, WhatsApp, promoções e experiência mobile. Seja direto e liste apenas melhorias práticas.
+
+---
+
+## Agent 2 — Designer Premium
+
+**Tarefa:** criar a aparência visual.
+
+**Prompt:**
+
+Você é um designer UI/UX especializado em pizzarias premium. Crie um layout moderno, mobile-first e gastronômico para a Pizzaria Premium Teresina. O site deve parecer mais profissional e desejável que o cardápio atual do Zapermenu. Use vinho, vermelho escuro, preto grafite, creme, branco e detalhes dourados. Priorize fotos grandes, desejo de compra, botões claros e experiência rápida no celular.
+
+---
+
+## Agent 3 — Copywriter vendedor
+
+**Tarefa:** escrever os textos.
+
+**Prompt:**
+
+Você é um copywriter para pizzarias locais. Escreva textos curtos, saborosos e vendedores para o site da Pizzaria Premium Teresina. O objetivo é fazer o cliente pedir pelo WhatsApp, Instagram ou cardápio digital. Crie títulos, subtítulos, botões, descrições de pizzas, promoções, provas sociais e chamadas urgentes. Use tom acolhedor, premium e direto.
+
+---
+
+## Agent 4 — Desenvolvedor front-end
+
+**Tarefa:** criar o código.
+
+**Prompt:**
+
+Você é um desenvolvedor front-end. Crie um site responsivo para a Pizzaria Premium Teresina com HTML, CSS e JavaScript ou React. Inclua menu fixo, hero section, promoções, cardápio visual, carrinho, cálculo automático de total, checkout simples, botão flutuante de WhatsApp, link para Instagram e link para Zapermenu. O código deve ser limpo, fácil de editar e otimizado para celular.
+
+---
+
+## Agent 5 — Especialista em pedidos
+
+**Tarefa:** criar o fluxo de compra.
+
+**Prompt:**
+
+Você é especialista em cardápio digital e pedidos para pizzarias. Crie um fluxo simples para a Pizzaria Premium Teresina onde o cliente escolhe pizza, tamanho, borda, bebida, informa endereço, escolhe pagamento e finaliza pelo WhatsApp. O pedido deve gerar mensagem automática organizada. O objetivo é finalizar em menos de 1 minuto e reduzir abandono.
+
+---
+
+# Prompt ultra curto
+
+Use este quando quiser gastar poucos tokens:
+
+> Crie um site próprio premium para a Pizzaria Premium Teresina, usando como referência o Instagram @pizzariapremiumteresina e o cardápio atual [https://app.zapermenu.com.br/pizzaria-premium](https://app.zapermenu.com.br/pizzaria-premium). O site atual é funcional, mas genérico; o novo deve ser mais bonito, profissional e vendedor. Faça layout mobile-first com hero forte, promoções, cardápio visual, carrinho, checkout rápido, botão fixo de WhatsApp, link para Zapermenu, link para Instagram, prova social, localização e rodapé. Visual: vinho, vermelho escuro, preto grafite, creme, branco e dourado. Objetivo: cliente pedir em menos de 1 minuto pelo WhatsApp ou cardápio digital.
+
+[1]: https://app.zapermenu.com.br/pizzaria-premium "ZaperMenu"
