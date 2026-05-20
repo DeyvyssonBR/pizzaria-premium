@@ -624,24 +624,16 @@ textarea {
 }
 
 .menu-tabs-desktop {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
-  -ms-overflow-style: none; /* Esconde no IE e Edge */
-  scrollbar-width: none; /* Esconde no Firefox */
+  display: none !important; /* Esconde a antiga versão de abas no PC */
 }
 
-.menu-tabs-desktop::-webkit-scrollbar {
-  display: none; /* Esconde no Chrome, Safari e Opera */
-}
-
-/* Dropdown de Categorias para Mobile */
+/* Dropdown de Categorias para PC e Mobile */
 .menu-tabs-mobile {
-  display: none;
+  display: block;
   position: relative;
   width: 100%;
+  max-width: 320px; /* Largura perfeita para PC e Celular */
+  margin: 0 auto 22px auto; /* Centraliza horizontalmente */
   z-index: 100;
 }
 
@@ -740,15 +732,6 @@ textarea {
 .category-dropdown-option.is-active {
   background: #fff3f3;
   color: var(--red);
-}
-
-@media (max-width: 768px) {
-  .menu-tabs-desktop {
-    display: none;
-  }
-  .menu-tabs-mobile {
-    display: block;
-  }
 }
 
 .menu-tab {
