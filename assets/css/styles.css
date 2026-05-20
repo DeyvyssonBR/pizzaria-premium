@@ -1066,6 +1066,7 @@ textarea {
   z-index: 1;
   width: min(900px, calc(100% - 24px));
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   margin: 16px auto;
   padding: 24px;
@@ -1073,6 +1074,16 @@ textarea {
   background: var(--paper);
   border: 1px solid rgba(38, 20, 15, 0.16);
   box-shadow: var(--shadow);
+}
+
+@media (max-width: 768px) {
+  .pizza-modal__dialog {
+    margin: 12px auto;
+    width: calc(100% - 16px);
+    max-height: calc(100dvh - 24px);
+    padding: 16px;
+    padding-bottom: 24px;
+  }
 }
 
 .pizza-modal__close {
