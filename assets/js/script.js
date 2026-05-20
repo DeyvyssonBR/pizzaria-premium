@@ -506,18 +506,76 @@ function renderPromotions() {
 
 function renderTabs() {
   if (!menuTabs) return;
-  menuTabs.innerHTML = categories
-    .map(
-      (category) => `
-        <button class="menu-tab ${category.id === activeCategory ? 'is-active' : ''}" type="button" data-category="${category.id}">
-          <span class="menu-tab__icon">${category.icon}</span>
-          <span class="menu-tab__label">${category.label}</span>
-        </button>
-      `
-    )
-    .join('');
 
-  menuTabs.querySelectorAll('[data-category]').forEach((button) => {
+  const activeCat = categories.find((c) => c.id === activeCategory) || categories[0];
+
+  menuTabs.innerHTML = `
+    <!-- Versão Desktop -->
+    <div class="menu-tabs-desktop">
+      ${categories
+        .map(
+          (category) => `
+            <button class="menu-tab ${category.id === activeCategory ? 'is-active' : ''}" type="button" data-category="${category.id}">
+              <span class="menu-tab__icon">${category.icon}</span>
+              <span class="menu-tab__label">${category.label}</span>
+            </button>
+          `
+        )
+        .join('')}
+    </div>
+
+    <!-- Versão Mobile (Dropdown) -->
+    <div class="menu-tabs-mobile">
+      <button class="category-dropdown-btn" type="button" id="category-dropdown-toggle">
+        <span class="category-dropdown-btn__selected">
+          <span class="selected-icon">${activeCat.icon}</span>
+          <span class="selected-label">${activeCat.label}</span>
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="category-dropdown-options" id="category-dropdown-options">
+        ${categories
+          .map(
+            (category) => `
+              <button class="category-dropdown-option ${category.id === activeCategory ? 'is-active' : ''}" type="button" data-category="${category.id}">
+                <span class="option-icon">${category.icon}</span>
+                <span class="option-label">${category.label}</span>
+              </button>
+            `
+          )
+          .join('')}
+      </div>
+    </div>
+  `;
+
+  // Event Listeners Desktop
+  menuTabs.querySelectorAll('.menu-tabs-desktop [data-category]').forEach((button) => {
+    button.addEventListener('click', () => {
+      activeCategory = button.dataset.category;
+      renderTabs();
+      renderMenu();
+    });
+  });
+
+  // Event Listeners Mobile (Dropdown)
+  const toggleBtn = document.getElementById('category-dropdown-toggle');
+  const optionsDiv = document.getElementById('category-dropdown-options');
+  
+  if (toggleBtn && optionsDiv) {
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      optionsDiv.classList.toggle('is-open');
+      toggleBtn.classList.toggle('is-active');
+    });
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', () => {
+      optionsDiv.classList.remove('is-open');
+      toggleBtn.classList.remove('is-active');
+    });
+  }
+
+  menuTabs.querySelectorAll('.category-dropdown-option').forEach((button) => {
     button.addEventListener('click', () => {
       activeCategory = button.dataset.category;
       renderTabs();
