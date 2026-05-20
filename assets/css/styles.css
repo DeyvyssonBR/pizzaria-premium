@@ -2309,7 +2309,7 @@ textarea {
 }
 
 .instagram-icon-wrapper {
-  background: rgba(255, 255, 255, 0.15);
+  background: #262626;
   width: 72px;
   height: 72px;
   border-radius: 50%;
@@ -2317,14 +2317,15 @@ textarea {
   place-items: center;
   margin-bottom: 16px;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
 .section--instagram .panel--gradient:hover .instagram-icon-wrapper {
   transform: scale(1.1) rotate(8deg);
-  background: rgba(255, 255, 255, 0.22);
+  background: #333333;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .section--instagram .panel--gradient h2 {
@@ -2344,12 +2345,13 @@ textarea {
 }
 
 .section--instagram .panel--gradient .button--gold {
-  background: #fff !important;
-  color: #c13584 !important;
+  background: #262626 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   font-weight: 800;
   padding: 14px 32px;
   border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
@@ -2359,8 +2361,9 @@ textarea {
 
 .section--instagram .panel--gradient .button--gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-  background: #fffaf2 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  background: #333333 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 /* Responsive Mobile & Desktop Layout Enhancements */
