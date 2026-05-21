@@ -8,35 +8,35 @@ Plataforma interativa premium de cardápio digital e pedidos diretos via WhatsAp
 
 O site é uma **Single Page Application (SPA)** de alta conversão, construída com HTML5 semântico, CSS3 customizado e JavaScript nativo. Ele foi projetado para encantar o cliente logo no primeiro olhar através de gradientes modernos, efeitos de vidro (glassmorphism), animações sutis e um fluxo de montagem de pizza extremamente intuitivo.
 
-Nesta versão simplificada e direta, removemos sistemas redundantes de carrinho local e formulários complexos. Agora, o site funciona como um portal de pedidos rápidos direto para o WhatsApp, aumentando a taxa de conversão de vendas.
-
 ---
 
-## 🛠️ O que foi Desenvolvido e Otimizado nesta Conversa
+## 🛠️ O que foi Desenvolvido e Otimizado recentemente
 
-### 1. 📲 Fluxo de Pedidos Simplificado & WhatsApp Direto
-* **Sem Carrinho Redundante:** Eliminamos a seção de carrinho simples e formulários de checkout no rodapé da página.
-* **Pedidos de Bebidas/Acompanhamentos com 1 Clique:** Ao clicar no botão *"Pedir"* de qualquer bebida ou acompanhamento, o cliente é direcionado imediatamente para o WhatsApp com a mensagem do item formatada.
-* **Finalização Automática na Pizza Personalizada:** No configurador de pizza, ao chegar na etapa de revisão final e clicar em *"Pedir no WhatsApp"*, os dados completos da pizza (tamanho, sabores, borda, sachês, adicionais e notas) são gerados e enviados diretamente para o WhatsApp do estabelecimento.
-* **Navegação Inteligente de Categorias:** Atalhos e abas filtram produtos instantaneamente com rolagem horizontal suave no mobile e grade centralizada no desktop.
+### 1. ⚙️ Painel Administrativo Completo (`admin.html`)
+* **Gestão de Itens:** Adicione, edite e remova sabores de pizzas, bebidas, acompanhamentos e combos diretamente pelo navegador.
+* **Configurações Gerais:** Gerencie dinamicamente o número do WhatsApp de recebimento de pedidos, a Chave Pix da loja, o nome e cidade do beneficiário Pix, e o link de pagamento do Mercado Pago.
+* **Sincronização:** Os dados ficam salvos de forma persistente no `localStorage` do dispositivo e atualizam o cardápio público da página inicial instantaneamente.
+* **Acesso Seguro:** Acesso protegido por senha administrativa (`admin`).
 
-### 2. 🍕 Ajuste Fino do Configurador de Pizza (Modal)
-* **Formato Guiado:** Substituição da seleção tradicional numérica por termos claros (Inteira ou Meio a Meio).
-* **Fluxo de Escolha:** O sistema gerencia a seleção de sabores com tags de confirmação integradas (ex: informando se é o "1º Sabor" ou "2º Sabor"), guiando o cliente passo a passo.
-* **Textos Amigáveis:** Renomeado o texto orientativo de escolha para *"Escolha 1 Sabor para pizza"*, tornando o processo mais comercial e profissional.
+### 2. ⚡ Pix EMV Dinâmico Client-Side & QR Code
+* **Gerador BR Code Nativo:** Algoritmo implementado em JavaScript puro com cálculo real de **CRC16 (CCITT)** para gerar a linha digitável do Pix Copia e Cola automaticamente com base no total do carrinho.
+* **QR Code Dinâmico:** Exibição do QR Code de pagamento gerado em tempo real.
+* **Botão Copiar Pix Animado:** Efeitos visuais de brilho metálico correndo no botão, ícone pulando dinamicamente e cor escura de alto contraste para máxima legibilidade.
 
-### 3. 🎁 Carrossel de Combos (Destaques)
-* **Design de Destaque:** Exibição de combos promocionais no topo do cardápio através de um carrossel horizontal elegante com pontos de navegação dinâmicos.
-* **CTAs Otimizados:** Cada combo direciona o pedido específico formatado diretamente para o WhatsApp do estabelecimento.
+### 3. 💳 Mercado Pago & Mercado Pay
+* **Checkout Integrado:** Opção de pagamento online integrada ao fluxo de finalização.
+* **Link Customizável:** Redirecionamento direto para a preferência de pagamento criada no Mercado Pago, configurada livremente pelo administrador no painel.
 
-### 4. 🎨 Design Visual & Contraste
-* **Seção do Instagram:** Desenvolvido um banner moderno com o gradiente oficial do Instagram, ícone dinâmico flutuante e botão contrastante para engajar os clientes nas redes sociais.
-* **Ajuste de Cores (Textos Escuros):** Corrigido o contraste dos textos do rodapé e localização que estavam escuros sobre o fundo preto. Todas as informações de contato, horários e endereço estão com letras brancas e de altíssima legibilidade.
+### 4. 🛵 Fluxo de Checkout no Drawer & Navegação
+* **Passos Fluidos:** Organização sequencial dos passos do carrinho (Itens ➔ Identificação ➔ Entrega e Pagamento ➔ Detalhes do Pagamento / Pix ou Mercado Pago ➔ Sucesso).
+* **Navegação de Retorno:** Botões "Voltar ao Método de Pagamento" e "Voltar" totalmente integrados, permitindo trocar o método a qualquer momento sem perder o pedido.
+* **Botões Focados e Premium:** O botão final do WhatsApp foi repensado em **verde WhatsApp vibrante com o logo oficial**, sombra pulsante de destaque e largura compactada e centralizada no mobile e desktop.
+* **Rolagem Automática (Foco de Sabor):** Ao mudar a modalidade da pizza na tela de montagem, o modal desce com rolagem automática suave em direção à barra de busca de sabores.
 
 ---
 
 ## 📍 Ponto de Parada Atual
-* **Estado do Código:** Todas as seções obsoletas foram removidas. Os arquivos `index.html`, `assets/css/styles.css` e `assets/js/script.js` estão limpos, otimizados, responsivos e sem conflitos de script.
+* **Estado do Código:** Os arquivos `index.html`, `admin.html`, `assets/css/styles.css` e `assets/js/script.js` estão limpos, integrados, responsivos e sem bugs de script.
 * **Rodapé Oficial:** O rodapé está configurado com o seguinte texto oficial solicitado:
   ```text
   Verde Lar / Avenida Senador Sigefredo Pacheco, 4727
@@ -48,3 +48,4 @@ Nesta versão simplificada e direta, removemos sistemas redundantes de carrinho 
 ---
 
 *Desenvolvido com ☕ & ❤️ por **Scheeren Company**.*
+
