@@ -1257,6 +1257,8 @@ function handlePizzaStepContinue() {
   confirmPizzaSelection();
 }
 
+let cart = [];
+
 function confirmPizzaSelection() {
   if (!pizzaSelection.firstFlavorId) {
     window.alert('Selecione pelo menos um sabor.');
@@ -1298,19 +1300,35 @@ function confirmPizzaSelection() {
     pizzaSelection.notes ? `Observações: ${pizzaSelection.notes}` : null
   ].filter(Boolean);
 
-  const message = [
-    'Olá! Gostaria de fazer o seguinte pedido de pizza:',
-    '',
-    `*1x ${customLabel}*`,
-    ...options.map((opt) => `- ${opt}`),
-    '',
-    `Total: ${formatBRL(pizzaPrice)}`
-  ].join('\n');
+  // Add customized pizza to cart
+  cart.push({
+    id: 'pizza_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+    itemId: pizzaSelection.itemId,
+    type: 'pizza',
+    name: customLabel,
+    price: pizzaPrice,
+    quantity: 1,
+    image: basePizza.image,
+    details: {
+      size: selectedSize,
+      mode: pizzaSelection.mode,
+      firstFlavor,
+      secondFlavor,
+      border: selectedBorder,
+      extras: selectedExtras,
+      drink: selectedDrink,
+      sachet: selectedSachet,
+      notes: pizzaSelection.notes,
+      optionsSummary: options
+    }
+  });
 
-  window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
+  showToast(`Pizza adicionada ao pedido! 😉`);
   closePizzaModal();
+  updateFloatingCartBar();
+  renderCart();
+  openCartDrawer();
 }
-
 
 document.querySelectorAll('[data-close-pizza-modal]').forEach((button) => {
   button.addEventListener('click', closePizzaModal);
@@ -1448,7 +1466,10 @@ function renderCombosCarousel() {
   track.querySelectorAll('[data-add-combo]').forEach((button) => {
     button.addEventListener('click', () => {
       const comboId = button.dataset.addCombo;
-      handleAddItem(comboId);
+      const combo = menu.find((item) => item.id === comboId);
+      if (combo) {
+        addSimpleItemToCart(combo);
+      }
     });
   });
 
@@ -1457,13 +1478,440 @@ function renderCombosCarousel() {
       const comboId = button.dataset.whatsappCombo;
       const combo = menu.find((item) => item.id === comboId);
       if (combo) {
-        const message = `Olá! Quero pedir o ${combo.name} (${formatBRL(combo.price)}) - ${combo.description}`;
-        window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
+        addSimpleItemToCart(combo);
+        openCartDrawer();
       }
     });
   });
 }
 
+/* ==========================================
+   CARRINHO & CHECKOUT SCRIPT LOGIC
+   ========================================== */
+
+// DOM Cart elements
+const cartDrawer = document.getElementById('cart-drawer');
+const cartDrawerBackdrop = document.getElementById('cart-drawer-backdrop');
+const cartDrawerClose = document.getElementById('cart-drawer-close');
+const cartClearBtn = document.getElementById('cart-clear-btn');
+const cartItemsList = document.getElementById('cart-items-list');
+const crossSellCarousel = document.getElementById('cross-sell-carousel');
+const cartAddMoreProducts = document.getElementById('cart-add-more-products');
+const cartNextBtn1 = document.getElementById('cart-next-btn-1');
+const cartTotalPrice = document.getElementById('cart-total-price');
+
+const cartBackToItems = document.getElementById('cart-back-to-items');
+const checkoutPhone = document.getElementById('checkout-phone');
+const checkoutName = document.getElementById('checkout-name');
+const cartNextBtn2 = document.getElementById('cart-next-btn-2');
+
+const cartBackToAuth = document.getElementById('cart-back-to-auth');
+const deliveryTypeDelivery = document.getElementById('delivery-type-delivery');
+const deliveryTypePickup = document.getElementById('delivery-type-pickup');
+const addressFields = document.getElementById('address-fields');
+const checkoutStreet = document.getElementById('checkout-street');
+const checkoutNeighborhood = document.getElementById('checkout-neighborhood');
+const checkoutRef = document.getElementById('checkout-ref');
+const checkoutPayment = document.getElementById('checkout-payment');
+const changeField = document.getElementById('change-field');
+const checkoutChange = document.getElementById('checkout-change');
+const cartNextBtn3 = document.getElementById('cart-next-btn-3');
+
+const successWhatsappRetry = document.getElementById('success-whatsapp-retry');
+const successCloseBtn = document.getElementById('success-close-btn');
+
+const floatingCartBar = document.getElementById('floating-cart-bar');
+const floatingCartCount = document.getElementById('floating-cart-count');
+const floatingCartTotal = document.getElementById('floating-cart-total');
+
+let deliveryType = 'delivery';
+let lastOrderMessage = '';
+
+// Toast notification function with happy emoji
+function showToast(message) {
+  // Remove existing toasts first to prevent stacking visually
+  document.querySelectorAll('.toast-alert').forEach(t => t.remove());
+
+  const toast = document.createElement('div');
+  toast.className = 'toast-alert';
+  toast.innerHTML = `
+    <span class="toast-alert__emoji">😉</span>
+    <span class="toast-alert__text">${message}</span>
+  `;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add('is-visible');
+  }, 50);
+
+  setTimeout(() => {
+    toast.classList.remove('is-visible');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 2800);
+}
+
+function addSimpleItemToCart(item) {
+  const existing = cart.find(c => c.itemId === item.id && c.type === 'simple');
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      id: 'simple_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      itemId: item.id,
+      type: 'simple',
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      image: item.image
+    });
+  }
+  
+  showToast(`Adicionado ao pedido! 😉`);
+  updateFloatingCartBar();
+  renderCart();
+}
+
+function updateCartItemQty(cartItemId, amount) {
+  const item = cart.find(c => c.id === cartItemId);
+  if (!item) return;
+  item.quantity += amount;
+  if (item.quantity <= 0) {
+    cart = cart.filter(c => c.id !== cartItemId);
+  }
+  renderCart();
+  updateFloatingCartBar();
+}
+
+function removeFromCart(cartItemId) {
+  cart = cart.filter(c => c.id !== cartItemId);
+  renderCart();
+  updateFloatingCartBar();
+  showToast("Item removido! 😉");
+}
+
+function clearCart() {
+  if (window.confirm("Deseja realmente limpar seu carrinho?")) {
+    cart = [];
+    renderCart();
+    updateFloatingCartBar();
+    closeCartDrawer();
+    showToast("Carrinho limpo! 😉");
+  }
+}
+
+function updateFloatingCartBar() {
+  if (!floatingCartBar) return;
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  if (totalItems > 0) {
+    floatingCartBar.style.display = 'flex';
+    floatingCartCount.textContent = `Ver Carrinho (${totalItems} ${totalItems === 1 ? 'item' : 'itens'})`;
+    floatingCartTotal.textContent = formatBRL(totalPrice);
+  } else {
+    floatingCartBar.style.display = 'none';
+  }
+}
+
+function openCartDrawer() {
+  if (!cartDrawer) return;
+  cartDrawer.classList.add('is-open');
+  cartDrawer.setAttribute('aria-hidden', 'false');
+  navigateCartStep('cart-step-items');
+  renderCart();
+}
+
+function closeCartDrawer() {
+  if (!cartDrawer) return;
+  cartDrawer.classList.remove('is-open');
+  cartDrawer.setAttribute('aria-hidden', 'true');
+}
+
+function navigateCartStep(stepId) {
+  document.querySelectorAll('.cart-step').forEach(step => {
+    step.classList.remove('is-active');
+  });
+  const target = document.getElementById(stepId);
+  if (target) target.classList.add('is-active');
+}
+
+function renderCart() {
+  if (!cartItemsList) return;
+  
+  if (cart.length === 0) {
+    cartItemsList.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: rgba(36, 19, 15, 0.5);">
+        <span style="font-size: 3rem; display: block; margin-bottom: 12px;">🛒</span>
+        <strong style="display: block; font-weight: 800; font-size: 1.05rem; margin-bottom: 4px;">Seu carrinho está vazio</strong>
+        <p style="font-size: 0.82rem; margin: 0; line-height: 1.4;">Escolha pizzas ou bebidas no cardápio acima para adicionar aqui.</p>
+      </div>
+    `;
+    cartNextBtn1.disabled = true;
+    cartTotalPrice.textContent = formatBRL(0);
+    return;
+  }
+  
+  cartNextBtn1.disabled = false;
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  cartTotalPrice.textContent = formatBRL(total);
+  
+  cartItemsList.innerHTML = cart.map(item => {
+    let desc = '';
+    if (item.type === 'pizza' && item.details) {
+      desc = item.details.optionsSummary.map(opt => `<span style="display:block; margin-top:2px;">• ${opt}</span>`).join('');
+    } else {
+      const menuItem = menu.find(m => m.id === item.itemId);
+      desc = menuItem ? menuItem.description : '';
+    }
+    
+    return `
+      <div class="cart-item-card" data-id="${item.id}">
+        <img class="cart-item-card__img" src="${item.image || 'assets/img/default-pizza.jpg'}" alt="${item.name}">
+        <div class="cart-item-card__info">
+          <h4 class="cart-item-card__title">${item.quantity}x ${item.name}</h4>
+          <strong class="cart-item-card__price">${formatBRL(item.price * item.quantity)}</strong>
+          <p class="cart-item-card__desc">${desc}</p>
+          
+          <div class="cart-item-card__qty-control">
+            <button class="cart-item-card__qty-btn" type="button" onclick="updateCartItemQty('${item.id}', -1)">-</button>
+            <span class="cart-item-card__qty-val">${item.quantity}</span>
+            <button class="cart-item-card__qty-btn" type="button" onclick="updateCartItemQty('${item.id}', 1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-card__remove" type="button" onclick="removeFromCart('${item.id}')" aria-label="Remover">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+  
+  renderCrossSell();
+}
+
+function renderCrossSell() {
+  if (!crossSellCarousel) return;
+  const drinks = menu.filter(item => item.category === 'bebidas');
+  
+  crossSellCarousel.innerHTML = drinks.map(drink => {
+    return `
+      <div class="cross-sell-item">
+        <div class="cross-sell-item__img-wrapper">
+          <img class="cross-sell-item__img" src="${drink.image}" alt="${drink.name}">
+          <button class="cross-sell-item__add" type="button" onclick="addDrinkFromCrossSell('${drink.id}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+        <span class="cross-sell-item__name">${drink.name}</span>
+        <strong class="cross-sell-item__price">${formatBRL(drink.price)}</strong>
+      </div>
+    `;
+  }).join('');
+}
+
+function addDrinkFromCrossSell(drinkId) {
+  const drink = menu.find(m => m.id === drinkId);
+  if (drink) {
+    addSimpleItemToCart(drink);
+  }
+}
+
+// Input mask and validation
+function formatPhoneInput(value) {
+  if (!value) return value;
+  const phone = value.replace(/\D/g, '');
+  if (phone.length <= 2) return `(${phone}`;
+  if (phone.length <= 7) return `(${phone.substring(0, 2)}) ${phone.substring(2)}`;
+  return `(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7, 11)}`;
+}
+
+function handleAuthFormInputs() {
+  const phoneVal = checkoutPhone.value.trim();
+  const nameVal = checkoutName.value.trim();
+  const rawPhone = phoneVal.replace(/\D/g, '');
+  
+  const isPhoneValid = rawPhone.length >= 10 && rawPhone.length <= 11;
+  const isNameValid = nameVal.length >= 3;
+  
+  cartNextBtn2.disabled = !(isPhoneValid && isNameValid);
+}
+
+// Global functions mappings for template strings triggers
+window.updateCartItemQty = updateCartItemQty;
+window.removeFromCart = removeFromCart;
+window.addDrinkFromCrossSell = addDrinkFromCrossSell;
+
+// Setup cart listeners
+if (cartDrawerClose) {
+  cartDrawerClose.addEventListener('click', closeCartDrawer);
+}
+if (cartDrawerBackdrop) {
+  cartDrawerBackdrop.addEventListener('click', closeCartDrawer);
+}
+if (cartClearBtn) {
+  cartClearBtn.addEventListener('click', clearCart);
+}
+if (cartAddMoreProducts) {
+  cartAddMoreProducts.addEventListener('click', closeCartDrawer);
+}
+if (floatingCartBar) {
+  floatingCartBar.addEventListener('click', openCartDrawer);
+}
+
+// Next steps buttons
+if (cartNextBtn1) {
+  cartNextBtn1.addEventListener('click', () => {
+    navigateCartStep('cart-step-auth');
+  });
+}
+if (cartBackToItems) {
+  cartBackToItems.addEventListener('click', () => {
+    navigateCartStep('cart-step-items');
+  });
+}
+if (cartNextBtn2) {
+  cartNextBtn2.addEventListener('click', () => {
+    navigateCartStep('cart-step-delivery');
+  });
+}
+if (cartBackToAuth) {
+  cartBackToAuth.addEventListener('click', () => {
+    navigateCartStep('cart-step-auth');
+  });
+}
+
+if (checkoutPhone) {
+  checkoutPhone.addEventListener('input', (e) => {
+    e.target.value = formatPhoneInput(e.target.value);
+    handleAuthFormInputs();
+  });
+}
+if (checkoutName) {
+  checkoutName.addEventListener('input', handleAuthFormInputs);
+}
+
+// Delivery Form actions
+if (deliveryTypeDelivery) {
+  deliveryTypeDelivery.addEventListener('click', () => {
+    deliveryType = 'delivery';
+    deliveryTypeDelivery.classList.add('is-active');
+    deliveryTypePickup.classList.remove('is-active');
+    if (addressFields) addressFields.style.display = 'block';
+  });
+}
+if (deliveryTypePickup) {
+  deliveryTypePickup.addEventListener('click', () => {
+    deliveryType = 'pickup';
+    deliveryTypePickup.classList.add('is-active');
+    deliveryTypeDelivery.classList.remove('is-active');
+    if (addressFields) addressFields.style.display = 'none';
+  });
+}
+if (checkoutPayment) {
+  checkoutPayment.addEventListener('change', () => {
+    if (changeField) {
+      if (checkoutPayment.value === 'dinheiro') {
+        changeField.style.display = 'block';
+      } else {
+        changeField.style.display = 'none';
+      }
+    }
+  });
+}
+
+function finalizeOrder() {
+  const name = checkoutName.value.trim();
+  const phone = checkoutPhone.value.trim();
+  const payment = checkoutPayment.value;
+  
+  let paymentStr = '';
+  if (payment === 'pix') {
+    paymentStr = 'Pix';
+  } else if (payment === 'cartao') {
+    paymentStr = 'Cartão de Crédito/Débito';
+  } else if (payment === 'dinheiro') {
+    const changeVal = checkoutChange ? checkoutChange.value.trim() : '';
+    paymentStr = changeVal ? `Dinheiro (Troco para ${changeVal})` : 'Dinheiro (Sem troco)';
+  }
+  
+  let deliveryStr = '';
+  if (deliveryType === 'delivery') {
+    const street = checkoutStreet ? checkoutStreet.value.trim() : '';
+    const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
+    const ref = checkoutRef ? checkoutRef.value.trim() : '';
+    
+    if (!street || !neighborhood) {
+      window.alert('Por favor, preencha a rua e o bairro para a entrega.');
+      return;
+    }
+    
+    deliveryStr = `🛵 *Entrega para:*\n- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}`;
+  } else {
+    deliveryStr = `🛍️ *Retirada no Balcão*`;
+  }
+  
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  const itemsLines = cart.map(item => {
+    let detailsStr = '';
+    if (item.type === 'pizza' && item.details) {
+      detailsStr = item.details.optionsSummary.map(opt => `  • ${opt}`).join('\n');
+    } else {
+      const menuItem = menu.find(m => m.id === item.itemId);
+      detailsStr = menuItem ? `  • ${menuItem.description}` : '';
+    }
+    return `*${item.quantity}x ${item.name}* (${formatBRL(item.price * item.quantity)})\n${detailsStr}`;
+  }).join('\n\n');
+  
+  const messageLines = [
+    `*🍕 NOVO PEDIDO - PIZZARIA PREMIUM 🍕*`,
+    `---------------------------------------------`,
+    `👤 *Cliente:* ${name}`,
+    `📞 *WhatsApp:* ${phone}`,
+    `---------------------------------------------`,
+    `🛒 *Itens do Pedido:*`,
+    itemsLines,
+    `---------------------------------------------`,
+    deliveryStr,
+    `💳 *Forma de Pagamento:* ${paymentStr}`,
+    `---------------------------------------------`,
+    `💰 *Total Geral:* *${formatBRL(cartTotal)}*`,
+    `---------------------------------------------`,
+    `Gostaria de confirmar meu pedido, obrigado!`
+  ];
+  
+  const fullMessage = messageLines.join('\n');
+  lastOrderMessage = fullMessage;
+  
+  // Open WhatsApp
+  window.open(buildWhatsAppUrl(fullMessage), '_blank', 'noopener,noreferrer');
+  
+  // Show success step
+  navigateCartStep('cart-step-success');
+  
+  // Clear cart state
+  cart = [];
+  updateFloatingCartBar();
+}
+
+if (cartNextBtn3) {
+  cartNextBtn3.addEventListener('click', finalizeOrder);
+}
+if (successWhatsappRetry) {
+  successWhatsappRetry.addEventListener('click', () => {
+    if (lastOrderMessage) {
+      window.open(buildWhatsAppUrl(lastOrderMessage), '_blank', 'noopener,noreferrer');
+    }
+  });
+}
+if (successCloseBtn) {
+  successCloseBtn.addEventListener('click', () => {
+    closeCartDrawer();
+  });
+}
+
+// Initial renders/hydrations
 hydrateStaticWhatsAppLinks();
 renderPromotions();
 renderTabs();
