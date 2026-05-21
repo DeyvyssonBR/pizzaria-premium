@@ -1,4 +1,8 @@
-const WHATSAPP_NUMBER = '5586994854771';
+let WHATSAPP_NUMBER = localStorage.getItem('premium_pizzaria_whatsapp') || '5586994854771';
+const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '5586994854771';
+const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
+const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
+const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
 
 const promotions = [
   {
@@ -27,7 +31,7 @@ const promotions = [
   }
 ];
 
-const menu = [
+const defaultMenu = [
   {
     id: 'calabresa-premium',
     category: 'tradicionais',
@@ -317,6 +321,11 @@ const menu = [
     image: 'https://images.unsplash.com/photo-1536746803623-cef87080bfc8?auto=format&fit=crop&w=600&q=80'
   }
 ];
+
+let menu = JSON.parse(localStorage.getItem('premium_pizzaria_menu')) || defaultMenu;
+if (!localStorage.getItem('premium_pizzaria_menu')) {
+  localStorage.setItem('premium_pizzaria_menu', JSON.stringify(defaultMenu));
+}
 
 const categories = [
   { id: 'todos', label: 'Todos', icon: '🍽️' },
@@ -756,6 +765,12 @@ function renderPizzaModal() {
         pizzaSelection.secondFlavorId = null;
       }
       renderPizzaModal();
+
+      // Smooth scroll to the flavor list to guide the user visually
+      const searchBox = document.querySelector('.flavor-search-container');
+      if (searchBox) {
+        searchBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     });
   });
 
@@ -1533,6 +1548,11 @@ const changeField = document.getElementById('change-field');
 const checkoutChange = document.getElementById('checkout-change');
 const cartNextBtn3 = document.getElementById('cart-next-btn-3');
 
+const cartBackToDelivery = document.getElementById('cart-back-to-delivery');
+const btnConfirmPaymentWhatsapp = document.getElementById('btn-confirm-payment-whatsapp');
+const btnCopyPix = document.getElementById('btn-copy-pix');
+const btnPayMp = document.getElementById('btn-pay-mp');
+
 const successWhatsappRetry = document.getElementById('success-whatsapp-retry');
 const successCloseBtn = document.getElementById('success-close-btn');
 
@@ -1911,9 +1931,125 @@ function finalizeOrder() {
   updateFloatingCartBar();
 }
 
-if (cartNextBtn3) {
-  cartNextBtn3.addEventListener('click', finalizeOrder);
+// Pix EMV QR Code Payload Generation Utilities
+function calculateCRC16(data) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < data.length; i++) {
+    let charCode = data.charCodeAt(i);
+    crc ^= (charCode << 8);
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc = crc << 1;
+      }
+    }
+  }
+  let hex = (crc & 0xFFFF).toString(16).toUpperCase();
+  return hex.padStart(4, '0');
 }
+
+function generatePixPayload(pixKey, merchantName, merchantCity, amount, txId = '***') {
+  const cleanName = merchantName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().substring(0, 25);
+  const cleanCity = merchantCity.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().substring(0, 15);
+  const formattedAmount = Number(amount).toFixed(2);
+  
+  let payload = '000201';
+  let accountInfo = '0014br.gov.bcb.pix';
+  accountInfo += '01' + String(pixKey.length).padStart(2, '0') + pixKey;
+  
+  payload += '26' + String(accountInfo.length).padStart(2, '0') + accountInfo;
+  payload += '52040000';
+  payload += '5303986';
+  payload += '54' + String(formattedAmount.length).padStart(2, '0') + formattedAmount;
+  payload += '5802BR';
+  payload += '59' + String(cleanName.length).padStart(2, '0') + cleanName;
+  payload += '60' + String(cleanCity.length).padStart(2, '0') + cleanCity;
+  
+  let additionalInfo = '05' + String(txId.length).padStart(2, '0') + txId;
+  payload += '62' + String(additionalInfo.length).padStart(2, '0') + additionalInfo;
+  payload += '6304';
+  
+  const crc = calculateCRC16(payload);
+  return payload + crc;
+}
+
+if (cartNextBtn3) {
+  cartNextBtn3.addEventListener('click', () => {
+    // Validate delivery details first
+    if (deliveryType === 'delivery') {
+      const street = checkoutStreet ? checkoutStreet.value.trim() : '';
+      const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
+      
+      if (!street || !neighborhood) {
+        window.alert('Por favor, preencha a rua e o bairro para a entrega.');
+        return;
+      }
+    }
+
+    const payment = checkoutPayment.value;
+    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    if (payment === 'pix') {
+      document.getElementById('pix-payment-container').style.display = 'block';
+      document.getElementById('mp-payment-container').style.display = 'none';
+
+      // Generate real Pix Code
+      const pixCode = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, cartTotal);
+      document.getElementById('pix-copia-cola').value = pixCode;
+      
+      // Generate QR Code img via free public API
+      document.getElementById('pix-qrcode-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
+
+      navigateCartStep('cart-step-payment-details');
+    } else if (payment === 'mercadopago') {
+      document.getElementById('pix-payment-container').style.display = 'none';
+      document.getElementById('mp-payment-container').style.display = 'block';
+
+      // Set Mercado Pago Link
+      const mpLink = MP_LINK || 'https://www.mercadopago.com.br/';
+      const btnPayMp = document.getElementById('btn-pay-mp');
+      if (btnPayMp) {
+        btnPayMp.href = mpLink;
+      }
+
+      navigateCartStep('cart-step-payment-details');
+    } else {
+      finalizeOrder();
+    }
+  });
+}
+
+if (cartBackToDelivery) {
+  cartBackToDelivery.addEventListener('click', () => {
+    navigateCartStep('cart-step-delivery');
+  });
+}
+
+if (btnConfirmPaymentWhatsapp) {
+  btnConfirmPaymentWhatsapp.addEventListener('click', finalizeOrder);
+}
+
+if (btnCopyPix) {
+  btnCopyPix.addEventListener('click', () => {
+    const textarea = document.getElementById('pix-copia-cola');
+    if (textarea) {
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        showToast('Código Pix copiado! 📋');
+      }).catch(err => {
+        try {
+          document.execCommand('copy');
+          showToast('Código Pix copiado! 📋');
+        } catch (e) {
+          alert('Erro ao copiar: ' + err);
+        }
+      });
+    }
+  });
+}
+
 if (successWhatsappRetry) {
   successWhatsappRetry.addEventListener('click', () => {
     if (lastOrderMessage) {
@@ -1921,6 +2057,7 @@ if (successWhatsappRetry) {
     }
   });
 }
+
 if (successCloseBtn) {
   successCloseBtn.addEventListener('click', () => {
     closeCartDrawer();

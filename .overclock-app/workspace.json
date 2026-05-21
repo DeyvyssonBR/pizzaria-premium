@@ -1,0 +1,10 @@
+{
+  "autoSpawnSquad": null,
+  "favoritePane": {
+    "agent": "claude",
+    "providerId": "fireworks-2csMDo",
+    "model": "accounts/fireworks/models/deepseek-v3p2"
+  },
+  "accessMode": "write_external",
+  "authorizedExternalPaths": []
+}

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Painel | Pizzaria Premium</title>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0706;
+      --surface: #16100e;
+      --surface-accent: #231916;
+      --red: #d50201;
+      --red-hover: #b00201;
+      --red-glow: rgba(213, 2, 1, 0.4);
+      --gold: #dcaa64;
+      --gold-dark: #b88a44;
+      --text: #f5f0ed;
+      --text-muted: #a89f9a;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Auth Screen styling */
+    .login-container {
+      margin: auto;
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+      text-align: center;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .login-logo {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-family: var(--font-title);
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .login-logo span {
+      color: var(--red);
+    }
+
+    .login-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--red);
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--red), var(--red-hover));
+      border: none;
+      border-radius: 12px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px var(--red-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--red-glow);
+    }
+
+    .error-msg {
+      color: #ff4a4a;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Admin Dashboard Layout */
+    .admin-layout {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 15px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-size: 1.8rem;
+      font-family: var(--font-title);
+      font-weight: 800;
+    }
+
+    .header-logo span {
+      color: var(--red);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .btn-logout {
+      padding: 8px 18px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      color: var(--text);
+      border-color: var(--red);
+      background: rgba(213, 2, 1, 0.1);
+    }
+
+    .main-container {
+      display: flex;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 250px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 30px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--text);
+      background: var(--surface-accent);
+    }
+
+    .nav-item.active {
+      border-left: 4px solid var(--red);
+      padding-left: 14px;
+    }
+
+    .nav-item i {
+      font-size: 1.1rem;
+      width: 20px;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 40px 5%;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    /* Dashboard grids */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Grid for product cards */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .product-card__img {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .product-card__badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(11, 7, 6, 0.75);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .product-card__content {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-card__title {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .product-card__desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 12px;
+      flex: 1;
+    }
+
+    .product-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .product-card__price {
+      font-weight: 800;
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    .product-card__actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface-accent);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-circle:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .btn-circle.btn-delete:hover {
+      background: #ff4a4a;
+      border-color: #ff4a4a;
+    }
+
+    /* Modal Form Styles */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 500px;
+      border-radius: 24px;
+      overflow: hidden;
+      animation: modalSlide 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .btn-close-modal:hover {
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 24px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Config panel container */
+    .config-container {
+      max-width: 650px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .config-section-title {
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 12px;
+      }
+      .nav-item {
+        white-space: nowrap;
+        padding: 10px 14px;
+      }
+      .nav-item.active {
+        border-left: none;
+        border-bottom: 3px solid var(--red);
+        padding-left: 14px;
+      }
+      .content-area {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Screen Login -->
+  <div class="login-container" id="login-container">
+    <h1 class="login-logo">Painel<span>Admin</span></h1>
+    <p class="login-desc">Entre com sua senha de administrador para gerenciar o cardápio e pagamentos.</p>
+    
+    <div class="form-group">
+      <label for="admin-password">Senha de Acesso</label>
+      <input type="password" id="admin-password" placeholder="Digite sua senha">
+      <div class="error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
+    </div>
+    
+    <button class="btn" onclick="tryLogin()">Entrar no Painel</button>
+  </div>
+
+  <!-- 2. Dashboard Area -->
+  <div class="admin-layout" id="admin-layout">
+    <header>
+      <div class="header-logo">Pizzaria<span>Premium</span> Admin</div>
+      <div class="header-actions">
+        <a href="index.html" class="btn-logout" style="text-decoration:none;"><i class="fa-solid fa-eye"></i> Ver Site</a>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-sign-out"></i> Sair</button>
+      </div>
+    </header>
+
+    <div class="main-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="nav-item active" onclick="switchTab('tab-pizzas', this)">
+          <i class="fa-solid fa-pizza-slice"></i> Gerenciar Pizzas
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-bebidas', this)">
+          <i class="fa-solid fa-wine-glass-empty"></i> Gerenciar Bebidas
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-combos', this)">
+          <i class="fa-solid fa-tags"></i> Gerenciar Combos
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-config', this)">
+          <i class="fa-solid fa-gears"></i> Configurações Loja
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <div class="content-area">
+        
+        <!-- Tab 1: Pizzas -->
+        <div class="tab-content active" id="tab-pizzas">
+          <div class="section-title">
+            <span>Pizzas</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openItemModal('pizza')">
+              <i class="fa-solid fa-plus"></i> Nova Pizza
+            </button>
+          </div>
+          <div class="section-subtitle">Adicione ou edite os sabores de pizza cadastrados.</div>
+          
+          <div class="products-grid" id="grid-pizzas">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Bebidas -->
+        <div class="tab-content" id="tab-bebidas">
+          <div class="section-title">
+            <span>Bebidas e Acompanhamentos</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openItemModal('bebida')">
+              <i class="fa-solid fa-plus"></i> Novo Item
+            </button>
+          </div>
+          <div class="section-subtitle">Gerencie refrigerantes, sucos, cervejas e porções.</div>
+          
+          <div class="products-grid" id="grid-bebidas">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Combos -->
+        <div class="tab-content" id="tab-combos">
+          <div class="section-title">
+            <span>Combos Promocionais</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openItemModal('combo')">
+              <i class="fa-solid fa-plus"></i> Novo Combo
+            </button>
+          </div>
+          <div class="section-subtitle">Edite os combos em destaque na página inicial.</div>
+          
+          <div class="products-grid" id="grid-combos">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Configurações da Loja -->
+        <div class="tab-content" id="tab-config">
+          <div class="section-title">Configurações Gerais</div>
+          <div class="section-subtitle">Configure suas chaves Pix, Mercado Pago e dados de contato.</div>
+          
+          <div class="config-container">
+            <div class="config-section-title">WhatsApp de Atendimento</div>
+            <div class="form-group">
+              <label for="cfg-whatsapp">Número do WhatsApp (Código País + DDD + Número)</label>
+              <input type="text" id="cfg-whatsapp" placeholder="Ex: 5586994854771">
+              <span style="font-size:0.75rem; color:var(--text-muted);">Não coloque traços, espaços ou parênteses.</span>
+            </div>
+
+            <div class="config-section-title">Configuração do Pix</div>
+            <div class="form-group">
+              <label for="cfg-pix-key">Chave Pix Recebedora</label>
+              <input type="text" id="cfg-pix-key" placeholder="CNPJ, Celular, E-mail ou Chave Aleatória">
+            </div>
+            <div class="form-group">
+              <label for="cfg-pix-name">Nome do Beneficiário (Até 25 letras)</label>
+              <input type="text" id="cfg-pix-name" placeholder="Ex: PIZZARIA PREMIUM">
+            </div>
+            <div class="form-group">
+              <label for="cfg-pix-city">Cidade do Beneficiário (Até 15 letras)</label>
+              <input type="text" id="cfg-pix-city" placeholder="Ex: TERESINA">
+            </div>
+
+            <div class="config-section-title">Configuração Mercado Pago (Mercado Pay)</div>
+            <div class="form-group">
+              <label for="cfg-mp-link">Link de Pagamento / Link do Checkout Pro</label>
+              <input type="url" id="cfg-mp-link" placeholder="Ex: https://link.mercadopago.com.br/suapizzaria">
+              <span style="font-size:0.75rem; color:var(--text-muted);">Gere seu link de pagamento no painel do Mercado Pago e insira acima para habilitar o pagamento online via checkout Mercado Pago.</span>
+            </div>
+
+            <button class="btn" style="margin-top: 15px;" onclick="saveConfigStore()"><i class="fa-solid fa-save"></i> Salvar Configurações</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Item Modal Create/Edit -->
+  <div class="modal" id="item-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-item-title">Adicionar Item</h3>
+        <button class="btn-close-modal" onclick="closeItemModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-item-id">
+        <input type="hidden" id="modal-item-type">
+        
+        <div class="form-group">
+          <label for="modal-name">Nome do Item</label>
+          <input type="text" id="modal-name" placeholder="Ex: Calabresa Tradicional">
+        </div>
+        <div class="form-group">
+          <label for="modal-category">Categoria</label>
+          <select id="modal-category">
+            <option value="tradicionais">Pizzas Tradicionais</option>
+            <option value="especiais">Pizzas Especiais</option>
+            <option value="doces">Pizzas Doces</option>
+            <option value="porcoes">Porções e Carne</option>
+            <option value="bebidas">Bebidas e Cervejas</option>
+            <option value="acompanhamentos">Acompanhamentos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="modal-desc">Descrição / Ingredientes</label>
+          <textarea id="modal-desc" rows="3" placeholder="Ingredientes e detalhes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="modal-price">Preço (R$)</label>
+          <input type="number" id="modal-price" step="0.01" placeholder="Ex: 35.00">
+        </div>
+        <div class="form-group">
+          <label for="modal-image">Link da Imagem (URL ou caminho relativo)</label>
+          <input type="text" id="modal-image" placeholder="URL da foto Unsplash ou link local">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-logout" onclick="closeItemModal()">Cancelar</button>
+        <button class="btn" style="width:auto; padding: 10px 24px;" onclick="saveItem()">Salvar Item</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global references
+    let currentMenu = [];
+
+    // Load data from LocalStorage or mock data if empty
+    function loadAdminMenu() {
+      // If script.js has already run, it uses premium_pizzaria_menu
+      const rawMenu = localStorage.getItem('premium_pizzaria_menu');
+      if (rawMenu) {
+        currentMenu = JSON.parse(rawMenu);
+      } else {
+        // Redirect or fetch default menu from index if possible
+        // For security or standalone load:
+        currentMenu = [];
+      }
+      renderGrids();
+    }
+
+    // Default values if we don't have menu in localStorage (will read from script.js anyway)
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check login state
+      if (sessionStorage.getItem('admin_logged') === 'true') {
+        showDashboard();
+      }
+      
+      // Load configurations
+      document.getElementById('cfg-whatsapp').value = localStorage.getItem('premium_pizzaria_whatsapp') || '5586994854771';
+      document.getElementById('cfg-pix-key').value = localStorage.getItem('premium_pizzaria_pix_key') || '5586994854771';
+      document.getElementById('cfg-pix-name').value = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
+      document.getElementById('cfg-pix-city').value = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
+      document.getElementById('cfg-mp-link').value = localStorage.getItem('premium_pizzaria_mp_link') || '';
+
+      loadAdminMenu();
+    });
+
+    function tryLogin() {
+      const pass = document.getElementById('admin-password').value;
+      if (pass === 'admin' || pass === 'admin123') {
+        sessionStorage.setItem('admin_logged', 'true');
+        document.getElementById('login-error').style.display = 'none';
+        showDashboard();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('admin-layout').style.display = 'flex';
+      // Load raw menu
+      const rawMenu = localStorage.getItem('premium_pizzaria_menu');
+      if (rawMenu) {
+        currentMenu = JSON.parse(rawMenu);
+      } else {
+        // Fetch script.js static menu if possible, otherwise we let them add
+        currentMenu = [];
+      }
+      renderGrids();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('admin_logged');
+      window.location.reload();
+    }
+
+    function switchTab(tabId, element) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.getElementById(tabId).classList.add('active');
+      element.classList.add('active');
+    }
+
+    function renderGrids() {
+      const gridPizzas = document.getElementById('grid-pizzas');
+      const gridBebidas = document.getElementById('grid-bebidas');
+      const gridCombos = document.getElementById('grid-combos');
+
+      if (!gridPizzas || !gridBebidas || !gridCombos) return;
+
+      // Group items
+      const pizzas = currentMenu.filter(item => item.type === 'pizza');
+      const beverages = currentMenu.filter(item => item.type !== 'pizza' && item.type !== 'combo');
+      const combos = currentMenu.filter(item => item.type === 'combo');
+
+      // Helper price format
+      const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+      // Render pizzas
+      gridPizzas.innerHTML = pizzas.map(item => `
+        <div class="product-card">
+          <div class="product-card__img" style="background-image: url('${item.image}')">
+            <span class="product-card__badge">${item.category}</span>
+          </div>
+          <div class="product-card__content">
+            <h4 class="product-card__title">${item.name}</h4>
+            <p class="product-card__desc">${item.description}</p>
+            <div class="product-card__footer">
+              <span class="product-card__price">${formatCurrency(item.price)}</span>
+              <div class="product-card__actions">
+                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhuma pizza cadastrada.</div>';
+
+      // Render beverages
+      gridBebidas.innerHTML = beverages.map(item => `
+        <div class="product-card">
+          <div class="product-card__img" style="background-image: url('${item.image}')">
+            <span class="product-card__badge">${item.category}</span>
+          </div>
+          <div class="product-card__content">
+            <h4 class="product-card__title">${item.name}</h4>
+            <p class="product-card__desc">${item.description || 'Sem descrição'}</p>
+            <div class="product-card__footer">
+              <span class="product-card__price">${formatCurrency(item.price)}</span>
+              <div class="product-card__actions">
+                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhum item cadastrado.</div>';
+
+      // Render combos
+      gridCombos.innerHTML = combos.map(item => `
+        <div class="product-card">
+          <div class="product-card__img" style="background-image: url('${item.image}')">
+            <span class="product-card__badge">COMBO</span>
+          </div>
+          <div class="product-card__content">
+            <h4 class="product-card__title">${item.name}</h4>
+            <p class="product-card__desc">${item.description}</p>
+            <div class="product-card__footer">
+              <span class="product-card__price">${formatCurrency(item.price)}</span>
+              <div class="product-card__actions">
+                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhum combo cadastrado.</div>';
+    }
+
+    // Modal Control
+    const itemModal = document.getElementById('item-modal');
+    
+    function openItemModal(type) {
+      document.getElementById('modal-item-id').value = '';
+      document.getElementById('modal-item-type').value = type;
+      document.getElementById('modal-name').value = '';
+      document.getElementById('modal-desc').value = '';
+      document.getElementById('modal-price').value = '';
+      document.getElementById('modal-image').value = '';
+      
+      // Auto adjust category options based on type
+      const catSelect = document.getElementById('modal-category');
+      if (type === 'pizza') {
+        catSelect.value = 'tradicionais';
+      } else if (type === 'combo') {
+        catSelect.value = 'especiais'; // not used much for combo type
+      } else {
+        catSelect.value = 'bebidas';
+      }
+
+      document.getElementById('modal-item-title').textContent = 'Adicionar Novo Item';
+      itemModal.style.display = 'flex';
+    }
+
+    function openItemEditModal(id) {
+      const item = currentMenu.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('modal-item-id').value = item.id;
+      document.getElementById('modal-item-type').value = item.type;
+      document.getElementById('modal-name').value = item.name;
+      document.getElementById('modal-category').value = item.category;
+      document.getElementById('modal-desc').value = item.description || '';
+      document.getElementById('modal-price').value = item.price;
+      document.getElementById('modal-image').value = item.image;
+
+      document.getElementById('modal-item-title').textContent = 'Editar Item';
+      itemModal.style.display = 'flex';
+    }
+
+    function closeItemModal() {
+      itemModal.style.display = 'none';
+    }
+
+    function saveItem() {
+      const id = document.getElementById('modal-item-id').value;
+      const type = document.getElementById('modal-item-type').value;
+      const name = document.getElementById('modal-name').value.trim();
+      const category = document.getElementById('modal-category').value;
+      const description = document.getElementById('modal-desc').value.trim();
+      const price = parseFloat(document.getElementById('modal-price').value);
+      const image = document.getElementById('modal-image').value.trim() || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80';
+
+      if (!name || isNaN(price)) {
+        alert('Por favor, digite pelo menos o Nome e o Preço correto.');
+        return;
+      }
+
+      if (id) {
+        // Edit mode
+        const index = currentMenu.findIndex(i => i.id === id);
+        if (index !== -1) {
+          currentMenu[index] = { ...currentMenu[index], name, category, description, price, image };
+        }
+      } else {
+        // Create mode
+        const newId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now().toString().substring(8);
+        currentMenu.push({
+          id: newId,
+          type,
+          category,
+          name,
+          description,
+          price,
+          image
+        });
+      }
+
+      // Save to localStorage
+      localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
+      renderGrids();
+      closeItemModal();
+    }
+
+    function deleteItem(id) {
+      if (confirm('Tem certeza de que deseja deletar este item?')) {
+        currentMenu = currentMenu.filter(i => i.id !== id);
+        localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
+        renderGrids();
+      }
+    }
+
+    function saveConfigStore() {
+      const whatsapp = document.getElementById('cfg-whatsapp').value.trim();
+      const pixKey = document.getElementById('cfg-pix-key').value.trim();
+      const pixName = document.getElementById('cfg-pix-name').value.trim();
+      const pixCity = document.getElementById('cfg-pix-city').value.trim();
+      const mpLink = document.getElementById('cfg-mp-link').value.trim();
+
+      localStorage.setItem('premium_pizzaria_whatsapp', whatsapp);
+      localStorage.setItem('premium_pizzaria_pix_key', pixKey);
+      localStorage.setItem('premium_pizzaria_pix_name', pixName);
+      localStorage.setItem('premium_pizzaria_pix_city', pixCity);
+      localStorage.setItem('premium_pizzaria_mp_link', mpLink);
+
+      alert('Configurações salvas com sucesso!');
+    }
+  </script>
+</body>
+</html>
