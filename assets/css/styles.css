@@ -3299,3 +3299,118 @@ body.has-cart .floating-whatsapp {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 158, 227, 0.4);
 }
+
+/* Animated Copy Pix Button */
+.button--copy-pix {
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 12px;
+  min-height: 48px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark)) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(220, 174, 100, 0.35);
+  transition: all 0.3s ease;
+  animation: copyPixPulse 2s ease-in-out infinite;
+}
+
+.button--copy-pix:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 24px rgba(220, 174, 100, 0.5);
+}
+
+.button--copy-pix::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: copyPixShine 2.5s ease-in-out infinite;
+}
+
+.copy-pix-icon {
+  font-size: 1.2rem;
+  animation: copyPixBounce 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes copyPixPulse {
+  0%, 100% { box-shadow: 0 4px 18px rgba(220, 174, 100, 0.35); }
+  50% { box-shadow: 0 4px 28px rgba(220, 174, 100, 0.6); }
+}
+
+@keyframes copyPixShine {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}
+
+@keyframes copyPixBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25) rotate(-8deg); }
+}
+
+/* WhatsApp Green Send Button */
+.button--whatsapp-send {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #25d366, #128c7e) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+  transition: all 0.3s ease;
+  animation: whatsappGlow 2s ease-in-out infinite;
+}
+
+.button--whatsapp-send:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.55);
+}
+
+.button--whatsapp-send::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: whatsappShine 3s ease-in-out infinite;
+}
+
+.button--whatsapp-send svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+@keyframes whatsappGlow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35); }
+  50% { box-shadow: 0 6px 35px rgba(37, 211, 102, 0.65); }
+}
+
+@keyframes whatsappShine {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}

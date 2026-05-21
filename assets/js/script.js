@@ -2026,6 +2026,13 @@ if (cartBackToDelivery) {
   });
 }
 
+const btnBackToPaymentMethod = document.getElementById('btn-back-to-payment-method');
+if (btnBackToPaymentMethod) {
+  btnBackToPaymentMethod.addEventListener('click', () => {
+    navigateCartStep('cart-step-delivery');
+  });
+}
+
 if (btnConfirmPaymentWhatsapp) {
   btnConfirmPaymentWhatsapp.addEventListener('click', finalizeOrder);
 }
