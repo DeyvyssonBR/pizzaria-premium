@@ -711,8 +711,16 @@ function renderPizzaModal() {
   const selectedSachet = sachetOptions.find((sachet) => sachet.id === pizzaSelection.sachetId) || sachetOptions[0];
   const currentPrice = calculatePizzaPrice();
 
-  title.textContent = currentStep.title;
-  document.querySelector('.pizza-modal__text').textContent = currentStep.helper;
+  let stepTitle = currentStep.title;
+  let stepHelper = currentStep.helper;
+
+  if (currentStep.id === 'primeira-pizza' && pizzaSelection.mode === 'inteira') {
+    stepTitle = 'Selecione o sabor';
+    stepHelper = 'Escolha o sabor para a sua pizza';
+  }
+
+  title.textContent = stepTitle;
+  document.querySelector('.pizza-modal__text').textContent = stepHelper;
 
   pizzaChoiceMode.innerHTML = renderStepProgress(selectedPizza);
   pizzaChoiceFlavors.innerHTML = renderCurrentPizzaStep();
@@ -847,6 +855,9 @@ function renderPizzaModal() {
     }
 
     pizzaSelection.step -= 1;
+    if (pizzaSelection.step === 2 && pizzaSelection.mode === 'inteira') {
+      pizzaSelection.step = 1;
+    }
     renderPizzaModal();
   });
 
@@ -856,7 +867,7 @@ function renderPizzaModal() {
 function getStepShortLabel(id) {
   switch (id) {
     case 'tamanho': return 'Tamanho';
-    case 'primeira-pizza': return '1º Sabor';
+    case 'primeira-pizza': return pizzaSelection.mode === 'inteira' ? 'Sabor' : '1º Sabor';
     case 'segunda-pizza': return '2º Sabor';
     case 'borda': return 'Borda';
     case 'bebida': return 'Bebida';
@@ -884,10 +895,12 @@ function renderStepProgress(selectedPizza) {
     </div>
     <div class="pizza-progress">
       ${pizzaSteps
+        .map((step, origIndex) => ({ step, origIndex }))
+        .filter(({ step }) => !(step.id === 'segunda-pizza' && pizzaSelection.mode === 'inteira'))
         .map(
-          (step, index) => {
-            const isActive = index === pizzaSelection.step;
-            const isDone = index < pizzaSelection.step;
+          ({ step, origIndex }) => {
+            const isActive = origIndex === pizzaSelection.step;
+            const isDone = origIndex < pizzaSelection.step;
             const label = getStepShortLabel(step.id);
             return `
               <div class="pizza-progress__step ${isActive ? 'is-active' : ''} ${isDone ? 'is-done' : ''}" title="${step.title}">
@@ -962,7 +975,7 @@ function renderCurrentPizzaStep() {
         </div>
       </div>
 
-      ${renderChoiceSectionHeader('TODOS OS SABORES', 'Escolha 1 Sabor para pizza', true, 'Selecionado')}
+      ${renderChoiceSectionHeader('TODOS OS SABORES', pizzaSelection.mode === 'metade' ? 'Escolha 1 Sabor para pizza' : 'Escolha o sabor da pizza inteira', true, 'Selecionado')}
       <div class="choice-list">
         ${pizzaFlavors.map((flavor) => {
           const isSelectedFirst = pizzaSelection.firstFlavorId === flavor.id;
@@ -1250,6 +1263,9 @@ function handlePizzaStepContinue() {
 
   if (pizzaSelection.step < pizzaSteps.length - 1) {
     pizzaSelection.step += 1;
+    if (pizzaSelection.step === 2 && pizzaSelection.mode === 'inteira') {
+      pizzaSelection.step = 3;
+    }
     renderPizzaModal();
     return;
   }
