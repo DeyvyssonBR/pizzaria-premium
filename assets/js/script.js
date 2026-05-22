@@ -3,6 +3,11 @@ const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '55869948547
 const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
+const MP_TOKEN = localStorage.getItem('premium_pizzaria_mp_token') || '';
+const MP_PUBLIC_KEY = localStorage.getItem('premium_pizzaria_mp_public_key') || '';
+const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'link';
+const DELIVERY_FEE = parseFloat(localStorage.getItem('premium_pizzaria_delivery_fee') || '0');
+const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') || '40-60 min';
 
 const promotions = [
   {
@@ -1289,6 +1294,14 @@ function handlePizzaStepContinue() {
 }
 
 let cart = [];
+try {
+  const savedCart = localStorage.getItem('premium_pizzaria_cart');
+  if (savedCart) {
+    cart = JSON.parse(savedCart);
+  }
+} catch (e) {
+  console.error('Erro ao ler o carrinho do localStorage:', e);
+}
 
 function confirmPizzaSelection() {
   if (!pizzaSelection.firstFlavorId) {
@@ -1546,7 +1559,14 @@ const checkoutRef = document.getElementById('checkout-ref');
 const checkoutPayment = document.getElementById('checkout-payment');
 const changeField = document.getElementById('change-field');
 const checkoutChange = document.getElementById('checkout-change');
+const checkoutObs = document.getElementById('checkout-obs');
 const cartNextBtn3 = document.getElementById('cart-next-btn-3');
+
+// Summary elements
+const summarySubtotal = document.getElementById('summary-subtotal');
+const summaryDeliveryFee = document.getElementById('summary-delivery-fee');
+const summaryDeliveryRow = document.getElementById('summary-delivery-row');
+const summaryTotal = document.getElementById('summary-total');
 
 const cartBackToDelivery = document.getElementById('cart-back-to-delivery');
 const btnConfirmPaymentWhatsapp = document.getElementById('btn-confirm-payment-whatsapp');
@@ -1674,6 +1694,12 @@ function navigateCartStep(stepId) {
 }
 
 function renderCart() {
+  try {
+    localStorage.setItem('premium_pizzaria_cart', JSON.stringify(cart));
+  } catch (e) {
+    console.error('Erro ao salvar o carrinho no localStorage:', e);
+  }
+
   if (!cartItemsList) return;
   
   if (cart.length === 0) {
@@ -1860,17 +1886,24 @@ function finalizeOrder() {
   const name = checkoutName.value.trim();
   const phone = checkoutPhone.value.trim();
   const payment = checkoutPayment.value;
+  const obs = checkoutObs ? checkoutObs.value.trim() : '';
   
   let paymentStr = '';
   if (payment === 'pix') {
     paymentStr = 'Pix';
+  } else if (payment === 'mercadopago') {
+    paymentStr = 'Mercado Pago (Online)';
   } else if (payment === 'cartao') {
-    paymentStr = 'Cartão de Crédito/Débito';
+    paymentStr = 'Cartão de Crédito/Débito (Máquina)';
   } else if (payment === 'dinheiro') {
     const changeVal = checkoutChange ? checkoutChange.value.trim() : '';
     paymentStr = changeVal ? `Dinheiro (Troco para ${changeVal})` : 'Dinheiro (Sem troco)';
   }
   
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  const cartTotal = subtotal + deliveryFee;
+
   let deliveryStr = '';
   if (deliveryType === 'delivery') {
     const street = checkoutStreet ? checkoutStreet.value.trim() : '';
@@ -1882,12 +1915,10 @@ function finalizeOrder() {
       return;
     }
     
-    deliveryStr = `🛵 *Entrega para:*\n- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}`;
+    deliveryStr = `🛵 *Entrega para:*\n- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}\n- Taxa de Entrega: ${formatBRL(deliveryFee)}`;
   } else {
     deliveryStr = `🛍️ *Retirada no Balcão*`;
   }
-  
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   const itemsLines = cart.map(item => {
     let detailsStr = '';
@@ -1912,6 +1943,7 @@ function finalizeOrder() {
     deliveryStr,
     `💳 *Forma de Pagamento:* ${paymentStr}`,
     `---------------------------------------------`,
+    obs ? `📝 *Observações:* ${obs}\n---------------------------------------------` : '',
     `💰 *Total Geral:* *${formatBRL(cartTotal)}*`,
     `---------------------------------------------`,
     `Gostaria de confirmar meu pedido, obrigado!`
@@ -1928,6 +1960,11 @@ function finalizeOrder() {
   
   // Clear cart state
   cart = [];
+  try {
+    localStorage.removeItem('premium_pizzaria_cart');
+  } catch (e) {
+    console.error('Erro ao limpar o carrinho do localStorage:', e);
+  }
   updateFloatingCartBar();
 }
 
@@ -1974,9 +2011,82 @@ function generatePixPayload(pixKey, merchantName, merchantCity, amount, txId = '
   return payload + crc;
 }
 
+async function getMPPreferenceUrl(cartItems, total) {
+  const items = cartItems.map(item => ({
+    title: item.name,
+    quantity: item.quantity,
+    unit_price: parseFloat(item.price),
+    currency_id: 'BRL'
+  }));
+
+  const fee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  if (fee > 0) {
+    items.push({
+      title: 'Taxa de Entrega',
+      quantity: 1,
+      unit_price: fee,
+      currency_id: 'BRL'
+    });
+  }
+
+  const requestBody = { items, total };
+
+  // 1. Tenta API serverless local (/api/create-preference)
+  try {
+    const res = await fetch('/api/create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.init_point) return data.init_point;
+    }
+  } catch (e) {
+    console.log('API serverless local falhou/indisponível. Tentando CORS proxy...');
+  }
+
+  // 2. Tenta gerar via CORS Proxy se tiver token local
+  if (MP_TOKEN && MP_INTEGRATION_TYPE === 'api') {
+    try {
+      const targetUrl = 'https://api.mercadopago.com/checkout/preferences';
+      const proxyUrl = 'https://api.allorigins.win/raw?url=';
+      const origin = window.location.origin + window.location.pathname;
+      const bodyData = {
+        items: items,
+        back_urls: {
+          success: `${origin}?payment_status=success`,
+          failure: `${origin}?payment_status=failure`,
+          pending: `${origin}?payment_status=pending`
+        },
+        auto_return: 'approved'
+      };
+
+      const res = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MP_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bodyData)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.init_point) return data.init_point;
+      }
+    } catch (e) {
+      console.error('Criação direta da preferência falhou:', e);
+    }
+  }
+
+  // 3. Fallback definitivo: link manual configurado no Admin
+  return MP_LINK || 'https://www.mercadopago.com.br/';
+}
+
 if (cartNextBtn3) {
   cartNextBtn3.addEventListener('click', () => {
-    // Validate delivery details first
+    // Valida endereço de entrega
     if (deliveryType === 'delivery') {
       const street = checkoutStreet ? checkoutStreet.value.trim() : '';
       const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
@@ -1988,17 +2098,27 @@ if (cartNextBtn3) {
     }
 
     const payment = checkoutPayment.value;
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+    const cartTotal = subtotal + deliveryFee;
+
+    // Atualiza resumo no DOM
+    if (summarySubtotal) summarySubtotal.textContent = formatBRL(subtotal);
+    if (summaryDeliveryFee) summaryDeliveryFee.textContent = formatBRL(deliveryFee);
+    if (summaryDeliveryRow) {
+      summaryDeliveryRow.style.display = (deliveryType === 'delivery') ? 'flex' : 'none';
+    }
+    if (summaryTotal) summaryTotal.textContent = formatBRL(cartTotal);
 
     if (payment === 'pix') {
       document.getElementById('pix-payment-container').style.display = 'block';
       document.getElementById('mp-payment-container').style.display = 'none';
 
-      // Generate real Pix Code
+      // Gera código Pix Real com o valor total atualizado
       const pixCode = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, cartTotal);
       document.getElementById('pix-copia-cola').value = pixCode;
       
-      // Generate QR Code img via free public API
+      // Gera imagem do QR Code
       document.getElementById('pix-qrcode-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
 
       navigateCartStep('cart-step-payment-details');
@@ -2006,11 +2126,20 @@ if (cartNextBtn3) {
       document.getElementById('pix-payment-container').style.display = 'none';
       document.getElementById('mp-payment-container').style.display = 'block';
 
-      // Set Mercado Pago Link
-      const mpLink = MP_LINK || 'https://www.mercadopago.com.br/';
+      // Configura o link do Mercado Pago com estado de carregamento
       const btnPayMp = document.getElementById('btn-pay-mp');
       if (btnPayMp) {
-        btnPayMp.href = mpLink;
+        btnPayMp.href = '#';
+        btnPayMp.innerHTML = '<span>⏳ Gerando link de pagamento...</span>';
+        btnPayMp.style.pointerEvents = 'none';
+        btnPayMp.style.opacity = '0.7';
+
+        getMPPreferenceUrl(cart, cartTotal).then(url => {
+          btnPayMp.href = url;
+          btnPayMp.innerHTML = '💳 Pagar com Mercado Pago';
+          btnPayMp.style.pointerEvents = 'auto';
+          btnPayMp.style.opacity = '1';
+        });
       }
 
       navigateCartStep('cart-step-payment-details');
@@ -2078,3 +2207,37 @@ renderTabs();
 renderMenu();
 renderCombosCarousel();
 hydrateCategoryTriggers();
+
+// Restaura o carrinho no floating bar caso haja itens salvos
+updateFloatingCartBar();
+
+// Verifica se retornou do Mercado Pago com status de pagamento
+const urlParams = new URLSearchParams(window.location.search);
+const paymentStatus = urlParams.get('payment_status');
+if (paymentStatus) {
+  // Limpa o parâmetro da URL sem recarregar a página
+  const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+  window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+
+  if (paymentStatus === 'success') {
+    // Se o pagamento foi aprovado, abre o drawer diretamente no fluxo para facilitar o envio no WhatsApp
+    setTimeout(() => {
+      openCartDrawer();
+      navigateCartStep('cart-step-payment-details');
+      showToast('🎉 Pagamento Aprovado pelo Mercado Pago!', 5000);
+      alert('🎉 Pagamento Aprovado pelo Mercado Pago!\n\nAgora, clique no botão verde "Enviar Pedido no WhatsApp" abaixo para nos enviar o comprovante de pagamento e confirmar o pedido na cozinha.');
+    }, 800);
+  } else if (paymentStatus === 'failure') {
+    setTimeout(() => {
+      openCartDrawer();
+      navigateCartStep('cart-step-payment-details');
+      alert('⚠️ Ocorreu um erro no processamento do seu pagamento pelo Mercado Pago. Por favor, tente novamente ou escolha outro método de pagamento.');
+    }, 800);
+  } else if (paymentStatus === 'pending') {
+    setTimeout(() => {
+      openCartDrawer();
+      navigateCartStep('cart-step-payment-details');
+      alert('⏳ Seu pagamento pelo Mercado Pago está em análise/pendente.\n\nVocê pode prosseguir clicando no botão "Enviar Pedido no WhatsApp" abaixo para registrar seu pedido.');
+    }, 800);
+  }
+}

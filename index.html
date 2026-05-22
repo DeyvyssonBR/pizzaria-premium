@@ -360,6 +360,12 @@
                 <input type="text" id="checkout-change" placeholder="Ex: R$ 50,00 ou R$ 100,00">
               </div>
 
+              <!-- Observations Section -->
+              <div class="form-group">
+                <label for="checkout-obs">Observações do Pedido (Ex: sem cebola, ponto da carne, etc.):</label>
+                <textarea id="checkout-obs" rows="2" placeholder="Ex: Sem cebola na pizza de calabresa..." style="width: 100%; border-radius: 12px; border: 1px solid rgba(35, 20, 16, 0.15); background: rgba(35, 20, 16, 0.02); color: #24130f; padding: 12px; resize: none; font-family: inherit; font-size: 0.88rem; min-height: 60px; outline: none; transition: border-color 0.2s;"></textarea>
+              </div>
+
               <button class="button button--checkout-next" type="button" id="cart-next-btn-3">
                 Avançar
               </button>
@@ -377,6 +383,22 @@
           </div>
           <div class="cart-drawer__body">
             <div class="payment-details-screen">
+              
+              <!-- Order Summary Block -->
+              <div class="checkout-summary-box" style="margin-bottom: 20px; padding: 15px; border-radius: 12px; background: rgba(35, 20, 16, 0.05); text-align: left; font-size: 0.9rem; border: 1px dashed rgba(35, 20, 16, 0.15); color: #24130f;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>Subtotal dos Itens:</span>
+                  <strong id="summary-subtotal">R$ 0,00</strong>
+                </div>
+                <div id="summary-delivery-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>Taxa de Entrega:</span>
+                  <strong id="summary-delivery-fee">R$ 0,00</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(35, 20, 16, 0.1); font-size: 1.05rem;">
+                  <span>Total Geral:</span>
+                  <strong id="summary-total" style="color: #24130f;">R$ 0,00</strong>
+                </div>
+              </div>
               
               <!-- PIX Container -->
               <div id="pix-payment-container" style="display: none; text-align: center;">
