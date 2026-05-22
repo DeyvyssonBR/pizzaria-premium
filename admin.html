@@ -1253,82 +1253,185 @@
       }
 
       try {
-        const nameMatch = text.match(/👤 \*Cliente:\*\s*(.+)/i);
-        const phoneMatch = text.match(/📞 \*WhatsApp:\*\s*(.+)/i);
-        const deliveryMatch = text.includes('🛵 *Entrega para:*');
-        const pickupMatch = text.includes('🛍️ *Retirada no Balcão*');
-        
+        // --- 1. DETECTAR FORMATO ---
+        const isNewFormat = text.includes('🛒 *Itens do Pedido:*') || text.includes('👤 *Cliente:*');
+
+        let name = 'Não identificado';
+        let phone = 'Não identificado';
+        let type = 'Outro';
+        let address = '-';
         let street = '';
         let neighborhood = '';
         let ref = '';
         let deliveryFeeStr = 'R$ 0,00';
-        
-        if (deliveryMatch) {
-          const streetMatch = text.match(/-\s*Rua:\s*(.+)/i);
-          const neighborhoodMatch = text.match(/-\s*Bairro:\s*(.+)/i);
-          const refMatch = text.match(/-\s*Referência:\s*(.+)/i);
-          const feeMatch = text.match(/-\s*Taxa de Entrega:\s*(.+)/i);
+        let payment = 'Não informado';
+        let total = 'R$ 0,00';
+        let obs = 'Nenhuma';
+        let items = [];
+
+        if (isNewFormat) {
+          const nameMatch = text.match(/👤 \*Cliente:\*\s*(.+)/i);
+          const phoneMatch = text.match(/📞 \*WhatsApp:\*\s*(.+)/i);
+          const deliveryMatch = text.includes('🛵 *Entrega para:*');
+          const pickupMatch = text.includes('🛍️ *Retirada no Balcão*');
           
-          street = streetMatch ? streetMatch[1].trim() : '';
-          neighborhood = neighborhoodMatch ? neighborhoodMatch[1].trim() : '';
-          ref = refMatch ? refMatch[1].trim() : '';
-          deliveryFeeStr = feeMatch ? feeMatch[1].trim() : 'R$ 0,00';
-        }
-
-        const paymentMatch = text.match(/💳 \*Forma de Pagamento:\*\s*(.+)/i);
-        const totalMatch = text.match(/💰 \*Total Geral:\*\s*\*([^*]+)\*/i) || text.match(/💰 \*Total Geral:\*\s*(.+)/i);
-        const obsMatch = text.match(/📝 \*Observações:\*\s*(.+)/i);
-
-        const itemsSectionStart = text.indexOf('🛒 *Itens do Pedido:*');
-        let itemsSection = '';
-        if (itemsSectionStart !== -1) {
-          const remainingText = text.substring(itemsSectionStart + 21);
-          const endSeparator = remainingText.indexOf('---------------------------------------------');
-          if (endSeparator !== -1) {
-            itemsSection = remainingText.substring(0, endSeparator).trim();
-          } else {
-            itemsSection = remainingText.trim();
-          }
-        }
-
-        const items = [];
-        const itemBlocks = itemsSection.split(/\n\n+/);
-        itemBlocks.forEach(block => {
-          const lines = block.trim().split('\n');
-          const itemHeader = lines[0].trim();
-          if (!itemHeader) return;
-
-          const headerMatch = itemHeader.match(/^\*(\d+)x\s+([^*]+)\*\s*\(([^)]+)\)/i);
-          if (headerMatch) {
-            const qty = parseInt(headerMatch[1]);
-            const name = headerMatch[2].trim();
-            const price = headerMatch[3].trim();
+          if (deliveryMatch) {
+            const streetMatch = text.match(/-\s*Rua:\s*(.+)/i);
+            const neighborhoodMatch = text.match(/-\s*Bairro:\s*(.+)/i);
+            const refMatch = text.match(/-\s*Referência:\s*(.+)/i);
+            const feeMatch = text.match(/-\s*Taxa de Entrega:\s*(.+)/i);
             
-            const details = [];
-            for (let i = 1; i < lines.length; i++) {
-              const detailLine = lines[i].trim();
-              if (detailLine.startsWith('•') || detailLine.startsWith('* •') || detailLine.startsWith('  •')) {
-                details.push(detailLine.replace(/^[*\s•]+/, '').trim());
+            street = streetMatch ? streetMatch[1].trim() : '';
+            neighborhood = neighborhoodMatch ? neighborhoodMatch[1].trim() : '';
+            ref = refMatch ? refMatch[1].trim() : '';
+            deliveryFeeStr = feeMatch ? feeMatch[1].trim() : 'R$ 0,00';
+            address = `Rua: ${street}, Bairro: ${neighborhood}${ref ? ` (Ref: ${ref})` : ''}`;
+            type = 'Delivery';
+          } else if (pickupMatch) {
+            type = 'Retirada no Balcão';
+          }
+
+          const paymentMatch = text.match(/💳 \*Forma de Pagamento:\*\s*(.+)/i);
+          const totalMatch = text.match(/💰 \*Total Geral:\*\s*\*([^*]+)\*/i) || text.match(/💰 \*Total Geral:\*\s*(.+)/i);
+          const obsMatch = text.match(/📝 \*Observações:\*\s*(.+)/i);
+
+          name = nameMatch ? nameMatch[1].trim() : 'Não identificado';
+          phone = phoneMatch ? phoneMatch[1].trim() : 'Não identificado';
+          payment = paymentMatch ? paymentMatch[1].trim() : 'Não informado';
+          total = totalMatch ? totalMatch[1].trim() : 'R$ 0,00';
+          obs = obsMatch ? obsMatch[1].trim() : 'Nenhuma';
+
+          const itemsSectionStart = text.indexOf('🛒 *Itens do Pedido:*');
+          let itemsSection = '';
+          if (itemsSectionStart !== -1) {
+            const remainingText = text.substring(itemsSectionStart + 21);
+            const endSeparator = remainingText.indexOf('---------------------------------------------');
+            if (endSeparator !== -1) {
+              itemsSection = remainingText.substring(0, endSeparator).trim();
+            } else {
+              itemsSection = remainingText.trim();
+            }
+          }
+
+          const itemBlocks = itemsSection.split(/\n\n+/);
+          itemBlocks.forEach(block => {
+            const lines = block.trim().split('\n');
+            const itemHeader = lines[0].trim();
+            if (!itemHeader) return;
+
+            const headerMatch = itemHeader.match(/^\*(\d+)x\s+([^*]+)\*\s*\(([^)]+)\)/i);
+            if (headerMatch) {
+              const qty = parseInt(headerMatch[1]);
+              const itemName = headerMatch[2].trim();
+              const price = headerMatch[3].trim();
+              
+              const details = [];
+              for (let i = 1; i < lines.length; i++) {
+                const detailLine = lines[i].trim();
+                if (detailLine.startsWith('•') || detailLine.startsWith('* •') || detailLine.startsWith('  •')) {
+                  details.push(detailLine.replace(/^[*\s•]+/, '').trim());
+                }
+              }
+              items.push({ qty, name: itemName, price, details });
+            }
+          });
+        } else {
+          // --- FORMATO TRADICIONAL / ANTERIOR ---
+          const nameMatch = text.match(/Nome:\s*(.+)/i);
+          const phoneMatch = text.match(/WhatsApp:\s*(.+)/i);
+          const deliveryMatch = text.match(/Forma Entrega:\s*(.+)/i);
+          const addressMatch = text.match(/Endereço:\s*(.+)/i);
+          const paymentMatch = text.match(/Pagamento:\s*(.+)/i);
+          const totalMatch = text.match(/TOTAL FINAL:\s*(.+)/i);
+          const deliveryFeeMatch = text.match(/TAXA DE ENTREGA:\s*(.+)/i);
+          const changeMatch = text.match(/Troco para:\s*(.+)/i);
+
+          if (nameMatch) {
+            name = nameMatch[1].trim();
+          } else {
+            const greetingMatch = text.match(/Olá\s+([^,]+)/i);
+            if (greetingMatch) name = greetingMatch[1].trim();
+          }
+
+          phone = phoneMatch ? phoneMatch[1].trim() : 'Não identificado';
+          
+          const deliveryTypeStr = deliveryMatch ? deliveryMatch[1].trim() : '';
+          if (deliveryTypeStr.toLowerCase().includes('delivery')) {
+            type = 'Delivery';
+          } else if (deliveryTypeStr.toLowerCase().includes('retirada') || deliveryTypeStr.toLowerCase().includes('balcão') || deliveryTypeStr.toLowerCase().includes('balcao')) {
+            type = 'Retirada no Balcão';
+          } else {
+            type = deliveryTypeStr || 'Outro';
+          }
+
+          if (addressMatch) {
+            address = addressMatch[1].trim();
+            const addressParts = address.split(',');
+            if (addressParts.length > 0) street = addressParts[0].trim();
+            if (addressParts.length > 1) neighborhood = addressParts[1].trim();
+          }
+
+          payment = paymentMatch ? paymentMatch[1].trim() : 'Não informado';
+          total = totalMatch ? totalMatch[1].trim() : 'R$ 0,00';
+          deliveryFeeStr = deliveryFeeMatch ? deliveryFeeMatch[1].trim() : 'R$ 0,00';
+          
+          if (changeMatch) {
+            obs = `Troco para: ${changeMatch[1].trim()}`;
+          }
+
+          // Divisão dos blocos de itens baseada em traços contínuos
+          const parts = text.split(/(?:_{3,}|-{3,})/).map(p => p.trim()).filter(Boolean);
+          if (parts.length > 2) {
+            for (let i = 1; i < parts.length - 1; i++) {
+              const block = parts[i];
+              if (!block || block.toUpperCase().includes('TOTAL') || block.toUpperCase().includes('TAXA')) {
+                continue;
+              }
+
+              const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+              if (lines.length > 0) {
+                const itemLine = lines[0];
+                const itemMatch = itemLine.match(/^(\d+)\s+([^(]+)(?:\s*\(([^)]+)\))?$/i);
+                
+                if (itemMatch) {
+                  const qty = parseInt(itemMatch[1]);
+                  const itemName = itemMatch[2].trim();
+                  let itemPrice = itemMatch[3] ? itemMatch[3].trim() : '';
+
+                  const details = [];
+                  for (let j = 1; j < lines.length; j++) {
+                    const line = lines[j];
+                    if (line.startsWith('>>>') && line.endsWith('<<<')) {
+                      const priceInside = line.replace(/[><\s]+/g, '').match(/[\d,.]+/);
+                      if (priceInside) {
+                        itemPrice = `R$ ${priceInside[0]}`;
+                      }
+                      details.push(line);
+                    } else {
+                      details.push(line.replace(/^[-•*>\s]+/, '').trim());
+                    }
+                  }
+                  items.push({ qty, name: itemName, price: itemPrice || 'R$ 0,00', details });
+                }
               }
             }
-            
-            items.push({ qty, name, price, details });
           }
-        });
+        }
 
         parsedOrder = {
-          name: nameMatch ? nameMatch[1].trim() : 'Não identificado',
-          phone: phoneMatch ? phoneMatch[1].trim() : 'Não identificado',
-          type: deliveryMatch ? 'Delivery' : (pickupMatch ? 'Retirada no Balcão' : 'Outro'),
-          address: deliveryMatch ? `Rua: ${street}, Bairro: ${neighborhood}${ref ? ` (Ref: ${ref})` : ''}` : '-',
-          street: street,
-          neighborhood: neighborhood,
-          ref: ref,
+          isNewFormat,
+          name,
+          phone,
+          type,
+          address,
+          street,
+          neighborhood,
+          ref,
           deliveryFee: deliveryFeeStr,
-          payment: paymentMatch ? paymentMatch[1].trim() : 'Não informado',
-          total: totalMatch ? totalMatch[1].trim() : 'R$ 0,00',
-          obs: obsMatch ? obsMatch[1].trim() : 'Nenhuma',
-          items: items,
+          payment,
+          total,
+          obs,
+          items,
           date: new Date().toLocaleString('pt-BR')
         };
 
@@ -1433,9 +1536,13 @@
           ${parsedOrder.type.toLowerCase().includes('delivery') ? `
             <div style="margin-top: 6px; border: 1px solid #000; padding: 6px; border-radius: 4px;">
               <div class="p-bold">ENDEREÇO DE ENTREGA:</div>
-              <span class="p-bold">Rua:</span> ${parsedOrder.street}<br>
-              <span class="p-bold">Bairro:</span> ${parsedOrder.neighborhood}<br>
-              ${parsedOrder.ref ? `<span class="p-bold">Ref:</span> ${parsedOrder.ref}<br>` : ''}
+              ${parsedOrder.isNewFormat ? `
+                <span class="p-bold">Rua:</span> ${parsedOrder.street}<br>
+                <span class="p-bold">Bairro:</span> ${parsedOrder.neighborhood}<br>
+                ${parsedOrder.ref ? `<span class="p-bold">Ref:</span> ${parsedOrder.ref}<br>` : ''}
+              ` : `
+                <span>${parsedOrder.address}</span>
+              `}
             </div>
           ` : ''}
           <div class="p-double-divider"></div>
