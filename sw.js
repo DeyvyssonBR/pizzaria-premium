@@ -36,9 +36,25 @@ self.addEventListener('activate', (e) => {
 
 // Fetch Event (Network-First Fallback)
 self.addEventListener('fetch', (e) => {
+  // Apenas intercepta requisições GET
+  if (e.request.method !== 'GET') {
+    return;
+  }
+
+  // Apenas intercepta requisições http/https
+  if (!e.request.url.startsWith('http')) {
+    return;
+  }
+
   e.respondWith(
     fetch(e.request).catch(() => {
-      return caches.match(e.request);
+      return caches.match(e.request).then(response => {
+        return response || new Response('Offline fallback content not available', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({ 'Content-Type': 'text/plain' })
+        });
+      });
     })
   );
 });

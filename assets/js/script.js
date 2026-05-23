@@ -2210,11 +2210,10 @@ async function getMPPreferenceUrl(cartItems, total) {
     console.log('API serverless local falhou/indisponível. Tentando CORS proxy...');
   }
 
-  // 2. Tenta gerar via CORS Proxy se tiver token local
+  // 2. Tenta gerar via chamada direta client-side se tiver token local
   if (MP_TOKEN && MP_INTEGRATION_TYPE === 'api') {
     try {
       const targetUrl = 'https://api.mercadopago.com/checkout/preferences';
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
       const origin = window.location.origin + window.location.pathname;
       const bodyData = {
         items: items,
@@ -2226,7 +2225,7 @@ async function getMPPreferenceUrl(cartItems, total) {
         auto_return: 'approved'
       };
 
-      const res = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+      const res = await fetch(targetUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${MP_TOKEN}`,
@@ -2238,6 +2237,9 @@ async function getMPPreferenceUrl(cartItems, total) {
       if (res.ok) {
         const data = await res.json();
         if (data.init_point) return data.init_point;
+      } else {
+        const errorText = await res.text();
+        console.error('Mercado Pago API error:', errorText);
       }
     } catch (e) {
       console.error('Criação direta da preferência falhou:', e);
