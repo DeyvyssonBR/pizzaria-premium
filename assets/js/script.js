@@ -3,9 +3,9 @@ const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '55869948547
 const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
-const MP_TOKEN = localStorage.getItem('premium_pizzaria_mp_token') || '';
+const MP_TOKEN = localStorage.getItem('premium_pizzaria_mp_token') || 'TEST-8866353739323709-052309-3b6abc8412c2c17facb6d86657c88790-327822767';
 const MP_PUBLIC_KEY = localStorage.getItem('premium_pizzaria_mp_public_key') || '';
-const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'link';
+const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
 const DELIVERY_FEE = parseFloat(localStorage.getItem('premium_pizzaria_delivery_fee') || '0');
 const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') || '40-60 min';
 
