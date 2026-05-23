@@ -92,6 +92,15 @@ const defaultMenu = [
     image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'
   },
   {
+    id: 'bombom-chocolate',
+    category: 'doces',
+    type: 'sobremesa',
+    name: 'Bombom de Chocolate',
+    description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
+    price: 5,
+    image: 'https://images.unsplash.com/photo-1548907040-4d42b52125e0?auto=format&fit=crop&w=600&q=80'
+  },
+  {
     id: 'combo-premium',
     category: 'combos',
     type: 'combo',
@@ -328,7 +337,18 @@ const defaultMenu = [
 ];
 
 let menu = JSON.parse(localStorage.getItem('premium_pizzaria_menu')) || defaultMenu;
-if (!localStorage.getItem('premium_pizzaria_menu')) {
+if (menu && !menu.some(item => item.id === 'bombom-chocolate')) {
+  menu.push({
+    id: 'bombom-chocolate',
+    category: 'doces',
+    type: 'sobremesa',
+    name: 'Bombom de Chocolate',
+    description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
+    price: 5,
+    image: 'https://images.unsplash.com/photo-1548907040-4d42b52125e0?auto=format&fit=crop&w=600&q=80'
+  });
+  localStorage.setItem('premium_pizzaria_menu', JSON.stringify(menu));
+} else if (!localStorage.getItem('premium_pizzaria_menu')) {
   localStorage.setItem('premium_pizzaria_menu', JSON.stringify(defaultMenu));
 }
 
@@ -1675,6 +1695,7 @@ function openCartDrawer() {
   if (!cartDrawer) return;
   cartDrawer.classList.add('is-open');
   cartDrawer.setAttribute('aria-hidden', 'false');
+  if (typeof rotateNudgePhrase === 'function') rotateNudgePhrase();
   navigateCartStep('cart-step-items');
   renderCart();
 }
@@ -1750,6 +1771,7 @@ function renderCart() {
   }).join('');
   
   renderCrossSell();
+  if (typeof renderSweetRecommendation === 'function') renderSweetRecommendation();
 }
 
 function renderCrossSell() {
@@ -1776,6 +1798,148 @@ function addDrinkFromCrossSell(drinkId) {
   const drink = menu.find(m => m.id === drinkId);
   if (drink) {
     addSimpleItemToCart(drink);
+  }
+}
+
+function checkSweetInCart() {
+  return cart.some(item => {
+    if (item.category === 'doces') return true;
+    const nameLower = item.name.toLowerCase();
+    return nameLower.includes('doce') || nameLower.includes('chocolate') || nameLower.includes('bombom');
+  });
+}
+
+const sweetNudgePhrases = [
+  "Hummm... Uma pizza salgada é maravilhosa, mas que tal uma pizzazinha doce de sobremesa para fechar? 🍕🍫",
+  "Ei, vai querer uma pizzazinha doce para fechar com chave de ouro? Ou quem sabe um bombom de chocolate para adoçar? 🍬😋",
+  "Comprou a pizza, mas bateu aquela vontade de um doce? Adicione um bombom ou uma pizza doce ao seu pedido! 🍫👨‍🍳",
+  "Não saia sem a sobremesa! Que tal um bombom de chocolate cremoso para acompanhar essa pizza? 😍"
+];
+
+let selectedNudgePhrase = sweetNudgePhrases[0];
+
+function rotateNudgePhrase() {
+  const randIndex = Math.floor(Math.random() * sweetNudgePhrases.length);
+  selectedNudgePhrase = sweetNudgePhrases[randIndex];
+}
+
+function renderSweetRecommendation() {
+  const containerCart = document.getElementById('sweet-recommendation-cart');
+  const containerCheckout = document.getElementById('sweet-recommendation-checkout');
+  
+  const hasSweet = checkSweetInCart();
+  
+  if (hasSweet || cart.length === 0) {
+    if (containerCart) containerCart.style.display = 'none';
+    if (containerCheckout) containerCheckout.style.display = 'none';
+    return;
+  }
+  
+  const htmlContent = `
+    <div class="sweet-recommendation-card">
+      <div class="sweet-recommendation-card__header">
+        <div class="sweet-recommendation-card__avatar">👨‍🍳</div>
+        <div class="sweet-recommendation-card__bubble">
+          <p class="sweet-recommendation-card__text">${selectedNudgePhrase}</p>
+        </div>
+      </div>
+      <div class="sweet-recommendation-card__actions">
+        <button class="button--sweet-add" type="button" onclick="addSweetFromNudge('chocolate-morango')">
+          <span>🍕 Pizza Doce</span>
+          <strong>R$ 36</strong>
+        </button>
+        <button class="button--sweet-add" type="button" onclick="addSweetFromNudge('bombom-chocolate')">
+          <span>🍬 Bombom</span>
+          <strong>R$ 5</strong>
+        </button>
+      </div>
+    </div>
+  `;
+  
+  if (containerCart) {
+    containerCart.innerHTML = htmlContent;
+    containerCart.style.display = 'block';
+  }
+  if (containerCheckout) {
+    containerCheckout.innerHTML = htmlContent;
+    containerCheckout.style.display = 'block';
+  }
+}
+
+function addSweetFromNudge(itemId) {
+  const item = menu.find(m => m.id === itemId);
+  if (!item) return;
+
+  const existing = cart.find(c => c.itemId === item.id && c.type === 'simple');
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      id: 'simple_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      itemId: item.id,
+      type: 'simple',
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      image: item.image,
+      category: item.category
+    });
+  }
+
+  showToast(`${item.name} adicionado! 🍫😋`);
+  
+  updateFloatingCartBar();
+  renderCart();
+  
+  const paymentDetailsStep = document.getElementById('cart-step-payment-details');
+  if (paymentDetailsStep && paymentDetailsStep.classList.contains('is-active')) {
+    refreshPaymentDetailsScreen();
+  }
+}
+
+function refreshPaymentDetailsScreen() {
+  const payment = checkoutPayment.value;
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  const cartTotal = subtotal + deliveryFee;
+
+  // Atualiza resumo no DOM
+  if (summarySubtotal) summarySubtotal.textContent = formatBRL(subtotal);
+  if (summaryDeliveryFee) summaryDeliveryFee.textContent = formatBRL(deliveryFee);
+  if (summaryDeliveryRow) {
+    summaryDeliveryRow.style.display = (deliveryType === 'delivery') ? 'flex' : 'none';
+  }
+  if (summaryTotal) summaryTotal.textContent = formatBRL(cartTotal);
+
+  if (payment === 'pix') {
+    document.getElementById('pix-payment-container').style.display = 'block';
+    document.getElementById('mp-payment-container').style.display = 'none';
+
+    // Gera código Pix Real com o valor total atualizado
+    const pixCode = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, cartTotal);
+    document.getElementById('pix-copia-cola').value = pixCode;
+    
+    // Gera imagem do QR Code
+    document.getElementById('pix-qrcode-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
+  } else if (payment === 'mercadopago') {
+    document.getElementById('pix-payment-container').style.display = 'none';
+    document.getElementById('mp-payment-container').style.display = 'block';
+
+    // Configura o link do Mercado Pago com estado de carregamento
+    const btnPayMp = document.getElementById('btn-pay-mp');
+    if (btnPayMp) {
+      btnPayMp.href = '#';
+      btnPayMp.innerHTML = '<span>⏳ Gerando link de pagamento...</span>';
+      btnPayMp.style.pointerEvents = 'none';
+      btnPayMp.style.opacity = '0.7';
+
+      getMPPreferenceUrl(cart, cartTotal).then(url => {
+        btnPayMp.href = url;
+        btnPayMp.innerHTML = '💳 Pagar com Mercado Pago';
+        btnPayMp.style.pointerEvents = 'auto';
+        btnPayMp.style.opacity = '1';
+      });
+    }
   }
 }
 
@@ -2097,51 +2261,10 @@ if (cartNextBtn3) {
       }
     }
 
+    refreshPaymentDetailsScreen();
+
     const payment = checkoutPayment.value;
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
-    const cartTotal = subtotal + deliveryFee;
-
-    // Atualiza resumo no DOM
-    if (summarySubtotal) summarySubtotal.textContent = formatBRL(subtotal);
-    if (summaryDeliveryFee) summaryDeliveryFee.textContent = formatBRL(deliveryFee);
-    if (summaryDeliveryRow) {
-      summaryDeliveryRow.style.display = (deliveryType === 'delivery') ? 'flex' : 'none';
-    }
-    if (summaryTotal) summaryTotal.textContent = formatBRL(cartTotal);
-
-    if (payment === 'pix') {
-      document.getElementById('pix-payment-container').style.display = 'block';
-      document.getElementById('mp-payment-container').style.display = 'none';
-
-      // Gera código Pix Real com o valor total atualizado
-      const pixCode = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, cartTotal);
-      document.getElementById('pix-copia-cola').value = pixCode;
-      
-      // Gera imagem do QR Code
-      document.getElementById('pix-qrcode-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
-
-      navigateCartStep('cart-step-payment-details');
-    } else if (payment === 'mercadopago') {
-      document.getElementById('pix-payment-container').style.display = 'none';
-      document.getElementById('mp-payment-container').style.display = 'block';
-
-      // Configura o link do Mercado Pago com estado de carregamento
-      const btnPayMp = document.getElementById('btn-pay-mp');
-      if (btnPayMp) {
-        btnPayMp.href = '#';
-        btnPayMp.innerHTML = '<span>⏳ Gerando link de pagamento...</span>';
-        btnPayMp.style.pointerEvents = 'none';
-        btnPayMp.style.opacity = '0.7';
-
-        getMPPreferenceUrl(cart, cartTotal).then(url => {
-          btnPayMp.href = url;
-          btnPayMp.innerHTML = '💳 Pagar com Mercado Pago';
-          btnPayMp.style.pointerEvents = 'auto';
-          btnPayMp.style.opacity = '1';
-        });
-      }
-
+    if (payment === 'pix' || payment === 'mercadopago') {
       navigateCartStep('cart-step-payment-details');
     } else {
       finalizeOrder();

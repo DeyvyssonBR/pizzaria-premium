@@ -15,6 +15,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#c90814" />
+    <link rel="apple-touch-icon" href="assets/img/logo-premium.png" />
   </head>
   <body>
     <header class="store-appbar">
@@ -253,6 +256,8 @@
           <div class="cart-drawer__body">
             <!-- Items rendered dynamically -->
             <div class="cart-items-list" id="cart-items-list"></div>
+            <!-- Sweet recommendation block (inserted dynamically) -->
+            <div id="sweet-recommendation-cart" style="display: none;"></div>
 
             <!-- Peça Também (cross-sell) -->
             <div class="cross-sell-section">
@@ -399,6 +404,8 @@
                   <strong id="summary-total" style="color: #24130f;">R$ 0,00</strong>
                 </div>
               </div>
+              <!-- Sweet recommendation block (inserted dynamically) -->
+              <div id="sweet-recommendation-checkout" style="display: none;"></div>
               
               <!-- PIX Container -->
               <div id="pix-payment-container" style="display: none; text-align: center;">
@@ -470,5 +477,14 @@
     </div>
 
     <script src="assets/js/script.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registrado:', reg.scope))
+            .catch(err => console.log('Erro ao registrar Service Worker:', err));
+        });
+      }
+    </script>
   </body>
 </html>

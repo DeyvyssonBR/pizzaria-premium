@@ -3414,3 +3414,106 @@ body.has-cart .floating-whatsapp {
   0% { left: -100%; }
   50%, 100% { left: 100%; }
 }
+
+/* Nudge de Doces/Sobremesas (Cross-selling) */
+.sweet-recommendation-card {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(229, 9, 20, 0.05) 100%);
+  border: 1px dashed rgba(255, 215, 0, 0.35);
+  border-radius: 14px;
+  padding: 15px;
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.sweet-recommendation-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sweet-recommendation-card__avatar {
+  font-size: 1.8rem;
+  background: rgba(255, 215, 0, 0.15);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  animation: chefNod 3s ease-in-out infinite;
+}
+
+@keyframes chefNod {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.sweet-recommendation-card__bubble {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(35, 20, 16, 0.08);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #24130f;
+  position: relative;
+  width: 100%;
+}
+
+.sweet-recommendation-card__bubble::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 15px;
+  border-width: 8px 8px 8px 0;
+  border-style: solid;
+  border-color: transparent rgba(255, 255, 255, 0.95) transparent transparent;
+  display: block;
+  width: 0;
+}
+
+.sweet-recommendation-card__text {
+  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+}
+
+.sweet-recommendation-card__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.button--sweet-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #24130f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button--sweet-add:hover {
+  background: rgba(255, 215, 0, 0.22);
+  transform: translateY(-1px);
+}
+
+.button--sweet-add strong {
+  color: #c90814;
+}
+

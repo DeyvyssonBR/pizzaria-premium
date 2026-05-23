@@ -1,0 +1,22 @@
+{
+  "name": "Pizzaria Premium Teresina",
+  "short_name": "Pizzaria Premium",
+  "description": "Faça seu pedido online de forma rápida e segura na Pizzaria Premium",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#231410",
+  "theme_color": "#c90814",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/img/pizzaria-premium-logo.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "assets/img/logo-premium.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
