@@ -2,3 +2,4 @@ node_modules/
 scripts/.cache/
 .DS_Store
 *.log
+.overclock-app/
