@@ -1,11 +1,11 @@
-const CACHE_NAME = 'pizzaria-premium-v3-redesign';
+const CACHE_NAME = 'pizzaria-premium-v4-logo-oficial';
 const ASSETS = [
   './',
   './index.html',
   './admin.html',
   './assets/css/styles.css',
   './assets/js/script.js',
-  './assets/img/pizzaria-premium-logo.webp',
+  './assets/img/logo-premium-2026.png',
   './assets/img/hero-fachada-premium.webp',
   './assets/img/cardapio/placeholder.webp'
 ];

@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "assets/img/pizzaria-premium-logo.webp",
+      "src": "assets/img/logo-premium-2026.png",
       "sizes": "192x192",
-      "type": "image/webp"
+      "type": "image/png"
     },
     {
-      "src": "assets/img/logo-premium.png",
+      "src": "assets/img/logo-premium-2026.png",
       "sizes": "512x512",
       "type": "image/png"
     }
