@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v5-fachada-oficial';
+const CACHE_NAME = 'pizzaria-premium-v6-ig-bg';
 const ASSETS = [
   './',
   './index.html',

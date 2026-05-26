@@ -4739,6 +4739,44 @@ body.has-cart .floating-whatsapp {
   background: #fbf8f2;
 }
 
+/* --- Instagram: pizza real como fundo --- */
+.section--instagram .panel--gradient {
+  background:
+    linear-gradient(180deg, rgba(10, 5, 3, 0.78) 0%, rgba(10, 5, 3, 0.72) 50%, rgba(10, 5, 3, 0.88) 100%),
+    url('../img/instagram-bg-pizza.jpg?v=ig-2026') center / cover no-repeat !important;
+  border: 1px solid rgba(232, 193, 112, 0.35) !important;
+  box-shadow:
+    0 20px 56px rgba(0, 0, 0, 0.6),
+    0 0 0 4px rgba(232, 193, 112, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden;
+}
+
+.section--instagram .panel--gradient::before {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 209, 102, 0.18) 0%, transparent 55%) !important;
+}
+
+.section--instagram .panel--gradient h2,
+.section--instagram .panel--gradient p {
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55) !important;
+}
+
+.section--instagram .panel--gradient .button--gold {
+  background: linear-gradient(135deg, #ffd166 0%, #f4a82a 100%) !important;
+  color: #2a1410 !important;
+  border: 2px solid rgba(255, 248, 220, 0.6) !important;
+  font-weight: 800 !important;
+  box-shadow:
+    0 12px 28px rgba(217, 138, 18, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+.section--instagram .panel--gradient .button--gold:hover {
+  background: linear-gradient(135deg, #ffdb85 0%, #f6b440 100%) !important;
+  border-color: rgba(255, 248, 220, 0.8) !important;
+  transform: translateY(-3px) !important;
+}
+
 /* --- CTA "Ver Cardapio" no hero: dourado magnetico --- */
 .button--menu-cta {
   position: relative;
