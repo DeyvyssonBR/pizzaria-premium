@@ -5173,6 +5173,27 @@ body.has-cart .floating-whatsapp {
 }
 .receipt-card__actions .button { width: 100%; }
 
+/* Botões secundários do comprovante (Salvar comprovante / Voltar ao cardápio)
+   sobrescrevem .button--ghost (que usa texto claro para fundos escuros) para
+   ter contraste sobre o fundo claro do cartão de comprovante. */
+.receipt-card__actions .button--ghost {
+  color: #5a0a18 !important;
+  background: #fff !important;
+  border: 1.5px solid rgba(90, 10, 24, 0.25) !important;
+  box-shadow: 0 1px 2px rgba(36, 19, 15, 0.06) !important;
+  font-weight: 600;
+}
+.receipt-card__actions .button--ghost:hover {
+  background: rgba(90, 10, 24, 0.06) !important;
+  border-color: rgba(90, 10, 24, 0.45) !important;
+  color: #3a0610 !important;
+  transform: translateY(-1px);
+}
+.receipt-card__actions .button--ghost:active {
+  transform: translateY(0);
+  background: rgba(90, 10, 24, 0.1) !important;
+}
+
 /* Timeline de status — mobile vertical */
 .order-timeline {
   display: flex;
