@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c90814">
-  <link rel="apple-touch-icon" href="assets/img/logo-premium.png">
+  <link rel="apple-touch-icon" href="assets/img/pizzaria-premium-logo.webp">
   
   <style>
     :root {
@@ -28,6 +28,12 @@
       --border: rgba(255, 255, 255, 0.08);
       --font-title: 'Outfit', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
+      --bg-card: var(--surface);
+      --text-main: var(--text);
+      --gold-grad: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      --danger: #ff4a4a;
+      --success: #27ae60;
+      --warn: #e67e22;
     }
 
     * {
@@ -109,6 +115,35 @@
       outline: none;
       border-color: var(--red);
       box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    .password-field {
+      position: relative;
+    }
+    .password-field input {
+      padding-right: 48px;
+    }
+    .password-field .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    .password-field .toggle-password:hover {
+      color: var(--gold);
+      background: rgba(255,255,255,0.04);
     }
 
     .btn {
@@ -276,6 +311,81 @@
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 24px;
       margin-top: 20px;
+    }
+
+    .grid-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin: 22px 0 4px;
+    }
+    .grid-search {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+    .grid-search > i {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+    .grid-search input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .grid-search input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(220,170,100,0.12);
+    }
+    .grid-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+      text-transform: capitalize;
+    }
+    .chip:hover {
+      color: var(--text);
+      border-color: var(--gold-dark);
+    }
+    .chip.active {
+      background: var(--gold-grad);
+      color: #1a0f08;
+      border-color: var(--gold);
+    }
+    .grid-empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.01);
     }
 
     .product-card {
@@ -458,31 +568,234 @@
     }
 
     /* Pedidos tab custom styles */
+    .print-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .print-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .print-stat__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      background: var(--surface-accent);
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .print-stat__icon.is-red { color: var(--red); }
+    .print-stat__icon.is-green { color: var(--success); }
+    .print-stat__label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .print-stat__value {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .print-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+    @media (max-width: 980px) {
+      .print-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .print-pane {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .print-pane__step {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .print-pane__step .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--gold-grad);
+      color: #1a0f08;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      font-weight: 900;
+    }
+    .print-pane__title {
+      font-family: var(--font-title);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
     .import-container {
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      margin-bottom: 30px;
+      gap: 12px;
+      flex: 1;
     }
     .import-textarea {
       width: 100%;
-      height: 120px;
-      padding: 12px;
+      min-height: 220px;
+      flex: 1;
+      padding: 14px 16px;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: var(--surface-accent);
       color: #fff;
-      font-family: monospace;
+      font-family: 'Courier New', monospace;
       font-size: 0.85rem;
       resize: vertical;
+      line-height: 1.5;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    .parsed-order-box {
-      background: var(--surface);
+    .import-textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(220,170,100,0.12);
+    }
+    .import-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-process {
+      flex: 1;
+      min-width: 200px;
+      background: linear-gradient(135deg, var(--red), var(--red-hover));
+      border: none;
+      color: #fff;
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px var(--red-glow);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-process:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px var(--red-glow);
+    }
+    .btn-ghost {
+      background: var(--surface-accent);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      margin-top: 20px;
+      color: var(--text);
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .parse-status {
       display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .parse-status.is-success {
+      background: rgba(39,174,96,0.08);
+      border: 1px solid rgba(39,174,96,0.3);
+      color: var(--success);
+      display: flex;
+    }
+    .parse-status.is-warn {
+      background: rgba(230,126,34,0.08);
+      border: 1px solid rgba(230,126,34,0.3);
+      color: var(--warn);
+      display: flex;
+    }
+
+    .print-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text-muted);
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      min-height: 240px;
+    }
+    .print-empty__icon {
+      font-size: 2.6rem;
+      color: var(--gold-dark);
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+    .print-empty__title {
+      font-family: var(--font-title);
+      font-weight: 800;
+      color: var(--text);
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+    .print-empty__desc {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .parsed-order-box {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      display: none;
+      flex-direction: column;
     }
     .parsed-order-header {
       font-family: var(--font-title);
@@ -875,7 +1188,12 @@
     
     <div class="form-group">
       <label for="admin-password">Senha de Acesso</label>
-      <input type="password" id="admin-password" placeholder="Digite sua senha">
+      <div class="password-field">
+        <input type="password" id="admin-password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter') tryLogin()">
+        <button type="button" class="toggle-password" aria-label="Mostrar ou ocultar senha" onclick="togglePassword(this)">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+      </div>
       <div class="error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
     </div>
     
@@ -927,7 +1245,15 @@
             </button>
           </div>
           <div class="section-subtitle">Adicione ou edite os sabores de pizza cadastrados.</div>
-          
+
+          <div class="grid-toolbar">
+            <div class="grid-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-pizza" placeholder="Buscar pizza pelo nome..." oninput="filterGrid('pizza')">
+            </div>
+            <div class="grid-chips" id="chips-pizza"></div>
+          </div>
+
           <div class="products-grid" id="grid-pizzas">
             <!-- Rendered dynamically -->
           </div>
@@ -942,7 +1268,15 @@
             </button>
           </div>
           <div class="section-subtitle">Gerencie refrigerantes, sucos, cervejas e porções.</div>
-          
+
+          <div class="grid-toolbar">
+            <div class="grid-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-bebida" placeholder="Buscar bebida ou acompanhamento..." oninput="filterGrid('bebida')">
+            </div>
+            <div class="grid-chips" id="chips-bebida"></div>
+          </div>
+
           <div class="products-grid" id="grid-bebidas">
             <!-- Rendered dynamically -->
           </div>
@@ -957,7 +1291,14 @@
             </button>
           </div>
           <div class="section-subtitle">Edite os combos em destaque na página inicial.</div>
-          
+
+          <div class="grid-toolbar">
+            <div class="grid-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-combo" placeholder="Buscar combo..." oninput="filterGrid('combo')">
+            </div>
+          </div>
+
           <div class="products-grid" id="grid-combos">
             <!-- Rendered dynamically -->
           </div>
@@ -968,67 +1309,115 @@
           <div class="section-title">
             <span>Central de Impressão</span>
           </div>
-          <div class="section-subtitle">Cole a mensagem recebida no WhatsApp para gerar os cupons de impressão automática.</div>
-          
-          <div class="config-container" style="max-width: 100%;">
-            <div class="import-container">
-              <label for="order-import-text" style="font-weight: 700; color: var(--gold); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Mensagem do Pedido (WhatsApp)</label>
-              <textarea id="order-import-text" class="import-textarea" placeholder="Cole o texto completo do pedido recebido aqui... Ex: *🍕 NOVO PEDIDO - PIZZARIA PREMIUM 🍕* ..."></textarea>
-              <button class="btn" style="width: auto; padding: 12px 30px; align-self: flex-start;" onclick="processImportedOrder()"><i class="fa-solid fa-wand-magic-sparkles"></i> Processar Pedido</button>
+          <div class="section-subtitle">Cole a mensagem recebida no WhatsApp e gere os cupons de cozinha e entrega.</div>
+
+          <div class="print-stats">
+            <div class="print-stat">
+              <div class="print-stat__icon is-red"><i class="fa-solid fa-pizza-slice"></i></div>
+              <div>
+                <div class="print-stat__label">Pedidos Hoje</div>
+                <div class="print-stat__value" id="print-stat-today">—</div>
+              </div>
+            </div>
+            <div class="print-stat">
+              <div class="print-stat__icon is-green"><i class="fa-solid fa-print"></i></div>
+              <div>
+                <div class="print-stat__label">Impressos na Sessão</div>
+                <div class="print-stat__value" id="print-stat-session">0</div>
+              </div>
+            </div>
+            <div class="print-stat">
+              <div class="print-stat__icon"><i class="fa-solid fa-clock"></i></div>
+              <div>
+                <div class="print-stat__label">Última Impressão</div>
+                <div class="print-stat__value" id="print-stat-last">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-grid">
+            <!-- Coluna 1: entrada -->
+            <div class="print-pane">
+              <div>
+                <span class="print-pane__step"><span class="step-num">1</span> Cole o pedido</span>
+                <div class="print-pane__title" style="margin-top:6px;">Mensagem do WhatsApp</div>
+              </div>
+              <div class="import-container">
+                <textarea id="order-import-text" class="import-textarea" placeholder="Cole aqui o texto completo do pedido recebido. Normalmente começa com:&#10;&#10;*🍕 NOVO PEDIDO - PIZZARIA PREMIUM 🍕*&#10;*Cliente:* ..."></textarea>
+                <div id="parse-status" class="parse-status"></div>
+                <div class="import-actions">
+                  <button class="btn-process" onclick="processImportedOrder()"><i class="fa-solid fa-wand-magic-sparkles"></i> Processar Pedido</button>
+                  <button class="btn-ghost" onclick="clearOrderImport()" type="button"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                  <button class="btn-ghost" onclick="openExampleOrder()" type="button"><i class="fa-solid fa-file-lines"></i> Ver Exemplo</button>
+                </div>
+              </div>
             </div>
 
-            <!-- Parsed Order Area -->
-            <div id="parsed-order-box" class="parsed-order-box">
-              <div class="parsed-order-header">
-                <span>Pedido Detalhado</span>
-                <span id="parsed-order-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;"></span>
-              </div>
-              
-              <div class="parsed-order-details">
-                <div class="detail-group">
-                  <strong>Cliente</strong>
-                  <span id="parsed-client-name">-</span>
-                </div>
-                <div class="detail-group">
-                  <strong>WhatsApp</strong>
-                  <span id="parsed-client-phone">-</span>
-                </div>
-                <div class="detail-group">
-                  <strong>Entrega / Retirada</strong>
-                  <span id="parsed-delivery-type">-</span>
-                </div>
-                <div class="detail-group">
-                  <strong>Endereço de Entrega</strong>
-                  <span id="parsed-address">-</span>
-                </div>
-                <div class="detail-group">
-                  <strong>Forma de Pagamento</strong>
-                  <span id="parsed-payment-method">-</span>
-                </div>
-                <div class="detail-group">
-                  <strong>Total Geral</strong>
-                  <span id="parsed-total" style="font-weight: 800; color: var(--gold);">-</span>
-                </div>
-                <div class="detail-group" style="grid-column: 1 / -1;">
-                  <strong>Observações</strong>
-                  <span id="parsed-obs" style="font-style: italic; color: #ffbc58;">Nenhuma</span>
-                </div>
-                
-                <div class="parsed-items-list">
-                  <strong>Itens Selecionados</strong>
-                  <div id="parsed-items-container">
-                    <!-- Items will render here -->
-                  </div>
-                </div>
+            <!-- Coluna 2: visualização + impressão -->
+            <div class="print-pane">
+              <div>
+                <span class="print-pane__step"><span class="step-num">2</span> Confira e imprima</span>
+                <div class="print-pane__title" style="margin-top:6px;">Pedido Detalhado</div>
               </div>
 
-              <div class="print-actions">
-                <button class="btn-print btn-print-kitchen" onclick="printReceipt('kitchen')">
-                  <i class="fa-solid fa-kitchen-set"></i> Imprimir Cozinha (Via Cozinha)
-                </button>
-                <button class="btn-print btn-print-counter" onclick="printReceipt('counter')">
-                  <i class="fa-solid fa-receipt"></i> Imprimir Bancada (Via Entrega)
-                </button>
+              <div id="print-empty" class="print-empty">
+                <div class="print-empty__icon"><i class="fa-solid fa-receipt"></i></div>
+                <div class="print-empty__title">Aguardando pedido</div>
+                <div class="print-empty__desc">Cole a mensagem ao lado e clique em <strong>Processar Pedido</strong> para conferir os detalhes antes de imprimir.</div>
+              </div>
+
+              <div id="parsed-order-box" class="parsed-order-box">
+                <div class="parsed-order-header">
+                  <span>Resumo do Pedido</span>
+                  <span id="parsed-order-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;"></span>
+                </div>
+
+                <div class="parsed-order-details">
+                  <div class="detail-group">
+                    <strong>Cliente</strong>
+                    <span id="parsed-client-name">-</span>
+                  </div>
+                  <div class="detail-group">
+                    <strong>WhatsApp</strong>
+                    <span id="parsed-client-phone">-</span>
+                  </div>
+                  <div class="detail-group">
+                    <strong>Entrega / Retirada</strong>
+                    <span id="parsed-delivery-type">-</span>
+                  </div>
+                  <div class="detail-group">
+                    <strong>Endereço de Entrega</strong>
+                    <span id="parsed-address">-</span>
+                  </div>
+                  <div class="detail-group">
+                    <strong>Forma de Pagamento</strong>
+                    <span id="parsed-payment-method">-</span>
+                  </div>
+                  <div class="detail-group">
+                    <strong>Total Geral</strong>
+                    <span id="parsed-total" style="font-weight: 800; color: var(--gold);">-</span>
+                  </div>
+                  <div class="detail-group" style="grid-column: 1 / -1;">
+                    <strong>Observações</strong>
+                    <span id="parsed-obs" style="font-style: italic; color: #ffbc58;">Nenhuma</span>
+                  </div>
+
+                  <div class="parsed-items-list">
+                    <strong>Itens Selecionados</strong>
+                    <div id="parsed-items-container">
+                      <!-- Items will render here -->
+                    </div>
+                  </div>
+                </div>
+
+                <div class="print-actions">
+                  <button class="btn-print btn-print-kitchen" onclick="printReceipt('kitchen')">
+                    <i class="fa-solid fa-kitchen-set"></i> Imprimir Cozinha
+                  </button>
+                  <button class="btn-print btn-print-counter" onclick="printReceipt('counter')">
+                    <i class="fa-solid fa-receipt"></i> Imprimir Bancada
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1251,6 +1640,58 @@
     </div>
   </div>
 
+  <!-- Confirm Delete Modal -->
+  <div class="modal" id="confirm-delete-modal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger); margin-right:8px;"></i> Confirmar Exclusão</h3>
+        <button class="btn-close-modal" onclick="closeConfirmDelete()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.95rem; line-height:1.5;">Tem certeza que deseja excluir <strong id="confirm-delete-name" style="color:var(--text);">este item</strong> do cardápio?</p>
+        <p style="color:var(--text-muted); font-size:0.82rem; margin-top:10px;"><i class="fa-solid fa-circle-info"></i> Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-logout" onclick="closeConfirmDelete()">Cancelar</button>
+        <button class="btn" id="confirm-delete-btn" style="width:auto; padding: 10px 22px; background:var(--danger); box-shadow:0 4px 15px rgba(255,74,74,0.25);"><i class="fa-solid fa-trash"></i> Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example Order Template Modal -->
+  <div class="modal" id="example-order-modal">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-lines" style="color:var(--gold); margin-right:8px;"></i> Pedido de Exemplo</h3>
+        <button class="btn-close-modal" onclick="closeExampleOrder()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:14px;">Copie o texto abaixo e cole na Central para testar o parser. O formato é o mesmo que chega pelo WhatsApp.</p>
+        <pre id="example-order-text" style="background:var(--surface-accent); padding:16px; border-radius:10px; font-size:0.78rem; line-height:1.5; color:var(--text); white-space:pre-wrap; font-family:'Courier New', monospace; max-height:50vh; overflow-y:auto; border:1px solid var(--border);">*🍕 NOVO PEDIDO - PIZZARIA PREMIUM 🍕*
+
+*Cliente:* João da Silva
+*WhatsApp:* (86) 99999-0000
+*Tipo:* Entrega
+*Endereço:* Rua das Palmeiras, 123 - Centro
+
+*Itens:*
+1x Pizza Margherita Grande - R$ 45,00
+   - Borda: Catupiry
+2x Coca-Cola 350ml - R$ 12,00
+
+*Forma de Pagamento:* Pix
+
+*Observações:* Tocar interfone azul
+
+*Total: R$ 57,00*</pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-logout" onclick="closeExampleOrder()">Fechar</button>
+        <button class="btn" id="copy-example-btn" style="width:auto; padding: 10px 22px;" onclick="copyExampleOrder()"><i class="fa-solid fa-copy"></i> Copiar texto</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Global references
     let currentMenu = [];
@@ -1292,7 +1733,30 @@
 
       toggleMpFields();
       loadAdminMenu();
+      updatePrintStats();
+
+      const exModal = document.getElementById('example-order-modal');
+      if (exModal) {
+        exModal.addEventListener('click', (e) => { if (e.target === exModal) closeExampleOrder(); });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && exModal && exModal.style.display === 'flex') closeExampleOrder();
+      });
     });
+
+    function togglePassword(btn) {
+      const input = btn.parentElement.querySelector('input');
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
 
     function tryLogin() {
       const pass = document.getElementById('admin-password').value;
@@ -1335,80 +1799,84 @@
       element.classList.add('active');
     }
 
+    const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function productCardHtml(item, badge) {
+      return `
+        <div class="product-card">
+          <div class="product-card__img"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span class="product-card__badge">${escapeHtml(badge || item.category)}</span>
+          </div>
+          <div class="product-card__content">
+            <h4 class="product-card__title">${escapeHtml(item.name)}</h4>
+            <p class="product-card__desc">${escapeHtml(item.description || 'Sem descrição')}</p>
+            <div class="product-card__footer">
+              <span class="product-card__price">${formatCurrency(item.price)}</span>
+              <div class="product-card__actions">
+                <button class="btn-circle" onclick="openItemEditModal('${item.id}')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const gridFilters = { pizza: { q: '', cat: 'all' }, bebida: { q: '', cat: 'all' }, combo: { q: '', cat: 'all' } };
+    const gridConfig = {
+      pizza:  { items: () => currentMenu.filter(i => i.type === 'pizza'), grid: 'grid-pizzas', chips: 'chips-pizza', empty: 'Nenhuma pizza encontrada.' },
+      bebida: { items: () => currentMenu.filter(i => i.type !== 'pizza' && i.type !== 'combo'), grid: 'grid-bebidas', chips: 'chips-bebida', empty: 'Nenhum item encontrado.' },
+      combo:  { items: () => currentMenu.filter(i => i.type === 'combo'), grid: 'grid-combos', chips: null, empty: 'Nenhum combo encontrado.', badge: 'COMBO' },
+    };
+
+    function renderChips(type) {
+      const cfg = gridConfig[type];
+      if (!cfg.chips) return;
+      const el = document.getElementById(cfg.chips);
+      if (!el) return;
+      const cats = [...new Set(cfg.items().map(i => i.category).filter(Boolean))].sort();
+      const active = gridFilters[type].cat;
+      el.innerHTML = `<button class="chip ${active === 'all' ? 'active' : ''}" data-cat="all" onclick="setGridCategory('${type}','all')">Todas</button>`
+        + cats.map(c => `<button class="chip ${active === c ? 'active' : ''}" data-cat="${escapeHtml(c)}" onclick="setGridCategory('${type}','${escapeHtml(c)}')">${escapeHtml(c)}</button>`).join('');
+    }
+
+    function applyGridFilter(type) {
+      const cfg = gridConfig[type];
+      const grid = document.getElementById(cfg.grid);
+      if (!grid) return;
+      const { q, cat } = gridFilters[type];
+      const query = q.trim().toLowerCase();
+      const filtered = cfg.items().filter(item => {
+        if (cat !== 'all' && item.category !== cat) return false;
+        if (!query) return true;
+        return (item.name || '').toLowerCase().includes(query) || (item.description || '').toLowerCase().includes(query);
+      });
+      grid.innerHTML = filtered.length
+        ? filtered.map(i => productCardHtml(i, cfg.badge)).join('')
+        : `<div class="grid-empty">${cfg.empty}</div>`;
+    }
+
+    function filterGrid(type) {
+      const input = document.getElementById('search-' + type);
+      if (input) gridFilters[type].q = input.value;
+      applyGridFilter(type);
+    }
+
+    function setGridCategory(type, cat) {
+      gridFilters[type].cat = cat;
+      renderChips(type);
+      applyGridFilter(type);
+    }
+
     function renderGrids() {
-      const gridPizzas = document.getElementById('grid-pizzas');
-      const gridBebidas = document.getElementById('grid-bebidas');
-      const gridCombos = document.getElementById('grid-combos');
-
-      if (!gridPizzas || !gridBebidas || !gridCombos) return;
-
-      // Group items
-      const pizzas = currentMenu.filter(item => item.type === 'pizza');
-      const beverages = currentMenu.filter(item => item.type !== 'pizza' && item.type !== 'combo');
-      const combos = currentMenu.filter(item => item.type === 'combo');
-
-      // Helper price format
-      const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-
-      // Render pizzas
-      gridPizzas.innerHTML = pizzas.map(item => `
-        <div class="product-card">
-          <div class="product-card__img"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'" style="width:100%;height:100%;object-fit:cover;display:block">
-            <span class="product-card__badge">${item.category}</span>
-          </div>
-          <div class="product-card__content">
-            <h4 class="product-card__title">${item.name}</h4>
-            <p class="product-card__desc">${item.description}</p>
-            <div class="product-card__footer">
-              <span class="product-card__price">${formatCurrency(item.price)}</span>
-              <div class="product-card__actions">
-                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
-                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhuma pizza cadastrada.</div>';
-
-      // Render beverages
-      gridBebidas.innerHTML = beverages.map(item => `
-        <div class="product-card">
-          <div class="product-card__img"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'" style="width:100%;height:100%;object-fit:cover;display:block">
-            <span class="product-card__badge">${item.category}</span>
-          </div>
-          <div class="product-card__content">
-            <h4 class="product-card__title">${item.name}</h4>
-            <p class="product-card__desc">${item.description || 'Sem descrição'}</p>
-            <div class="product-card__footer">
-              <span class="product-card__price">${formatCurrency(item.price)}</span>
-              <div class="product-card__actions">
-                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
-                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhum item cadastrado.</div>';
-
-      // Render combos
-      gridCombos.innerHTML = combos.map(item => `
-        <div class="product-card">
-          <div class="product-card__img"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'" style="width:100%;height:100%;object-fit:cover;display:block">
-            <span class="product-card__badge">COMBO</span>
-          </div>
-          <div class="product-card__content">
-            <h4 class="product-card__title">${item.name}</h4>
-            <p class="product-card__desc">${item.description}</p>
-            <div class="product-card__footer">
-              <span class="product-card__price">${formatCurrency(item.price)}</span>
-              <div class="product-card__actions">
-                <button class="btn-circle" onclick="openItemEditModal('${item.id}')"><i class="fa-solid fa-pencil"></i></button>
-                <button class="btn-circle btn-delete" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('') || '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Nenhum combo cadastrado.</div>';
+      ['pizza', 'bebida', 'combo'].forEach(t => {
+        renderChips(t);
+        applyGridFilter(t);
+      });
     }
 
     // Modal Control
@@ -1496,13 +1964,38 @@
       closeItemModal();
     }
 
+    let pendingDeleteId = null;
+    const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+
     function deleteItem(id) {
-      if (confirm('Tem certeza de que deseja deletar este item?')) {
-        currentMenu = currentMenu.filter(i => i.id !== id);
-        localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
-        renderGrids();
-      }
+      const item = currentMenu.find(i => i.id === id);
+      if (!item) return;
+      pendingDeleteId = id;
+      document.getElementById('confirm-delete-name').textContent = item.name;
+      confirmDeleteModal.style.display = 'flex';
     }
+
+    function closeConfirmDelete() {
+      confirmDeleteModal.style.display = 'none';
+      pendingDeleteId = null;
+    }
+
+    function confirmDeleteItem() {
+      if (!pendingDeleteId) return;
+      currentMenu = currentMenu.filter(i => i.id !== pendingDeleteId);
+      localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
+      pendingDeleteId = null;
+      confirmDeleteModal.style.display = 'none';
+      renderGrids();
+    }
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', confirmDeleteItem);
+    confirmDeleteModal.addEventListener('click', (e) => {
+      if (e.target === confirmDeleteModal) closeConfirmDelete();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmDeleteModal.style.display === 'flex') closeConfirmDelete();
+    });
 
     function saveConfigStore() {
       const whatsapp = document.getElementById('cfg-whatsapp').value.trim();
@@ -1760,19 +2253,127 @@
           `).join('');
         }
 
-        document.getElementById('parsed-order-box').style.display = 'block';
+        showParsedOrder();
         if (typeof saveOrderToDashboard === 'function') {
           saveOrderToDashboard(parsedOrder, text);
         }
         document.getElementById('order-import-text').value = '';
-        
+
         document.getElementById('parsed-order-box').scrollIntoView({ behavior: 'smooth' });
+        showParseStatus('success', 'Pedido processado com sucesso. Confira os dados antes de imprimir.');
 
       } catch (error) {
         console.error(error);
-        alert('Erro ao processar o texto do pedido. Certifique-se de que copiou a mensagem inteira do WhatsApp.');
+        showParseStatus('warn', 'Não foi possível processar este texto. Verifique se copiou a mensagem inteira do WhatsApp.');
       }
     }
+
+    function showParsedOrder() {
+      const box = document.getElementById('parsed-order-box');
+      const empty = document.getElementById('print-empty');
+      if (box) box.style.display = 'flex';
+      if (empty) empty.style.display = 'none';
+    }
+
+    function hideParsedOrder() {
+      const box = document.getElementById('parsed-order-box');
+      const empty = document.getElementById('print-empty');
+      if (box) box.style.display = 'none';
+      if (empty) empty.style.display = 'flex';
+    }
+
+    function showParseStatus(type, message) {
+      const el = document.getElementById('parse-status');
+      if (!el) return;
+      el.className = 'parse-status is-' + type;
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+      el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+    }
+
+    function hideParseStatus() {
+      const el = document.getElementById('parse-status');
+      if (el) el.className = 'parse-status';
+    }
+
+    function clearOrderImport() {
+      document.getElementById('order-import-text').value = '';
+      hideParseStatus();
+      hideParsedOrder();
+      if (typeof parsedOrder !== 'undefined') parsedOrder = null;
+    }
+
+    function openExampleOrder() {
+      document.getElementById('example-order-modal').style.display = 'flex';
+    }
+
+    function closeExampleOrder() {
+      document.getElementById('example-order-modal').style.display = 'none';
+    }
+
+    function copyExampleOrder() {
+      const text = document.getElementById('example-order-text').textContent;
+      const btn = document.getElementById('copy-example-btn');
+      const restoreHtml = btn.innerHTML;
+      const restore = () => { btn.innerHTML = restoreHtml; };
+      const ok = () => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+        setTimeout(restore, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok).catch(() => {
+          // fallback abaixo
+          fallbackCopy(text, ok, restore);
+        });
+      } else {
+        fallbackCopy(text, ok, restore);
+      }
+    }
+
+    function fallbackCopy(text, ok, restore) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); ok(); } catch (e) { restore(); }
+      document.body.removeChild(ta);
+    }
+
+    // Print Center: stats trackers
+    function updatePrintStats() {
+      const today = new Date().toDateString();
+      const orders = JSON.parse(localStorage.getItem('premium_pizzaria_orders') || '[]');
+      const todayCount = orders.filter(o => new Date(o.timestamp).toDateString() === today).length;
+      const todayEl = document.getElementById('print-stat-today');
+      if (todayEl) todayEl.textContent = todayCount > 0 ? todayCount : '—';
+
+      const lastTs = parseInt(sessionStorage.getItem('print_last_ts') || '0', 10);
+      const lastEl = document.getElementById('print-stat-last');
+      if (lastEl) lastEl.textContent = lastTs ? timeAgo(lastTs) : '—';
+
+      const sessionCount = parseInt(sessionStorage.getItem('print_session_count') || '0', 10);
+      const sessEl = document.getElementById('print-stat-session');
+      if (sessEl) sessEl.textContent = sessionCount;
+    }
+
+    function timeAgo(ts) {
+      const diff = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+      if (diff < 60) return 'agora mesmo';
+      if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`;
+      return `há ${Math.floor(diff / 86400)} dia(s)`;
+    }
+
+    function registerPrint() {
+      const c = parseInt(sessionStorage.getItem('print_session_count') || '0', 10) + 1;
+      sessionStorage.setItem('print_session_count', String(c));
+      sessionStorage.setItem('print_last_ts', String(Date.now()));
+      updatePrintStats();
+    }
+
+    // refresh "há X min" a cada minuto
+    setInterval(updatePrintStats, 60000);
 
     function printReceipt(type) {
       if (!parsedOrder) {
@@ -1901,6 +2502,7 @@
 
       printContainer.innerHTML = htmlContent;
       window.print();
+      if (typeof registerPrint === 'function') registerPrint();
     }
 
     // --- DASHBOARD AND ORDERS STATS JS LOGIC ---
@@ -2161,7 +2763,7 @@
           ${(item.details || []).map(det => `<div class="parsed-item-options">• ${det}</div>`).join('')}
         `).join('');
 
-        document.getElementById('parsed-order-box').style.display = 'block';
+        showParsedOrder();
         document.getElementById('parsed-order-box').scrollIntoView({ behavior: 'smooth' });
         
         alert(`Pedido ${orderId} carregado na Central de Impressão! Você já pode imprimir a Via Cozinha ou a Via Entrega.`);
