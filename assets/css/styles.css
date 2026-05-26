@@ -4739,6 +4739,77 @@ body.has-cart .floating-whatsapp {
   background: #fbf8f2;
 }
 
+/* --- Categorias do cardapio: chips premium --- */
+.category-shortcuts {
+  gap: 12px;
+  padding: 18px 16px 22px;
+}
+
+.category-shortcuts--centered .category-shortcut,
+.category-shortcut {
+  position: relative;
+  min-height: 48px;
+  padding: 0 22px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  color: #fff8e7;
+  background:
+    linear-gradient(140deg, rgba(122, 18, 38, 0.95) 0%, rgba(58, 6, 16, 0.95) 100%);
+  border: 1px solid rgba(232, 193, 112, 0.35);
+  box-shadow:
+    0 10px 24px rgba(58, 6, 16, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.25s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.category-shortcut::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.category-shortcut:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 209, 102, 0.85);
+  box-shadow:
+    0 16px 32px rgba(58, 6, 16, 0.5),
+    0 0 0 3px rgba(255, 209, 102, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.category-shortcut:active {
+  transform: translateY(-1px);
+}
+
+.category-shortcut.is-active,
+.category-shortcut[aria-current="true"] {
+  background:
+    linear-gradient(140deg, var(--red) 0%, var(--red-deep) 100%);
+  border-color: var(--gold-bright, #ffd166);
+  color: #fff;
+  box-shadow:
+    0 16px 32px rgba(213, 2, 1, 0.45),
+    0 0 0 3px rgba(255, 209, 102, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 560px) {
+  .category-shortcut {
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: 0.86rem;
+  }
+}
+
 /* --- Mapa Google embed --- */
 .map-embed {
   position: relative;
