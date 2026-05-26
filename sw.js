@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v2';
+const CACHE_NAME = 'pizzaria-premium-v3-redesign';
 const ASSETS = [
   './',
   './index.html',

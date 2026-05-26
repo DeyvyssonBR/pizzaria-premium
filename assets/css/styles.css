@@ -3531,3 +3531,1199 @@ body.has-cart .floating-whatsapp {
   color: #c90814;
 }
 
+/* ============================================================
+   PREMIUM REDESIGN — 2026
+   Refino editorial, hero vinho/dourado, promo bar, diferenciais,
+   como pedir, prova social, CTA fixo inferior.
+   ============================================================ */
+
+:root {
+  --wine: #5a0a18;
+  --wine-deep: #3a0610;
+  --gold-soft: #e8c170;
+  --gold-bright: #ffd166;
+}
+
+/* --- Promo bar (urgência no topo) --- */
+.promo-bar {
+  position: relative;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--wine-deep) 0%, var(--wine) 45%, var(--red-deep) 100%);
+  color: #fff8e7;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(232, 193, 112, 0.25);
+}
+
+.promo-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(232, 193, 112, 0.18), transparent);
+  transform: translateX(-100%);
+  animation: promo-shine 5.5s ease-in-out infinite;
+}
+
+@keyframes promo-shine {
+  0%, 40% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+.promo-bar strong {
+  color: var(--gold-bright);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(255, 209, 102, 0.35);
+}
+
+.promo-bar a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* --- Hero: refino premium --- */
+.store-hero__cover {
+  position: relative;
+  border-radius: 22px;
+  border: 1px solid rgba(232, 193, 112, 0.18);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(10, 5, 3, 0.05) 0%, rgba(10, 5, 3, 0.35) 55%, rgba(10, 5, 3, 0.78) 100%),
+    url('../img/hero-fachada-premium.webp?v=fachada-oficial') center/cover;
+}
+
+.store-hero__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255, 209, 102, 0.12), transparent 45%),
+    radial-gradient(circle at 20% 90%, rgba(90, 10, 24, 0.45), transparent 55%);
+  pointer-events: none;
+}
+
+.store-hero__logo-wrap {
+  background:
+    radial-gradient(circle at 30% 30%, #7a1226 0%, var(--wine-deep) 60%, #1a0509 100%);
+  border: 2px solid var(--gold-soft);
+  box-shadow:
+    0 22px 48px rgba(58, 6, 16, 0.5),
+    0 0 0 4px rgba(232, 193, 112, 0.12),
+    inset 0 2px 4px rgba(255, 255, 255, 0.08);
+}
+
+.store-hero__identity h1 {
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  background: linear-gradient(180deg, #fff8e7 0%, #f0d8a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
+}
+
+.store-hero__identity h1::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 2px;
+  margin: 14px auto 0;
+  background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+}
+
+.store-hero__lead {
+  font-size: 1.02rem;
+  color: rgba(255, 249, 239, 0.85);
+  font-weight: 500;
+}
+
+.store-hero__lead strong {
+  color: var(--gold-bright);
+  font-weight: 800;
+}
+
+/* Premium badge dourado abaixo do status */
+.hero-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px auto 0;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(232, 193, 112, 0.18), rgba(255, 209, 102, 0.08));
+  border: 1px solid rgba(232, 193, 112, 0.4);
+  color: var(--gold-bright);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero-premium-badge::before {
+  content: "★";
+  color: var(--gold-bright);
+  font-size: 0.9rem;
+}
+
+/* --- Pedido rápido (3 atalhos abaixo do hero) --- */
+.quick-order {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 22px 0 6px;
+}
+
+.quick-order__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 88px;
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 250, 242, 0.06), rgba(255, 250, 242, 0.02));
+  border: 1px solid rgba(232, 193, 112, 0.18);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.quick-order__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold-soft);
+  background: linear-gradient(180deg, rgba(255, 250, 242, 0.1), rgba(255, 250, 242, 0.04));
+}
+
+.quick-order__card .icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 6px rgba(255, 209, 102, 0.3));
+}
+
+@media (max-width: 480px) {
+  .quick-order { gap: 8px; }
+  .quick-order__card { font-size: 0.72rem; min-height: 80px; }
+}
+
+/* --- Seção: Por que escolher a Pizzaria Premium --- */
+.section--reasons {
+  padding: 48px 0 24px;
+}
+
+.reasons-grid--premium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.reason-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 248, 238, 0.06), rgba(255, 248, 238, 0.02));
+  border: 1px solid rgba(232, 193, 112, 0.18);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.reason-premium:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold-soft);
+  box-shadow: 0 18px 40px rgba(58, 6, 16, 0.35);
+}
+
+.reason-premium__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--wine), var(--red-deep));
+  border: 1px solid rgba(232, 193, 112, 0.35);
+  font-size: 1.3rem;
+}
+
+.reason-premium h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: #fff8e7;
+  letter-spacing: -0.005em;
+}
+
+.reason-premium p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(255, 249, 239, 0.7);
+}
+
+/* --- Seção: Como pedir (3 passos) --- */
+.section--how-to-order {
+  padding: 28px 0 12px;
+}
+
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.step-card {
+  position: relative;
+  padding: 24px 20px 22px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(90, 10, 24, 0.5), rgba(58, 6, 16, 0.35));
+  border: 1px solid rgba(232, 193, 112, 0.2);
+  text-align: left;
+}
+
+.step-card__num {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-bright), var(--orange));
+  color: var(--wine-deep);
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(255, 209, 102, 0.25);
+}
+
+.step-card h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: #fff8e7;
+}
+
+.step-card p {
+  margin: 0;
+  color: rgba(255, 249, 239, 0.75);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+/* --- Seção: Prova social premium --- */
+.section--reviews {
+  padding: 28px 0 24px;
+}
+
+.reviews-grid--premium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.review-premium {
+  padding: 22px 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 250, 242, 0.05), rgba(255, 250, 242, 0.015));
+  border: 1px solid rgba(232, 193, 112, 0.18);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.review-premium:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold-soft);
+}
+
+.review-premium__stars {
+  color: var(--gold-bright);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.review-premium__quote {
+  margin: 0 0 14px;
+  color: rgba(255, 249, 239, 0.88);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+.review-premium__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: rgba(255, 249, 239, 0.65);
+  font-weight: 700;
+}
+
+.review-premium__author::before {
+  content: "";
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--wine), var(--red-deep));
+  border: 1px solid rgba(232, 193, 112, 0.35);
+  flex-shrink: 0;
+}
+
+/* --- CTA fixo inferior (sempre visível no mobile) --- */
+.sticky-order-cta {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 28;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #128c7e, #25d366);
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.96rem;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 18px 44px rgba(18, 140, 126, 0.45),
+    0 0 0 4px rgba(37, 211, 102, 0.18);
+  cursor: pointer;
+  animation: sticky-pulse 2.4s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.sticky-order-cta:hover {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+@keyframes sticky-pulse {
+  0%, 100% { box-shadow: 0 18px 44px rgba(18, 140, 126, 0.45), 0 0 0 4px rgba(37, 211, 102, 0.18); }
+  50% { box-shadow: 0 22px 52px rgba(18, 140, 126, 0.55), 0 0 0 8px rgba(37, 211, 102, 0.08); }
+}
+
+/* Esconde sticky-order-cta quando floating-cart-bar está visível */
+.has-cart-items .sticky-order-cta {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .sticky-order-cta {
+    bottom: 24px;
+    right: 24px;
+    left: auto;
+    transform: none;
+  }
+  .sticky-order-cta:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Esconde o floating-whatsapp redundante quando o sticky-order-cta está ativo no mobile */
+@media (max-width: 899px) {
+  .floating-whatsapp {
+    bottom: 82px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* --- Refino tipografia headings (sutil, mais editorial) --- */
+.section-heading h2 {
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.section-heading--light h2 {
+  background: linear-gradient(180deg, #fff8e7 0%, #f0d8a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.kicker {
+  position: relative;
+  padding-left: 18px;
+}
+
+.kicker::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: currentColor;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+.section-heading--centered .kicker {
+  padding-left: 0;
+}
+
+.section-heading--centered .kicker::before {
+  display: none;
+}
+
+/* Body padding extra para o sticky CTA não cobrir o footer */
+.site-shell {
+  padding-bottom: 140px;
+}
+
+@media (min-width: 900px) {
+  .site-shell {
+    padding-bottom: 118px;
+  }
+}
+
+/* ============================================================
+   CHECKOUT — Entrega e Pagamento (refino premium)
+   ============================================================ */
+
+/* Header do step com gradiente sutil */
+#cart-step-delivery .cart-drawer__header,
+#cart-step-auth .cart-drawer__header,
+#cart-step-payment-details .cart-drawer__header {
+  background: linear-gradient(180deg, #ffffff 0%, #fbf6ef 100%);
+  border-bottom: 1px solid rgba(232, 193, 112, 0.35);
+}
+
+#cart-step-delivery .cart-drawer__back svg,
+#cart-step-auth .cart-drawer__back svg,
+#cart-step-payment-details .cart-drawer__back svg {
+  color: var(--wine);
+}
+
+/* Corpo do checkout com base creme suave */
+#cart-step-delivery .cart-drawer__body,
+#cart-step-auth .cart-drawer__body,
+#cart-step-payment-details .cart-drawer__body {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(232, 193, 112, 0.08), transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(90, 10, 24, 0.04), transparent 40%),
+    #faf6ee;
+  gap: 16px;
+}
+
+/* Cartão de formulário com aparência premium */
+.cart-drawer .delivery-form,
+.cart-drawer .auth-form {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 22px 20px;
+  border: 1px solid rgba(232, 193, 112, 0.3);
+  box-shadow:
+    0 18px 40px rgba(58, 6, 16, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  gap: 18px;
+}
+
+/* Labels mais elegantes */
+.cart-drawer .form-group label {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4a2a22;
+}
+
+/* Inputs com aparência mais premium */
+.cart-drawer .form-group input,
+.cart-drawer .form-group select,
+.cart-drawer .form-group textarea {
+  min-height: 50px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(232, 193, 112, 0.35);
+  background: #fffdf8;
+  color: #24130f;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.cart-drawer .form-group input::placeholder,
+.cart-drawer .form-group textarea::placeholder {
+  color: rgba(36, 19, 15, 0.38);
+  font-weight: 500;
+}
+
+.cart-drawer .form-group input:focus,
+.cart-drawer .form-group select:focus,
+.cart-drawer .form-group textarea:focus {
+  border-color: var(--wine);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(90, 10, 24, 0.08);
+  outline: none;
+}
+
+/* Select com seta dourada */
+.cart-drawer .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a0a18' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+/* Botões de tipo de entrega — visual de seleção premium */
+.cart-drawer .delivery-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cart-drawer .delivery-type-btn {
+  position: relative;
+  min-height: 64px;
+  border: 1.5px solid rgba(232, 193, 112, 0.35);
+  border-radius: 14px;
+  background: #fffdf8;
+  color: #4a2a22;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  overflow: hidden;
+}
+
+.cart-drawer .delivery-type-btn:hover {
+  border-color: var(--gold-soft);
+  background: #fff8eb;
+  transform: translateY(-1px);
+}
+
+.cart-drawer .delivery-type-btn.is-active {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow:
+    0 14px 32px rgba(213, 2, 1, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.cart-drawer .delivery-type-btn.is-active::after {
+  content: "✓";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Textarea de observações: visual unificado */
+.cart-drawer .form-group textarea#checkout-obs {
+  min-height: 76px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid rgba(232, 193, 112, 0.35) !important;
+  background: #fffdf8 !important;
+  padding: 12px 16px !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  color: #24130f !important;
+}
+
+/* Botão "Avançar" do checkout — vermelho vibrante igual ao do carrinho */
+.cart-drawer .button--checkout-next {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%) !important;
+  border: none !important;
+  border-radius: 14px;
+  min-height: 56px;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 14px 36px rgba(213, 2, 1, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.cart-drawer .button--checkout-next::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.cart-drawer .button--checkout-next:hover:not(:disabled)::before {
+  transform: translateX(100%);
+}
+
+.cart-drawer .button--checkout-next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 44px rgba(213, 2, 1, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.cart-drawer .button--checkout-next:disabled {
+  background: linear-gradient(135deg, #e8e2d8, #d8d0c4) !important;
+  border-color: rgba(35, 20, 16, 0.06) !important;
+  color: rgba(36, 19, 15, 0.4) !important;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+/* "Forma de Pagamento" — visual de cartões opcionais
+   Mantém o <select> nativo mas reforça com ícone na esquerda */
+.payment-method-wrap {
+  position: relative;
+}
+
+.payment-method-wrap::before {
+  content: "💳";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.payment-method-wrap select {
+  padding-left: 46px !important;
+}
+
+/* Dica de segurança/confiança no fim do form */
+.checkout-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  background: rgba(232, 193, 112, 0.08);
+  border: 1px dashed rgba(232, 193, 112, 0.4);
+  border-radius: 10px;
+  color: #6a3a30;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.checkout-trust::before {
+  content: "🔒";
+  font-size: 0.95rem;
+}
+
+/* Header label do tipo de entrega: mais bonito */
+.delivery-type-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 4px;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4a2a22;
+}
+
+.delivery-type-heading::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--wine), var(--gold-soft));
+  border-radius: 2px;
+}
+
+/* Mini divisor entre Entrega e Pagamento dentro do form */
+.form-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(90, 10, 24, 0.55);
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232, 193, 112, 0.55), transparent);
+}
+
+/* ============================================================
+   PAYMENT METHOD CARDS — Pix / Mercado Pago / Cartão / Dinheiro
+   ============================================================ */
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.payment-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 78px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fffdf8;
+  border: 1.5px solid rgba(232, 193, 112, 0.32);
+  color: #24130f;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.payment-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold-soft);
+  background: #fff8eb;
+  box-shadow: 0 10px 24px rgba(90, 10, 24, 0.08);
+}
+
+.payment-card.is-active {
+  border-color: var(--wine);
+  background: linear-gradient(135deg, #fff 0%, #fff8eb 100%);
+  box-shadow:
+    0 14px 32px rgba(90, 10, 24, 0.14),
+    inset 0 0 0 1px rgba(90, 10, 24, 0.05);
+}
+
+.payment-card.is-active::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 14px;
+  border: 2px solid var(--wine);
+  pointer-events: none;
+}
+
+.payment-card__icon {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid rgba(35, 20, 16, 0.06);
+  box-shadow:
+    0 4px 10px rgba(35, 20, 16, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  transition: transform 0.25s ease;
+}
+
+.payment-card.is-active .payment-card__icon {
+  transform: scale(1.04);
+}
+
+.payment-card__icon--pix {
+  background: linear-gradient(135deg, #e7faf5, #d1f1e6);
+  border-color: rgba(50, 188, 173, 0.25);
+}
+
+.payment-card__icon--mp {
+  background: linear-gradient(135deg, #eaf6ff, #d6ecff);
+  border-color: rgba(0, 158, 227, 0.25);
+}
+
+.payment-card__icon--card {
+  background: linear-gradient(135deg, #f5efe5, #ede0c8);
+  border-color: rgba(90, 10, 24, 0.18);
+}
+
+.payment-card__icon--cash {
+  background: linear-gradient(135deg, #e9f5ec, #d4ead8);
+  border-color: rgba(47, 125, 74, 0.25);
+}
+
+.payment-card__icon svg,
+.payment-card__icon img {
+  display: block;
+  max-width: 80%;
+  max-height: 80%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.payment-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.payment-card__text strong {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #24130f;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+}
+
+.payment-card__text small {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: rgba(36, 19, 15, 0.55);
+  line-height: 1.3;
+}
+
+.payment-card.is-active .payment-card__text strong {
+  color: var(--wine);
+}
+
+.payment-card__check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--wine);
+  color: var(--gold-bright);
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.4, 1.5, 0.6, 1);
+  box-shadow: 0 4px 12px rgba(90, 10, 24, 0.35);
+}
+
+.payment-card.is-active .payment-card__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (max-width: 380px) {
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+  .payment-card {
+    min-height: 72px;
+  }
+}
+
+/* ============================================================
+   CHECKOUT — POLIMENTO FINAL
+   Refino sutil mantendo o design atual: respiração, sombras,
+   destaque do step ativo e microcopy do botão.
+   ============================================================ */
+
+/* Mais respiração no corpo do checkout */
+.cart-drawer #cart-step-delivery .cart-drawer__body,
+.cart-drawer #cart-step-auth .cart-drawer__body {
+  padding: 22px 18px 28px;
+}
+
+/* Card do form com leve elevação 3D */
+.cart-drawer .delivery-form,
+.cart-drawer .auth-form {
+  padding: 24px 22px;
+  border-radius: 20px;
+  box-shadow:
+    0 24px 50px rgba(58, 6, 16, 0.08),
+    0 2px 0 rgba(232, 193, 112, 0.4) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+/* Spacing entre groups mais arejado */
+.cart-drawer .delivery-form > .form-group + .form-group,
+.cart-drawer .auth-form > .form-group + .form-group {
+  margin-top: 2px;
+}
+
+/* Heading do tipo de entrega — mais elegante */
+.delivery-type-heading {
+  font-size: 0.84rem;
+  color: #3a1c14;
+  margin-bottom: 8px;
+}
+
+/* Botões Entrega/Retirada com leve refinamento */
+.cart-drawer .delivery-type-btn {
+  min-height: 70px;
+  font-size: 0.96rem;
+  letter-spacing: 0.005em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.1;
+}
+
+.cart-drawer .delivery-type-btn::first-letter {
+  font-size: 1.4rem;
+}
+
+/* Divisor "Pagamento" mais discreto e elegante */
+.form-divider {
+  margin: 8px 0 2px;
+  font-size: 0.7rem;
+  color: rgba(90, 10, 24, 0.5);
+}
+
+/* Inputs: foco com glow vinho mais sutil */
+.cart-drawer .form-group input:focus,
+.cart-drawer .form-group select:focus,
+.cart-drawer .form-group textarea:focus {
+  box-shadow: 0 0 0 3px rgba(90, 10, 24, 0.1);
+}
+
+/* Labels com pequeno indicador visual */
+.cart-drawer .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botão Avançar — refinado, mais "premium quiet" */
+.cart-drawer .button--checkout-next {
+  border-radius: 16px;
+  min-height: 58px;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+}
+
+/* Trust badge mais discreto */
+.checkout-trust {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(232, 193, 112, 0.1), rgba(232, 193, 112, 0.04));
+  border: 1px solid rgba(232, 193, 112, 0.35);
+  border-radius: 12px;
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+  color: #5a3a30;
+}
+
+/* Cartões de pagamento — sombra ativa mais elegante */
+.payment-card.is-active {
+  background: linear-gradient(135deg, #ffffff 0%, #fffaf0 100%);
+  box-shadow:
+    0 18px 38px rgba(90, 10, 24, 0.16),
+    0 0 0 1px rgba(232, 193, 112, 0.4);
+}
+
+.payment-card__icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+}
+
+/* Ícones internos: leve padding interno para "respirar" */
+.payment-card__icon svg {
+  max-width: 70%;
+  max-height: 70%;
+  height: auto;
+}
+
+.payment-card__text strong {
+  font-size: 0.98rem;
+}
+
+.payment-card__text small {
+  font-size: 0.76rem;
+}
+
+/* ============================================================
+   STORE HOURS — pílula com dropdown semanal
+   ============================================================ */
+
+.store-hours {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  z-index: 6;
+}
+
+.store-hours__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(35, 20, 16, 0.1);
+  color: #24130f;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.store-hours__pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  background: #fffaf2;
+}
+
+.store-hours__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d93838;
+  box-shadow: 0 0 0 3px rgba(217, 56, 56, 0.18);
+  flex-shrink: 0;
+}
+
+.store-hours[data-state="open"] .store-hours__dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.22);
+  animation: store-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes store-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.22); }
+  50%      { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.08); }
+}
+
+.store-hours__chevron {
+  color: rgba(36, 19, 15, 0.55);
+  transition: transform 0.22s ease;
+}
+
+.store-hours[data-open="true"] .store-hours__chevron {
+  transform: rotate(180deg);
+}
+
+.store-hours__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  width: min(320px, calc(100vw - 32px));
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(35, 20, 16, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.22s ease;
+}
+
+.store-hours[data-open="true"] .store-hours__panel {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.store-hours__panel[hidden] {
+  display: block;
+}
+
+.store-hours__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.store-hours__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  font-size: 0.92rem;
+  color: #24130f;
+  font-weight: 600;
+}
+
+.store-hours__list li + li {
+  border-top: 1px solid rgba(35, 20, 16, 0.05);
+}
+
+.store-hours__list li.is-today {
+  background: rgba(213, 2, 1, 0.06);
+}
+
+.store-hours__list li.is-today span:first-child {
+  color: var(--red);
+  font-weight: 900;
+}
+
+.store-hours__list li span:last-child {
+  color: rgba(36, 19, 15, 0.75);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.store-hours__footer {
+  padding: 12px 18px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(36, 19, 15, 0.55);
+  font-weight: 700;
+  border-top: 1px solid rgba(35, 20, 16, 0.06);
+  background: #fbf8f2;
+}

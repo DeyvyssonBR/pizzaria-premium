@@ -1686,8 +1686,10 @@ function updateFloatingCartBar() {
     floatingCartBar.style.display = 'flex';
     floatingCartCount.textContent = `Ver Carrinho (${totalItems} ${totalItems === 1 ? 'item' : 'itens'})`;
     floatingCartTotal.textContent = formatBRL(totalPrice);
+    document.body.classList.add('has-cart-items');
   } else {
     floatingCartBar.style.display = 'none';
+    document.body.classList.remove('has-cart-items');
   }
 }
 
@@ -2046,6 +2048,22 @@ if (checkoutPayment) {
   });
 }
 
+// Payment method cards (radio visual) — atualiza o <select> escondido
+document.querySelectorAll('.payment-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const value = card.dataset.payment;
+    if (!value || !checkoutPayment) return;
+    document.querySelectorAll('.payment-card').forEach(c => {
+      c.classList.remove('is-active');
+      c.setAttribute('aria-checked', 'false');
+    });
+    card.classList.add('is-active');
+    card.setAttribute('aria-checked', 'true');
+    checkoutPayment.value = value;
+    checkoutPayment.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+});
+
 function finalizeOrder() {
   const name = checkoutName.value.trim();
   const phone = checkoutPhone.value.trim();
@@ -2366,3 +2384,90 @@ if (paymentStatus) {
     }, 800);
   }
 }
+
+/* ============================================================
+   Store Hours — pílula clicável com status dinâmico
+   ============================================================ */
+(function initStoreHours() {
+  const root = document.getElementById('store-hours');
+  if (!root) return;
+  const toggle = document.getElementById('store-hours-toggle');
+  const panel = document.getElementById('store-hours-panel');
+  const label = document.getElementById('store-hours-label');
+  const list = document.getElementById('store-hours-list');
+
+  const SCHEDULE = {
+    0: { open: '18:00', close: '23:00' },
+    1: { open: '18:00', close: '23:00' },
+    2: { open: '18:00', close: '23:00' },
+    3: { open: '18:00', close: '23:00' },
+    4: { open: '18:00', close: '23:00' },
+    5: { open: '18:00', close: '23:15' },
+    6: { open: '18:00', close: '23:15' }
+  };
+
+  const toMinutes = (hhmm) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  function updateStatus() {
+    const now = new Date();
+    const day = now.getDay();
+    const minutesNow = now.getHours() * 60 + now.getMinutes();
+    const today = SCHEDULE[day];
+    const isOpen = today && minutesNow >= toMinutes(today.open) && minutesNow < toMinutes(today.close);
+
+    root.setAttribute('data-state', isOpen ? 'open' : 'closed');
+
+    if (label) {
+      if (isOpen) {
+        label.textContent = `Aberto · Fecha às ${today.close}`;
+      } else if (minutesNow < toMinutes(today.open)) {
+        label.textContent = `Abre às ${today.open}`;
+      } else {
+        let next = day;
+        for (let i = 1; i <= 7; i++) {
+          next = (day + i) % 7;
+          if (SCHEDULE[next]) break;
+        }
+        label.textContent = `Abre amanhã às ${SCHEDULE[next].open}`;
+      }
+    }
+
+    if (list) {
+      list.querySelectorAll('li').forEach(li => {
+        li.classList.toggle('is-today', Number(li.dataset.day) === day);
+      });
+    }
+  }
+
+  function setOpen(open) {
+    root.setAttribute('data-open', open ? 'true' : 'false');
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (panel) {
+      if (open) panel.removeAttribute('hidden');
+      else panel.setAttribute('hidden', '');
+    }
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = root.getAttribute('data-open') === 'true';
+      setOpen(!isOpen);
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!root.contains(e.target)) setOpen(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+
+  updateStatus();
+  setInterval(updateStatus, 60 * 1000);
+})();
+
