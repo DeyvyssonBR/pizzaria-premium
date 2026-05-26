@@ -1745,67 +1745,118 @@
           </div>
         </div>
 
-        <!-- Tab: Zonas de entrega -->
+        <!-- Tab: Zonas de entrega (por distância) -->
         <div class="tab-content" id="tab-zones">
-          <div class="section-title">
-            <span>Zonas de Entrega (por CEP)</span>
-            <button class="btn" style="width:auto;padding:10px 20px;font-size:0.88rem;" onclick="openZoneForm()"><i class="fa-solid fa-plus"></i> Nova zona</button>
-          </div>
-          <div style="background:#fff7e6;border-left:3px solid #e0a300;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:0.88rem;color:#6b4a00;">
-            💡 CEPs fora de qualquer zona ativa serão tratados como "fora da área de entrega" na calculadora pública.
-            Para Teresina-PI, use a faixa <strong>64000000</strong> a <strong>64099999</strong>.
+          <div class="section-title"><span>📍 Frete por Distância</span></div>
+          <div style="background:#e8f5e9;border-left:3px solid #2e7d32;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:0.88rem;color:#1b5e20;">
+            🚀 O sistema calcula a distância real entre a pizzaria e o CEP do cliente (em km) e aplica a regra abaixo automaticamente.
           </div>
 
-          <div id="zones-admin-list"></div>
-
-          <div style="margin-top:24px;padding:16px;background:#f7f7f7;border-radius:12px;">
-            <h4 style="margin-top:0;">🧪 Testar CEP</h4>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="zone-test-cep" placeholder="00000-000" maxlength="9" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
-              <button class="btn" onclick="testZoneCep()">Testar</button>
+          <div class="card" style="margin-bottom:18px;">
+            <h4 style="margin-top:0;">🏪 Endereço da pizzaria (origem)</h4>
+            <div class="form-group">
+              <label for="store-cep">CEP da pizzaria</label>
+              <input type="text" id="store-cep" placeholder="64071-440" maxlength="9" style="width:160px;" />
+              <button class="btn" style="width:auto;padding:8px 14px;font-size:0.85rem;margin-left:8px;" onclick="resolveStoreCep()">📍 Atualizar coords</button>
             </div>
-            <div id="zone-test-result" style="margin-top:10px;font-size:0.92rem;"></div>
+            <div class="form-group" id="store-cep-info" style="font-size:0.86rem;color:#666;"></div>
           </div>
 
-          <div id="zone-form-modal" style="display:none;margin-top:16px;padding:18px;background:#fafafa;border-radius:12px;border:1.5px solid rgba(36,19,15,0.1);">
-            <h3 style="margin-top:0;color:#5a0a18;" id="zone-form-title">Nova zona</h3>
+          <div class="card" style="margin-bottom:18px;">
+            <h4 style="margin-top:0;">⚙️ Regras de frete</h4>
+
             <div class="form-group">
-              <label for="zone-label">Nome da zona</label>
-              <input type="text" id="zone-label" placeholder="Ex: Centro, Zona Sul, Timon" />
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div class="form-group">
-                <label for="zone-cep-from">CEP inicial</label>
-                <input type="text" id="zone-cep-from" placeholder="64000000" maxlength="8" />
-              </div>
-              <div class="form-group">
-                <label for="zone-cep-to">CEP final</label>
-                <input type="text" id="zone-cep-to" placeholder="64099999" maxlength="8" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="zone-fee">Taxa de entrega (R$)</label>
-              <input type="number" id="zone-fee" min="0" step="0.5" value="5" style="width:140px;" />
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div class="form-group">
-                <label for="zone-min">Tempo mínimo (min)</label>
-                <input type="number" id="zone-min" min="0" value="30" />
-              </div>
-              <div class="form-group">
-                <label for="zone-max">Tempo máximo (min)</label>
-                <input type="number" id="zone-max" min="0" value="60" />
-              </div>
-            </div>
-            <div class="form-group">
+              <label>Modelo de cobrança</label>
+              <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                <input type="radio" name="delivery-mode" value="per_km" id="delivery-mode-perkm" />
+                <span>Por km — taxa base + valor por km</span>
+              </label>
               <label style="display:flex;align-items:center;gap:8px;">
-                <input type="checkbox" id="zone-active" checked />
-                <span>Ativa</span>
+                <input type="radio" name="delivery-mode" value="bands" id="delivery-mode-bands" />
+                <span>Por faixa — preço fixo até cada km</span>
               </label>
             </div>
-            <button class="btn" onclick="saveZoneAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
-            <button class="btn" style="background:#6b5a55;margin-left:8px;" onclick="closeZoneForm()">Cancelar</button>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div class="form-group">
+                <label for="delivery-max-km">Raio máximo (km)</label>
+                <select id="delivery-max-km">
+                  <option value="10">10 km</option>
+                  <option value="15" selected>15 km</option>
+                  <option value="20">20 km</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="delivery-base-fee">Taxa base (R$)</label>
+                <input type="number" id="delivery-base-fee" min="0" step="0.5" value="5" />
+              </div>
+              <div class="form-group">
+                <label for="delivery-per-km">R$ por km</label>
+                <input type="number" id="delivery-per-km" min="0" step="0.1" value="1.5" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="delivery-fuel">Combustível: R$ por km (para o simulador)</label>
+              <input type="number" id="delivery-fuel" min="0" step="0.05" value="0.55" style="width:180px;" />
+              <small style="display:block;color:#666;margin-top:4px;">Ex: moto a 30 km/L com gasolina a R$ 6,00 → R$ 0,20/km. Carro 1.0 popular → R$ 0,55/km.</small>
+            </div>
+
+            <div id="bands-config" style="display:none;background:#fafafa;padding:14px;border-radius:10px;margin-top:10px;">
+              <h5 style="margin-top:0;">Faixas de preço</h5>
+              <div id="bands-list"></div>
+              <button class="btn" style="width:auto;padding:6px 12px;font-size:0.82rem;" onclick="addBandRow()"><i class="fa-solid fa-plus"></i> Adicionar faixa</button>
+            </div>
+
+            <button class="btn" style="margin-top:12px;" onclick="saveDeliveryCfgAdmin()"><i class="fa-solid fa-save"></i> Salvar regras</button>
           </div>
+
+          <div class="card" style="margin-bottom:18px;">
+            <h4 style="margin-top:0;">🧮 Simulador de entrega</h4>
+            <p style="font-size:0.86rem;color:#666;">Digite um CEP de cliente pra ver dist&acirc;ncia real, taxa cobrada, custo de combust&iacute;vel e lucro l&iacute;quido por entrega.</p>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="sim-cep" placeholder="00000-000" maxlength="9" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+              <button class="btn" onclick="runSimulator()">Simular</button>
+            </div>
+            <div id="sim-result" style="margin-top:12px;"></div>
+          </div>
+
+          <details style="margin-top:20px;">
+            <summary style="cursor:pointer;font-weight:600;color:#5a0a18;">⚙️ Configuração avançada — zonas legadas por faixa de CEP</summary>
+            <div style="padding-top:14px;">
+              <p style="font-size:0.85rem;color:#666;">As zonas por CEP abaixo são um fallback. Se você ativar a regra por distância acima, ela tem prioridade.</p>
+              <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+                <button class="btn" style="width:auto;padding:8px 14px;font-size:0.85rem;" onclick="openZoneForm()"><i class="fa-solid fa-plus"></i> Nova zona</button>
+              </div>
+              <div id="zones-admin-list"></div>
+
+              <div id="zone-form-modal" style="display:none;margin-top:16px;padding:18px;background:#fafafa;border-radius:12px;border:1.5px solid rgba(36,19,15,0.1);">
+                <h3 style="margin-top:0;color:#5a0a18;" id="zone-form-title">Nova zona</h3>
+                <div class="form-group"><label for="zone-label">Nome da zona</label><input type="text" id="zone-label" placeholder="Ex: Centro, Zona Sul, Timon" /></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="form-group"><label for="zone-cep-from">CEP inicial</label><input type="text" id="zone-cep-from" placeholder="64000000" maxlength="8" /></div>
+                  <div class="form-group"><label for="zone-cep-to">CEP final</label><input type="text" id="zone-cep-to" placeholder="64099999" maxlength="8" /></div>
+                </div>
+                <div class="form-group"><label for="zone-fee">Taxa (R$)</label><input type="number" id="zone-fee" min="0" step="0.5" value="5" style="width:140px;" /></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="form-group"><label for="zone-min">Tempo mínimo</label><input type="number" id="zone-min" min="0" value="30" /></div>
+                  <div class="form-group"><label for="zone-max">Tempo máximo</label><input type="number" id="zone-max" min="0" value="60" /></div>
+                </div>
+                <div class="form-group"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="zone-active" checked /><span>Ativa</span></label></div>
+                <button class="btn" onclick="saveZoneAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
+                <button class="btn" style="background:#6b5a55;margin-left:8px;" onclick="closeZoneForm()">Cancelar</button>
+              </div>
+
+              <div style="margin-top:14px;padding:12px;background:#f7f7f7;border-radius:10px;">
+                <h5 style="margin-top:0;">🧪 Testar CEP (modo zonas)</h5>
+                <div style="display:flex;gap:8px;">
+                  <input type="text" id="zone-test-cep" placeholder="00000-000" maxlength="9" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+                  <button class="btn" onclick="testZoneCep()">Testar</button>
+                </div>
+                <div id="zone-test-result" style="margin-top:10px;font-size:0.92rem;"></div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- Tab 5: Dashboard e Relatórios -->
@@ -2111,6 +2162,7 @@
         loadLoyaltyCfgIntoForm();
         renderPrizesAdminList();
       } else if (tabId === 'tab-zones') {
+        loadDeliveryCfgIntoForm();
         renderZonesAdminList();
       }
     }
@@ -3530,6 +3582,244 @@
           </div>`;
         }
       }
+    }
+
+    // ============================================================
+    // Admin: Frete por distância (config + simulador)
+    // ============================================================
+    const STORE_CONFIG_KEY = 'premium_pizzaria_store_cfg';
+    const DELIVERY_CFG_KEY = 'premium_pizzaria_delivery_cfg';
+    const GEO_CACHE_KEY = 'premium_pizzaria_geo_cache';
+
+    const STORE_DEFAULTS_ADM = { cep: '64071440', lat: -5.0617, lng: -42.7775, address: 'Av. Sen. Sigefredo Pacheco, 4727 - Verde Lar, Teresina-PI' };
+    const DELIVERY_DEFAULTS_ADM = { mode: 'per_km', maxKm: 15, baseFee: 5, perKm: 1.5, baseMin: 20, fuelPerKm: 0.55, bands: [{ maxKm: 3, fee: 5 }, { maxKm: 7, fee: 10 }, { maxKm: 12, fee: 15 }] };
+
+    function loadStoreCfg() {
+      try { const r = localStorage.getItem(STORE_CONFIG_KEY); if (r) return Object.assign({}, STORE_DEFAULTS_ADM, JSON.parse(r)); } catch (e) {}
+      return Object.assign({}, STORE_DEFAULTS_ADM);
+    }
+    function saveStoreCfg(c) { localStorage.setItem(STORE_CONFIG_KEY, JSON.stringify(c)); }
+    function loadDeliveryCfg() {
+      try { const r = localStorage.getItem(DELIVERY_CFG_KEY); if (r) return Object.assign({}, DELIVERY_DEFAULTS_ADM, JSON.parse(r)); } catch (e) {}
+      return Object.assign({}, DELIVERY_DEFAULTS_ADM);
+    }
+    function saveDeliveryCfg(c) { localStorage.setItem(DELIVERY_CFG_KEY, JSON.stringify(c)); }
+    function loadGeoCacheAdm() {
+      try { return JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || '{}'); } catch (e) { return {}; }
+    }
+    function saveGeoCacheAdm(m) { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(m)); }
+
+    async function geocodeCepAdm(rawCep) {
+      const cep = String(rawCep || '').replace(/\D/g, '');
+      if (cep.length !== 8) throw new Error('CEP precisa ter 8 dígitos.');
+      const cache = loadGeoCacheAdm();
+      if (cache[cep]) return cache[cep];
+      let lat = null, lng = null, street = '', neighborhood = '', city = '', uf = '';
+      try {
+        const r = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`, { mode: 'cors' });
+        if (r.ok) {
+          const d = await r.json();
+          if (d && !d.error) {
+            if (d.lat) lat = parseFloat(d.lat);
+            if (d.lng) lng = parseFloat(d.lng);
+            street = d.address || ''; neighborhood = d.district || ''; city = d.city || ''; uf = d.state || '';
+          }
+        }
+      } catch (e) {}
+      if (!street || !city) {
+        try {
+          const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { mode: 'cors' });
+          if (r.ok) {
+            const d = await r.json();
+            if (!d.erro) {
+              street = street || d.logradouro || '';
+              neighborhood = neighborhood || d.bairro || '';
+              city = city || d.localidade || '';
+              uf = uf || d.uf || '';
+            }
+          }
+        } catch (e) {}
+      }
+      if (!street && !city) throw new Error('CEP não encontrado.');
+      if (lat == null) {
+        if ((city || '').toLowerCase().includes('teresina')) { lat = -5.0892; lng = -42.8019; }
+        else if ((city || '').toLowerCase().includes('timon')) { lat = -5.0939; lng = -42.8367; }
+      }
+      const result = { cep, lat, lng, street, neighborhood, city, uf };
+      cache[cep] = result; saveGeoCacheAdm(cache);
+      return result;
+    }
+
+    function haversineKmAdm(lat1, lng1, lat2, lng2) {
+      if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+      const R = 6371, toRad = (d) => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function calcFee(km, cfg) {
+      if (cfg.mode === 'bands') {
+        const b = (cfg.bands || []).find(x => km <= x.maxKm);
+        return b ? b.fee : (cfg.bands?.slice(-1)[0]?.fee ?? cfg.baseFee);
+      }
+      return cfg.baseFee + km * cfg.perKm;
+    }
+
+    function loadDeliveryCfgIntoForm() {
+      const cfg = loadDeliveryCfg();
+      const store = loadStoreCfg();
+      const cepEl = document.getElementById('store-cep');
+      if (cepEl) cepEl.value = store.cep.length === 8 ? `${store.cep.slice(0,5)}-${store.cep.slice(5)}` : store.cep;
+      updateStoreCepInfo(store);
+      const m1 = document.getElementById('delivery-mode-perkm');
+      const m2 = document.getElementById('delivery-mode-bands');
+      if (m1) m1.checked = cfg.mode !== 'bands';
+      if (m2) m2.checked = cfg.mode === 'bands';
+      const mx = document.getElementById('delivery-max-km'); if (mx) mx.value = String(cfg.maxKm);
+      const bf = document.getElementById('delivery-base-fee'); if (bf) bf.value = cfg.baseFee;
+      const pk = document.getElementById('delivery-per-km'); if (pk) pk.value = cfg.perKm;
+      const fu = document.getElementById('delivery-fuel'); if (fu) fu.value = cfg.fuelPerKm;
+      const cfgPanel = document.getElementById('bands-config');
+      if (cfgPanel) cfgPanel.style.display = (cfg.mode === 'bands') ? 'block' : 'none';
+      renderBandsList(cfg.bands || []);
+    }
+
+    function updateStoreCepInfo(store) {
+      const info = document.getElementById('store-cep-info');
+      if (!info) return;
+      info.innerHTML = `📍 ${escapeHtml(store.address || '—')}<br>Coords: <code>${store.lat?.toFixed(4)}, ${store.lng?.toFixed(4)}</code>`;
+    }
+
+    async function resolveStoreCep() {
+      const cepEl = document.getElementById('store-cep');
+      if (!cepEl) return;
+      const cep = (cepEl.value || '').replace(/\D/g, '');
+      if (cep.length !== 8) { adminToast('CEP inválido.'); return; }
+      adminToast('Consultando CEP da pizzaria…');
+      try {
+        const d = await geocodeCepAdm(cep);
+        const store = { cep, lat: d.lat, lng: d.lng, address: `${d.street}, ${d.neighborhood} - ${d.city}/${d.uf}` };
+        saveStoreCfg(store);
+        updateStoreCepInfo(store);
+        adminToast('Endereço da pizzaria atualizado.');
+      } catch (err) { adminToast(err.message); }
+    }
+
+    function renderBandsList(bands) {
+      const list = document.getElementById('bands-list');
+      if (!list) return;
+      list.innerHTML = bands.map((b, i) => `
+        <div style="display:grid;grid-template-columns:1fr 1fr 40px;gap:8px;margin-bottom:8px;align-items:end;">
+          <div class="form-group" style="margin:0;">
+            <label>Até km</label>
+            <input type="number" min="0" step="0.5" value="${b.maxKm}" data-band-idx="${i}" data-band-field="maxKm" />
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>Taxa (R$)</label>
+            <input type="number" min="0" step="0.5" value="${b.fee}" data-band-idx="${i}" data-band-field="fee" />
+          </div>
+          <button class="btn-circle btn-delete" onclick="removeBandRow(${i})" title="Remover" style="height:38px;"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('') || '<div style="color:#888;font-size:0.85rem;">Nenhuma faixa cadastrada.</div>';
+    }
+    function collectBandsFromForm() {
+      const inputs = document.querySelectorAll('#bands-list input[data-band-idx]');
+      const map = {};
+      inputs.forEach(el => {
+        const i = el.getAttribute('data-band-idx');
+        const f = el.getAttribute('data-band-field');
+        map[i] = map[i] || {};
+        map[i][f] = parseFloat(el.value) || 0;
+      });
+      return Object.values(map).sort((a, b) => a.maxKm - b.maxKm);
+    }
+    function addBandRow() {
+      const cfg = loadDeliveryCfg();
+      cfg.bands = collectBandsFromForm();
+      cfg.bands.push({ maxKm: (cfg.bands.slice(-1)[0]?.maxKm || 0) + 3, fee: (cfg.bands.slice(-1)[0]?.fee || 5) + 5 });
+      renderBandsList(cfg.bands);
+    }
+    function removeBandRow(idx) {
+      const cfg = loadDeliveryCfg();
+      cfg.bands = collectBandsFromForm();
+      cfg.bands.splice(idx, 1);
+      renderBandsList(cfg.bands);
+    }
+
+    // Toggle bands panel ao mudar radio
+    document.addEventListener('change', (e) => {
+      if (e.target && (e.target.id === 'delivery-mode-perkm' || e.target.id === 'delivery-mode-bands')) {
+        const panel = document.getElementById('bands-config');
+        if (panel) panel.style.display = (document.getElementById('delivery-mode-bands')?.checked) ? 'block' : 'none';
+      }
+    });
+
+    function saveDeliveryCfgAdmin() {
+      const mode = document.getElementById('delivery-mode-bands')?.checked ? 'bands' : 'per_km';
+      const cfg = {
+        mode,
+        maxKm: parseFloat(document.getElementById('delivery-max-km')?.value) || 15,
+        baseFee: parseFloat(document.getElementById('delivery-base-fee')?.value) || 0,
+        perKm: parseFloat(document.getElementById('delivery-per-km')?.value) || 0,
+        fuelPerKm: parseFloat(document.getElementById('delivery-fuel')?.value) || 0,
+        baseMin: 20,
+        bands: collectBandsFromForm()
+      };
+      if (cfg.mode === 'bands' && !cfg.bands.length) cfg.bands = DELIVERY_DEFAULTS_ADM.bands.slice();
+      saveDeliveryCfg(cfg);
+      adminToast('Regras de frete salvas.');
+    }
+
+    async function runSimulator() {
+      const cepEl = document.getElementById('sim-cep');
+      const out = document.getElementById('sim-result');
+      if (!cepEl || !out) return;
+      const cep = (cepEl.value || '').replace(/\D/g, '');
+      if (cep.length !== 8) { out.innerHTML = '<div style="color:#a00;">CEP inválido.</div>'; return; }
+      out.innerHTML = '📡 Consultando…';
+      try {
+        const d = await geocodeCepAdm(cep);
+        const store = loadStoreCfg();
+        const cfg = loadDeliveryCfg();
+        const km = haversineKmAdm(store.lat, store.lng, d.lat, d.lng);
+        if (km == null) { out.innerHTML = '<div style="color:#a00;">Não consegui calcular a distância (sem coordenadas).</div>'; return; }
+        const inRange = km <= cfg.maxKm;
+        const fee = inRange ? calcFee(km, cfg) : 0;
+        const fuelCost = km * 2 * cfg.fuelPerKm; // ida e volta
+        const liquid = fee - fuelCost;
+        const profitColor = liquid > 0 ? '#2e7d32' : '#a00';
+        out.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="padding:14px;background:${inRange ? '#e8f5e9' : '#fff4e6'};border-radius:12px;">
+              <div style="font-size:0.78rem;color:#666;">📍 Endereço</div>
+              <div style="font-weight:700;">${escapeHtml(d.neighborhood || '—')}</div>
+              <div style="font-size:0.85rem;color:#666;">${escapeHtml(d.street || '')}</div>
+              <div style="font-size:0.85rem;color:#666;">${escapeHtml(d.city)}/${escapeHtml(d.uf)}</div>
+            </div>
+            <div style="padding:14px;background:#f7f7f7;border-radius:12px;">
+              <div style="font-size:0.78rem;color:#666;">📏 Distância (linha reta)</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#5a0a18;">${km.toFixed(2)} km</div>
+              <div style="font-size:0.78rem;color:#666;">${inRange ? '✓ Dentro do raio' : '⚠️ FORA do raio máximo (' + cfg.maxKm + ' km)'}</div>
+            </div>
+          </div>
+          ${inRange ? `
+          <div style="margin-top:14px;padding:16px;background:#fff;border:2px solid #e0e0e0;border-radius:12px;">
+            <h5 style="margin:0 0 12px 0;">💰 Análise financeira</h5>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
+              <div><div style="font-size:0.75rem;color:#666;">Taxa cobrada</div><div style="font-size:1.2rem;font-weight:700;color:#2e7d32;">${formatCurrency(fee)}</div></div>
+              <div><div style="font-size:0.75rem;color:#666;">Combustível (ida+volta)</div><div style="font-size:1.2rem;font-weight:700;color:#c62828;">- ${formatCurrency(fuelCost)}</div></div>
+              <div><div style="font-size:0.75rem;color:#666;">Lucro líquido</div><div style="font-size:1.2rem;font-weight:700;color:${profitColor};">${formatCurrency(liquid)}</div></div>
+            </div>
+            <div style="margin-top:12px;font-size:0.82rem;color:#666;text-align:center;">
+              ${liquid > 0 ? '✅ Esta entrega compensa.' : '⚠️ Esta entrega dá prejuízo — considere aumentar R$/km ou reduzir o raio.'}
+            </div>
+          </div>` : `
+          <div style="margin-top:14px;padding:14px;background:#fff4e6;border-radius:12px;color:#a35900;">
+            CEP fora do raio. Cliente verá a mensagem "Fora da área de entrega" na calculadora pública.
+          </div>`}
+        `;
+      } catch (err) { out.innerHTML = `<div style="color:#a00;">${err.message}</div>`; }
     }
 
     // Registra o Service Worker do PWA no Admin
