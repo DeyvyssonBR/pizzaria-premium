@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v9-1-calc-fix';
+const CACHE_NAME = 'pizzaria-premium-v10-distance';
 const ASSETS = [
   './',
   './index.html',

@@ -3023,7 +3023,163 @@ async function fetchCep(rawCep) {
   };
 }
 
-// ---------- Zones (frete por CEP) ----------
+// ---------- Geocoding (CEP -> lat/lng) ----------
+const GEO_CACHE_KEY = 'premium_pizzaria_geo_cache';
+const STORE_CONFIG_KEY = 'premium_pizzaria_store_cfg';
+
+// Padrão da pizzaria — Av. Sen. Sigefredo Pacheco, 4727, Verde Lar, Teresina-PI, 64071-440
+const STORE_DEFAULTS = {
+  cep: '64071440',
+  lat: -5.0617,
+  lng: -42.7775,
+  address: 'Av. Sen. Sigefredo Pacheco, 4727 - Verde Lar, Teresina-PI'
+};
+
+function loadStoreConfig() {
+  try {
+    const raw = localStorage.getItem(STORE_CONFIG_KEY);
+    if (raw) {
+      const c = JSON.parse(raw);
+      return Object.assign({}, STORE_DEFAULTS, c);
+    }
+  } catch (e) {}
+  return Object.assign({}, STORE_DEFAULTS);
+}
+function saveStoreConfig(cfg) {
+  try { localStorage.setItem(STORE_CONFIG_KEY, JSON.stringify(cfg)); } catch (e) {}
+}
+
+function loadGeoCache() {
+  try { return JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || '{}'); }
+  catch (e) { return {}; }
+}
+function saveGeoCache(map) {
+  try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
+// CEP -> { lat, lng, address, neighborhood, city, uf }
+async function geocodeCep(rawCep) {
+  const cep = (rawCep || '').replace(/\D/g, '');
+  if (cep.length !== 8) throw new Error('CEP precisa ter 8 dígitos.');
+  const cache = loadGeoCache();
+  if (cache[cep]) return cache[cep];
+
+  let lat = null, lng = null;
+  let street = '', neighborhood = '', city = '', uf = '';
+
+  // 1ª tentativa: AwesomeAPI (retorna lat/lng diretamente)
+  try {
+    const r = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`, { mode: 'cors' });
+    if (r.ok) {
+      const d = await r.json();
+      if (d && !d.error) {
+        if (d.lat) lat = parseFloat(d.lat);
+        if (d.lng) lng = parseFloat(d.lng);
+        street = d.address || '';
+        neighborhood = d.district || '';
+        city = d.city || '';
+        uf = d.state || '';
+      }
+    }
+  } catch (e) { /* segue pro fallback */ }
+
+  // 2ª tentativa: ViaCEP (sem lat/lng, mas confiável pro endereço)
+  if (!street || !city) {
+    try {
+      const r2 = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { mode: 'cors' });
+      if (r2.ok) {
+        const d2 = await r2.json();
+        if (!d2.erro) {
+          street = street || d2.logradouro || '';
+          neighborhood = neighborhood || d2.bairro || '';
+          city = city || d2.localidade || '';
+          uf = uf || d2.uf || '';
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!street && !city) throw new Error('CEP não encontrado.');
+
+  // Fallback de coordenadas: aproxima pelo centro do município (apenas se a AwesomeAPI não devolveu)
+  if (lat == null || lng == null) {
+    if (city.toLowerCase().includes('teresina')) { lat = -5.0892; lng = -42.8019; }
+    else if (city.toLowerCase().includes('timon')) { lat = -5.0939; lng = -42.8367; }
+    else { lat = lng = null; /* sem coord, distância indefinida */ }
+  }
+
+  const result = { cep, lat, lng, street, neighborhood, city, uf };
+  cache[cep] = result;
+  saveGeoCache(cache);
+  return result;
+}
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// Calcula frete por distância com base na config do admin
+function calcDeliveryByDistance(cepData) {
+  const cfg = loadDeliveryConfig();
+  const store = loadStoreConfig();
+  const km = haversineKm(store.lat, store.lng, cepData.lat, cepData.lng);
+  if (km == null) {
+    return { outOfRange: true, reason: 'Não consegui calcular a distância.', km: null };
+  }
+  if (km > cfg.maxKm) {
+    return { outOfRange: true, reason: 'Fora do raio de entrega', km };
+  }
+  let fee;
+  if (cfg.mode === 'per_km') {
+    fee = cfg.baseFee + km * cfg.perKm;
+  } else { // 'bands'
+    const band = (cfg.bands || []).find(b => km <= b.maxKm);
+    fee = band ? band.fee : (cfg.bands?.slice(-1)[0]?.fee ?? cfg.baseFee);
+  }
+  fee = Math.round(fee * 100) / 100;
+  // Tempo: 5min por km + offset base
+  const baseMin = cfg.baseMin || 20;
+  const minutesMin = Math.round(baseMin + km * 2.5);
+  const minutesMax = Math.round(baseMin + km * 4);
+  return { outOfRange: false, km, fee, minutesMin, minutesMax };
+}
+
+// Config global de delivery (taxa por distância)
+const DELIVERY_CFG_KEY = 'premium_pizzaria_delivery_cfg';
+function loadDeliveryConfig() {
+  try {
+    const raw = localStorage.getItem(DELIVERY_CFG_KEY);
+    if (raw) {
+      const c = JSON.parse(raw);
+      return Object.assign({}, DELIVERY_DEFAULTS, c);
+    }
+  } catch (e) {}
+  return Object.assign({}, DELIVERY_DEFAULTS);
+}
+const DELIVERY_DEFAULTS = {
+  mode: 'per_km',       // 'per_km' ou 'bands'
+  maxKm: 15,            // raio máximo
+  baseFee: 5,           // taxa base R$
+  perKm: 1.5,           // R$ por km (modo per_km)
+  baseMin: 20,          // tempo base em min
+  fuelPerKm: 0.55,      // R$/km de combustível (para o simulador no admin)
+  bands: [              // modo 'bands' (faixas)
+    { maxKm: 3, fee: 5 },
+    { maxKm: 7, fee: 10 },
+    { maxKm: 12, fee: 15 }
+  ]
+};
+function saveDeliveryConfig(cfg) {
+  try { localStorage.setItem(DELIVERY_CFG_KEY, JSON.stringify(cfg)); } catch (e) {}
+}
+
+// ---------- Zones (frete por CEP) [LEGACY — mantido como fallback] ----------
 function loadZones() {
   try {
     const z = JSON.parse(localStorage.getItem(ZONES_KEY) || 'null');
@@ -3726,55 +3882,70 @@ const dCalcResult = document.getElementById('delivery-calc-result');
 maskCepInput(dCalcInput);
 if (dCalcForm) {
   let _dCalcBusy = false;
-  const runDeliveryCalc = async () => {
-    if (_dCalcBusy) return;
-    if (!dCalcResult) return;
-    const cep = (dCalcInput.value || '').replace(/\D/g, '');
-    _dCalcBusy = true;
-    dCalcResult.className = 'delivery-calc__result is-visible';
-    dCalcResult.innerHTML = '<div class="delivery-calc__result-row">Consultando CEP…</div>';
-    if (cep.length !== 8) {
+  let _dCalcDebounce = null;
+  let _dCalcLastCep = '';
+
+  const renderCalcResult = (cepData, calc) => {
+    if (calc.outOfRange) {
       dCalcResult.className = 'delivery-calc__result is-visible is-out';
-      dCalcResult.innerHTML = '<div class="delivery-calc__result-row">✗ Digite um CEP válido (8 dígitos).</div>';
-      _dCalcBusy = false;
+      dCalcResult.innerHTML = `
+        <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood || '—'}</strong>, ${cepData.city}/${cepData.uf}</span></div>
+        ${cepData.street ? `<div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">${cepData.street}</div>` : ''}
+        ${calc.km != null ? `<div class="delivery-calc__result-row">📏 Distância: <strong>${calc.km.toFixed(1)} km</strong></div>` : ''}
+        <div class="delivery-calc__result-row">⚠️ <strong>${calc.reason || 'Fora da área de entrega'}</strong></div>
+        <div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">Você ainda pode retirar pessoalmente na pizzaria.</div>`;
       return;
     }
-    try {
-      console.log('[delivery-calc] consultando', cep);
-      const cepData = await fetchCep(cep);
-      const zone = calcDeliveryByCep(cep);
-      console.log('[delivery-calc]', { cep, cepData, zone });
-      if (zone.outOfRange) {
-        dCalcResult.className = 'delivery-calc__result is-visible is-out';
-        dCalcResult.innerHTML = `
-          <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood}</strong>, ${cepData.city}/${cepData.uf}</span></div>
-          <div class="delivery-calc__result-row">⚠️ <strong>Fora da área de entrega.</strong></div>
-          <div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">Você ainda pode retirar pessoalmente na pizzaria.</div>`;
+    dCalcResult.className = 'delivery-calc__result is-visible is-ok';
+    dCalcResult.innerHTML = `
+      <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood || '—'}</strong>, ${cepData.city}/${cepData.uf}</span></div>
+      ${cepData.street ? `<div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">${cepData.street}</div>` : ''}
+      <div class="delivery-calc__result-row">📏 Distância: <strong>${calc.km.toFixed(1)} km</strong></div>
+      <div class="delivery-calc__result-row">💰 Taxa de entrega: <strong>${formatBRL(calc.fee)}</strong></div>
+      <div class="delivery-calc__result-row">⏱ Tempo estimado: <strong>${calc.minutesMin}-${calc.minutesMax} min</strong></div>
+      <div class="delivery-calc__result-actions">
+        <a class="button button--ghost" href="#cardapio" onclick="document.getElementById('delivery-calc-result').classList.remove('is-visible')">Ver cardápio</a>
+        ${getCurrentAccount() ? '<button type="button" class="button button--whatsapp-pulse" id="dcalc-save-addr">📍 Salvar este CEP</button>' : ''}
+      </div>`;
+    const saveBtn = document.getElementById('dcalc-save-addr');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        openAccountDrawer('addresses');
+        setTimeout(() => {
+          openAddressForm(null);
+          document.getElementById('addr-cep').value = cepData.cep.length > 5 ? `${cepData.cep.slice(0,5)}-${cepData.cep.slice(5)}` : cepData.cep;
+          document.getElementById('addr-street').value = cepData.street;
+          document.getElementById('addr-neighborhood').value = cepData.neighborhood;
+          document.getElementById('addr-city').value = cepData.city;
+          document.getElementById('addr-uf').value = cepData.uf;
+        }, 350);
+      });
+    }
+  };
+
+  const runDeliveryCalc = async (cepRaw) => {
+    if (_dCalcBusy) return;
+    if (!dCalcResult) return;
+    const cep = (cepRaw || dCalcInput.value || '').replace(/\D/g, '');
+    if (cep === _dCalcLastCep && dCalcResult.classList.contains('is-visible')) return;
+    if (cep.length !== 8) {
+      if (cep.length === 0) {
+        dCalcResult.classList.remove('is-visible', 'is-ok', 'is-out');
       } else {
-        dCalcResult.className = 'delivery-calc__result is-visible is-ok';
-        dCalcResult.innerHTML = `
-          <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood}</strong>, ${cepData.city}/${cepData.uf}</span></div>
-          <div class="delivery-calc__result-row">💰 Taxa de entrega: <strong>${formatBRL(zone.fee)}</strong></div>
-          <div class="delivery-calc__result-row">⏱ Tempo estimado: <strong>${zone.minutesMin}-${zone.minutesMax} min</strong></div>
-          <div class="delivery-calc__result-actions">
-            <a class="button button--ghost" href="#cardapio" onclick="document.getElementById('delivery-calc-result').classList.remove('is-visible')">Ver cardápio</a>
-            ${getCurrentAccount() ? '<button type="button" class="button button--whatsapp-pulse" id="dcalc-save-addr">📍 Salvar este CEP</button>' : ''}
-          </div>`;
-        const saveBtn = document.getElementById('dcalc-save-addr');
-        if (saveBtn) {
-          saveBtn.addEventListener('click', () => {
-            openAccountDrawer('addresses');
-            setTimeout(() => {
-              openAddressForm(null);
-              document.getElementById('addr-cep').value = cep.length > 5 ? `${cep.slice(0,5)}-${cep.slice(5)}` : cep;
-              document.getElementById('addr-street').value = cepData.street;
-              document.getElementById('addr-neighborhood').value = cepData.neighborhood;
-              document.getElementById('addr-city').value = cepData.city;
-              document.getElementById('addr-uf').value = cepData.uf;
-            }, 350);
-          });
-        }
+        dCalcResult.className = 'delivery-calc__result is-visible';
+        dCalcResult.innerHTML = `<div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">Digite ${8 - cep.length} dígito(s) restante(s)…</div>`;
       }
+      return;
+    }
+    _dCalcBusy = true;
+    _dCalcLastCep = cep;
+    dCalcResult.className = 'delivery-calc__result is-visible';
+    dCalcResult.innerHTML = '<div class="delivery-calc__result-row">📡 Consultando CEP…</div>';
+    try {
+      const cepData = await geocodeCep(cep);
+      const calc = calcDeliveryByDistance(cepData);
+      console.log('[delivery-calc]', { cep, cepData, calc });
+      renderCalcResult(cepData, calc);
     } catch (err) {
       dCalcResult.className = 'delivery-calc__result is-visible is-out';
       dCalcResult.innerHTML = `<div class="delivery-calc__result-row">✗ ${err.message}</div>`;
@@ -3782,10 +3953,24 @@ if (dCalcForm) {
       _dCalcBusy = false;
     }
   };
-  dCalcForm.addEventListener('submit', (e) => { e.preventDefault(); runDeliveryCalc(); });
+
+  dCalcForm.addEventListener('submit', (e) => { e.preventDefault(); _dCalcLastCep = ''; runDeliveryCalc(); });
   if (dCalcInput) {
+    dCalcInput.addEventListener('input', () => {
+      const cep = (dCalcInput.value || '').replace(/\D/g, '');
+      clearTimeout(_dCalcDebounce);
+      // autocomplete: dispara automaticamente quando completar 8 dígitos
+      if (cep.length === 8) {
+        _dCalcDebounce = setTimeout(() => runDeliveryCalc(cep), 250);
+      } else if (cep.length === 0) {
+        dCalcResult.classList.remove('is-visible', 'is-ok', 'is-out');
+      } else {
+        dCalcResult.className = 'delivery-calc__result is-visible';
+        dCalcResult.innerHTML = `<div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">✏️ Faltam ${8 - cep.length} dígito(s)…</div>`;
+      }
+    });
     dCalcInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); runDeliveryCalc(); }
+      if (e.key === 'Enter') { e.preventDefault(); _dCalcLastCep = ''; runDeliveryCalc(); }
     });
   }
 }
