@@ -1,10 +1,11 @@
-const CACHE_NAME = 'pizzaria-premium-v6-ig-bg';
+const CACHE_NAME = 'pizzaria-premium-v7-payment';
 const ASSETS = [
   './',
   './index.html',
   './admin.html',
   './assets/css/styles.css',
   './assets/js/script.js',
+  './assets/js/qrcode.min.js',
   './assets/img/logo-premium-2026.png',
   './assets/img/hero-fachada-premium-2026.jpg',
   './assets/img/cardapio/placeholder.webp'

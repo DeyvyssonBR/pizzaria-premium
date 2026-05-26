@@ -19,7 +19,8 @@
     <meta name="theme-color" content="#5a0a18" />
     <link rel="apple-touch-icon" href="assets/img/logo-premium-2026.png" />
     <link rel="preload" as="image" href="assets/img/logo-premium-2026.png" />
-    <script src="assets/js/script.js?v=premium-2026-7-fachada" defer></script>
+    <script src="assets/js/qrcode.min.js" defer></script>
+    <script src="assets/js/script.js?v=premium-2026-8-payment" defer></script>
   </head>
   <body>
     <div class="promo-bar" role="region" aria-label="Promoção em destaque">
@@ -489,6 +490,11 @@
                 Avançar para o pagamento
               </button>
 
+              <label class="profile-clear-toggle" id="profile-clear-toggle" style="display: none;">
+                <input type="checkbox" id="profile-clear-checkbox">
+                <span>Limpar meus dados salvos neste dispositivo</span>
+              </label>
+
               <div class="checkout-trust">Ambiente seguro · Pedido finalizado pelo WhatsApp</div>
             </div>
           </div>
@@ -527,16 +533,27 @@
               <div id="pix-payment-container" style="display: none; text-align: center;">
                 <div class="pix-badge">PIX IMEDIATO</div>
                 <p class="payment-instructions">Escaneie o QR Code abaixo com o app do seu banco ou copie o código Pix abaixo:</p>
-                
+
                 <div class="pix-qrcode-wrapper">
-                  <img id="pix-qrcode-img" src="" alt="QR Code Pix" style="width: 200px; height: 200px; border-radius: 8px; border: 4px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                  <img id="pix-qrcode-img" src="" alt="QR Code Pix" style="width: 220px; height: 220px; border-radius: 8px; border: 6px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: #fff;">
                 </div>
-                
+
+                <div id="pix-timer-badge" class="pix-timer pix-timer--valid">
+                  <span class="pix-timer__icon">⏱</span>
+                  <span>Código válido por <strong id="pix-timer-text">15:00</strong></span>
+                </div>
+
+                <div id="pix-expired-card" class="pix-expired" style="display: none;">
+                  <strong>⚠️ Código Pix expirado</strong>
+                  <p>Gere um novo código para finalizar o pagamento com segurança.</p>
+                  <button class="button button--ghost" type="button" id="btn-regen-pix">🔄 Gerar novo código</button>
+                </div>
+
                 <div class="form-group" style="margin-top: 16px; text-align: left;">
                   <label for="pix-copia-cola">Código Pix Copia e Cola:</label>
                   <textarea id="pix-copia-cola" readonly style="width: 100%; height: 80px; font-family: monospace; font-size: 0.78rem; padding: 10px; border-radius: 8px; border: 1px solid rgba(35, 20, 16, 0.15); background: rgba(35, 20, 16, 0.03); resize: none; color: #24130f;"></textarea>
                 </div>
-                
+
                 <button class="button button--copy-pix" type="button" id="btn-copy-pix">
                   <span class="copy-pix-icon">📋</span>
                   <span>Copiar Código Pix</span>
@@ -571,25 +588,70 @@
           </div>
         </div>
 
-        <!-- Step 4: Success Screen with Smiley -->
+        <!-- Step 4: Receipt / Order Tracking -->
         <div class="cart-step" id="cart-step-success">
           <div class="success-screen">
-            <div class="success-smiley" id="success-smiley">
-              😊
+            <div class="receipt-card" id="order-receipt-card">
+              <div class="receipt-card__head">
+                <div class="receipt-card__icon">✅</div>
+                <div class="receipt-card__title">
+                  <span class="receipt-card__eyebrow">Pedido recebido</span>
+                  <strong id="receipt-order-id">#00000</strong>
+                </div>
+                <div class="receipt-card__meta">
+                  <span id="receipt-time">--:--</span>
+                  <strong id="receipt-total">R$ 0,00</strong>
+                </div>
+              </div>
+
+              <div class="receipt-card__details">
+                <div class="receipt-row"><span>👤</span><strong id="receipt-customer-name">—</strong></div>
+                <div class="receipt-row"><span>📞</span><strong id="receipt-customer-phone">—</strong></div>
+                <div class="receipt-row"><span id="receipt-payment-icon">💳</span><strong id="receipt-payment-method">—</strong></div>
+                <div class="receipt-row"><span id="receipt-delivery-icon">🛵</span><strong id="receipt-delivery-info">—</strong></div>
+              </div>
+
+              <p class="receipt-track-hint">Acompanhe seu pedido abaixo ↓</p>
+
+              <div class="order-timeline" id="order-timeline">
+                <!-- preenchido dinamicamente por renderOrderTimeline() -->
+              </div>
+
+              <div class="receipt-card__actions">
+                <button class="button button--whatsapp-pulse" type="button" id="success-whatsapp-retry">
+                  💬 Falar com a pizzaria
+                </button>
+                <button class="button button--ghost" type="button" id="receipt-print-btn">
+                  📄 Salvar comprovante
+                </button>
+                <button class="button button--ghost" type="button" id="success-close-btn">
+                  🏠 Voltar ao cardápio
+                </button>
+              </div>
             </div>
-            <h2>Pedido Enviado!</h2>
-            <p>Seu pedido foi formatado e enviado para o WhatsApp com sucesso.</p>
-            <p class="success-desc">Caso a janela não tenha aberto automaticamente, clique no botão abaixo para falar com o atendente.</p>
-            <button class="button button--whatsapp-pulse" type="button" id="success-whatsapp-retry">
-              Abrir WhatsApp Novamente
-            </button>
-            <button class="button button--ghost" type="button" id="success-close-btn" style="margin-top: 12px; width: 100%;">
-              Voltar ao Cardápio
-            </button>
           </div>
         </div>
 
       </div>
+    </div>
+
+    <!-- Payment Result Modal (replaces alert() after Mercado Pago return) -->
+    <div class="pay-result-modal" id="pay-result-modal" aria-hidden="true">
+      <div class="pay-result-modal__backdrop" data-pay-result-close></div>
+      <div class="pay-result-modal__card" role="dialog" aria-labelledby="pay-result-title">
+        <div class="pay-result-modal__icon" id="pay-result-icon">⚠️</div>
+        <h3 id="pay-result-title">Status do pagamento</h3>
+        <p id="pay-result-message">—</p>
+        <div class="pay-result-modal__actions" id="pay-result-actions">
+          <!-- botões adicionados via showPaymentResult() -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment toast (success / pending) -->
+    <div class="pay-toast" id="pay-toast" role="status" aria-live="polite">
+      <span class="pay-toast__icon" id="pay-toast-icon">✅</span>
+      <span class="pay-toast__text" id="pay-toast-text">—</span>
     </div>
 
     <script>

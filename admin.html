@@ -789,6 +789,138 @@
       max-width: 280px;
     }
 
+    /* ===== Pedidos do Dia (controle interno) ===== */
+    .orders-day-banner {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(248, 170, 7, 0.10);
+      border-left: 4px solid #F8AA07;
+      color: #f5e8c2;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .orders-day-banner em { color: #ffbc58; font-style: normal; font-weight: 600; }
+
+    .orders-day-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 600px) {
+      .orders-day-stats { grid-template-columns: 1fr; }
+    }
+    .orders-day-stat {
+      background: var(--bg-card, rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .orders-day-stat__label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 600;
+    }
+    .orders-day-stat strong {
+      font-family: var(--font-title, 'Outfit');
+      font-size: 1.45rem;
+      color: var(--gold, #F8AA07);
+    }
+
+    .orders-day-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 60px 20px;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 16px;
+      color: rgba(255, 255, 255, 0.55);
+      text-align: center;
+    }
+    .orders-day-empty i { font-size: 2rem; color: var(--gold, #F8AA07); margin-bottom: 6px; }
+    .orders-day-empty strong { font-size: 1rem; color: #fff; }
+    .orders-day-empty span { font-size: 0.85rem; }
+
+    .orders-day-table-wrap { overflow-x: auto; }
+    .orders-day-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.88rem;
+      color: #fff;
+    }
+    .orders-day-table thead th {
+      text-align: left;
+      padding: 12px 10px;
+      background: rgba(255,255,255,0.04);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .orders-day-table tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: middle;
+    }
+    .orders-day-table tbody tr {
+      transition: background 0.5s ease;
+    }
+    .orders-day-table tbody tr.is-fresh {
+      background: rgba(47, 125, 74, 0.18);
+    }
+    .orders-day-table__sub {
+      display: block;
+      font-size: 0.74rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+    .orders-day-table__items {
+      color: rgba(255,255,255,0.78);
+      max-width: 280px;
+    }
+    .orders-day-table__status {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .orders-day-table__status:focus {
+      outline: 2px solid var(--gold, #F8AA07);
+      outline-offset: 2px;
+    }
+    .orders-day-table__wa {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #25d366;
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .orders-day-table__wa:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+    }
+
     .parsed-order-box {
       background: transparent;
       border: none;
@@ -1225,6 +1357,9 @@
         <div class="nav-item" onclick="switchTab('tab-pedidos', this)">
           <i class="fa-solid fa-print"></i> Impressão de Pedidos
         </div>
+        <div class="nav-item" onclick="switchTab('tab-orders-day', this)">
+          <i class="fa-solid fa-clock-rotate-left"></i> Pedidos do Dia
+        </div>
         <div class="nav-item" onclick="switchTab('tab-dashboard', this)">
           <i class="fa-solid fa-chart-line"></i> Relatórios & Painel
         </div>
@@ -1423,6 +1558,60 @@
           </div>
         </div>
 
+        <!-- Tab: Pedidos do Dia (controle interno) -->
+        <div class="tab-content" id="tab-orders-day">
+          <div class="section-title">
+            <span>Pedidos do Dia</span>
+            <button class="btn-ghost" style="width:auto; padding: 10px 16px; font-size: 0.85rem;" onclick="refreshOrdersDay()">
+              <i class="fa-solid fa-rotate-right"></i> Atualizar
+            </button>
+          </div>
+          <div class="section-subtitle">Lista dos pedidos finalizados pelos clientes neste navegador (controle manual de status).</div>
+
+          <div class="orders-day-banner">
+            💡 <strong>Aviso:</strong> O cliente vê uma estimativa de status baseada no tempo configurado em <em>"Prazo Estimado"</em>. Para avisar mudanças importantes (saiu, atrasou, pronto p/ retirar), clique no botão WhatsApp da linha do pedido.
+          </div>
+
+          <div class="orders-day-stats">
+            <div class="orders-day-stat">
+              <span class="orders-day-stat__label">Pedidos hoje</span>
+              <strong id="orders-day-count">0</strong>
+            </div>
+            <div class="orders-day-stat">
+              <span class="orders-day-stat__label">Total do dia</span>
+              <strong id="orders-day-total">R$ 0,00</strong>
+            </div>
+            <div class="orders-day-stat">
+              <span class="orders-day-stat__label">Em andamento</span>
+              <strong id="orders-day-active">0</strong>
+            </div>
+          </div>
+
+          <div id="orders-day-empty" class="orders-day-empty">
+            <i class="fa-regular fa-clock"></i>
+            <strong>Sem pedidos hoje</strong>
+            <span>Quando um cliente finalizar o pedido pelo site, ele aparece aqui.</span>
+          </div>
+
+          <div class="orders-day-table-wrap">
+            <table class="orders-day-table" id="orders-day-table" style="display: none;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Hora</th>
+                  <th>Cliente</th>
+                  <th>Itens</th>
+                  <th>Total</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="orders-day-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Tab 4: Configurações da Loja -->
         <div class="tab-content" id="tab-config">
           <div class="section-title">Configurações Gerais</div>
@@ -1487,9 +1676,9 @@
                 <label for="cfg-mp-public-key">Chave Pública (Public Key)</label>
                 <input type="text" id="cfg-mp-public-key" placeholder="Ex: APP_USR-xxxxxx-xxxx-xxxx-...">
               </div>
-              <div class="payment-note-box" style="margin-top: 15px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2); padding: 15px; border-radius: 12px; color: #ffbc58;">
-                <p style="font-size: 0.8rem; line-height: 1.4; margin: 0;">
-                  ⚠️ <strong>Atenção:</strong> A geração dinâmica do checkout em ambiente front-end puro é recomendada apenas para <strong>testes/homologação</strong>. Para uso seguro em produção, configure as variáveis de ambiente e publique a pasta `/api` na Vercel (leia o arquivo <code>MERCADOPAGO_SKILL.md</code> na raiz do projeto).
+              <div class="payment-note-box" style="margin-top: 15px; background: rgba(201, 8, 20, 0.12); border: 1px solid rgba(201, 8, 20, 0.45); padding: 15px; border-radius: 12px; color: #ff8a8a;">
+                <p style="font-size: 0.82rem; line-height: 1.5; margin: 0;">
+                  🚨 <strong>RISCO DE SEGURANÇA:</strong> Este token concede acesso completo à sua conta do Mercado Pago. <strong>NUNCA</strong> preencha com um Access Token de produção sem ter uma função serverless ativa em <code>/api/create-preference</code> (Vercel / Cloudflare). O sistema NÃO faz mais chamadas diretas a partir do navegador — sem backend, o pagamento usa o <strong>Link Manual</strong> configurado acima. Veja <code>MERCADOPAGO_SKILL.md</code> para configurar com segurança. Para testes, use tokens com prefixo <code>TEST-</code>.
                 </p>
               </div>
             </div>
@@ -2785,6 +2974,142 @@
         initDashboard();
       }
     }
+
+    // === Pedidos do Dia (controle interno do atendente) ===
+    const ORDERS_KEY = 'premium_pizzaria_orders';
+    const ORDER_STAGES = [
+      { value: 'received',  label: '📥 Recebido' },
+      { value: 'preparing', label: '🍕 Em preparo' },
+      { value: 'ready',     label: '✅ Pronto / Saiu' },
+      { value: 'ontheway',  label: '🛵 A caminho / Aguardando' },
+      { value: 'delivered', label: '🎉 Entregue' }
+    ];
+
+    function loadClientOrders() {
+      try { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveClientOrders(list) {
+      try { localStorage.setItem(ORDERS_KEY, JSON.stringify(list)); }
+      catch (e) { console.error(e); }
+    }
+    function isSameLocalDay(ts) {
+      const d = new Date(ts);
+      const now = new Date();
+      return d.getFullYear() === now.getFullYear()
+          && d.getMonth() === now.getMonth()
+          && d.getDate() === now.getDate();
+    }
+    function formatHourMin(ts) {
+      const d = new Date(ts);
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+    function summarizeItems(items) {
+      if (!items || !items.length) return '—';
+      const total = items.reduce((s, i) => s + (i.quantity || 1), 0);
+      const head = items.slice(0, 2).map(i => `${i.quantity}× ${i.name}`).join(', ');
+      const more = items.length > 2 ? ` (+${items.length - 2})` : '';
+      return `${head}${more} · ${total} un.`;
+    }
+    function whatsappTemplateFor(order, stage) {
+      const name = order.customerName || 'Cliente';
+      const id = order.id;
+      const dict = {
+        received:  `Olá ${name}! Recebemos seu pedido ${id} 🍕 Vamos preparar com carinho.`,
+        preparing: `Olá ${name}! Seu pedido ${id} já está sendo preparado 🍕`,
+        ready:     order.deliveryType === 'delivery'
+                     ? `Pedido ${id} pronto! Estamos despachando para entrega 🛵`
+                     : `Pedido ${id} pronto pra retirar! Estamos te esperando 🛍️`,
+        ontheway:  order.deliveryType === 'delivery'
+                     ? `Motoboy saiu com seu pedido ${id} 🛵 chega em poucos minutos!`
+                     : `${name}, seu pedido ${id} está aguardando você no balcão ⏳`,
+        delivered: `Pedido ${id} entregue! Obrigado pela preferência, ${name} 🙏 Bom apetite!`
+      };
+      return dict[stage] || `Pedido ${id} — atualização da Pizzaria Premium.`;
+    }
+    function buildWaUrl(phone, text) {
+      const clean = String(phone || '').replace(/\D/g, '');
+      return `https://wa.me/${clean}?text=${encodeURIComponent(text)}`;
+    }
+    function updateOrderStatus(orderId, newStatus) {
+      const all = loadClientOrders();
+      const idx = all.findIndex(o => o.id === orderId);
+      if (idx === -1) return;
+      all[idx].statusManual = newStatus;
+      saveClientOrders(all);
+      refreshOrdersDay(true);
+    }
+    function refreshOrdersDay(skipFlash) {
+      const all = loadClientOrders();
+      const today = all.filter(o => isSameLocalDay(o.createdAt));
+      const tbody = document.getElementById('orders-day-tbody');
+      const table = document.getElementById('orders-day-table');
+      const empty = document.getElementById('orders-day-empty');
+      const countEl = document.getElementById('orders-day-count');
+      const totalEl = document.getElementById('orders-day-total');
+      const activeEl = document.getElementById('orders-day-active');
+      if (!tbody) return;
+      const totalSum = today.reduce((s, o) => s + (Number(o.total) || 0), 0);
+      const activeCount = today.filter(o => (o.statusManual || 'received') !== 'delivered').length;
+      countEl.textContent = today.length;
+      totalEl.textContent = formatCurrency(totalSum);
+      activeEl.textContent = activeCount;
+      if (!today.length) {
+        empty.style.display = 'flex';
+        table.style.display = 'none';
+        tbody.innerHTML = '';
+        return;
+      }
+      empty.style.display = 'none';
+      table.style.display = 'table';
+      tbody.innerHTML = today.map(o => {
+        const status = o.statusManual || 'received';
+        const optionsHtml = ORDER_STAGES.map(s =>
+          `<option value="${s.value}"${s.value === status ? ' selected' : ''}>${s.label}</option>`
+        ).join('');
+        const tipo = o.deliveryType === 'delivery' ? '🛵 Entrega' : '🛍️ Retirada';
+        const waText = whatsappTemplateFor(o, status);
+        const waHref = buildWaUrl(o.customerPhone, waText);
+        return `
+          <tr data-order="${escapeHtml(o.id)}">
+            <td><strong>${escapeHtml(o.id)}</strong></td>
+            <td>${formatHourMin(o.createdAt)}</td>
+            <td>${escapeHtml(o.customerName || '—')}<br><span class="orders-day-table__sub">${escapeHtml(o.customerPhone || '')}</span></td>
+            <td class="orders-day-table__items">${escapeHtml(summarizeItems(o.items))}</td>
+            <td><strong>${formatCurrency(Number(o.total) || 0)}</strong></td>
+            <td>${tipo}</td>
+            <td>
+              <select class="orders-day-table__status" onchange="updateOrderStatus('${escapeHtml(o.id)}', this.value)">${optionsHtml}</select>
+            </td>
+            <td>
+              <a class="orders-day-table__wa" href="${waHref}" target="_blank" rel="noopener noreferrer" title="Mandar WhatsApp do estágio atual">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+            </td>
+          </tr>`;
+      }).join('');
+      if (!skipFlash) {
+        // pisca verde brevemente após troca de status
+        document.querySelectorAll('#orders-day-tbody tr').forEach(tr => tr.classList.add('is-fresh'));
+        setTimeout(() => document.querySelectorAll('#orders-day-tbody tr').forEach(tr => tr.classList.remove('is-fresh')), 800);
+      }
+    }
+    window.refreshOrdersDay = refreshOrdersDay;
+    window.updateOrderStatus = updateOrderStatus;
+
+    // Refresca quando a aba Pedidos do Dia é aberta
+    (function hookOrdersDayTab() {
+      const original = window.switchTab;
+      window.switchTab = function (tabId, element) {
+        original(tabId, element);
+        if (tabId === 'tab-orders-day') refreshOrdersDay(true);
+      };
+    })();
+
+    // Refresca quando outra aba do navegador (cliente) escreve pedidos
+    window.addEventListener('storage', (e) => {
+      if (e.key === ORDERS_KEY) refreshOrdersDay(true);
+    });
 
     // Registra o Service Worker do PWA no Admin
     if ('serviceWorker' in navigator) {

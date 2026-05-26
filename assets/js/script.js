@@ -1917,12 +1917,8 @@ function refreshPaymentDetailsScreen() {
     document.getElementById('pix-payment-container').style.display = 'block';
     document.getElementById('mp-payment-container').style.display = 'none';
 
-    // Gera código Pix Real com o valor total atualizado
-    const pixCode = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, cartTotal);
-    document.getElementById('pix-copia-cola').value = pixCode;
-    
-    // Gera imagem do QR Code
-    document.getElementById('pix-qrcode-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
+    // Gera txid único, monta payload Pix e renderiza QR local + timer de 15 min
+    regeneratePixCode(cartTotal);
   } else if (payment === 'mercadopago') {
     document.getElementById('pix-payment-container').style.display = 'none';
     document.getElementById('mp-payment-container').style.display = 'block';
@@ -2064,44 +2060,227 @@ document.querySelectorAll('.payment-card').forEach(card => {
   });
 });
 
+// === Helpers de pedido / perfil / timeline ===
+const ORDERS_STORAGE_KEY = 'premium_pizzaria_orders';
+const CUSTOMER_PROFILE_KEY = 'premium_pizzaria_customer';
+let pixTxId = null;
+let pixExpiresAt = 0;
+let pixTimerHandle = null;
+let timelineTimerHandle = null;
+let currentOrderId = null;
+
+function parseEstimatedMinutes(str) {
+  if (!str) return 45;
+  const s = String(str).toLowerCase();
+  const range = s.match(/(\d+)\s*(?:a|-|até|to)\s*(\d+)/);
+  if (range) {
+    const a = parseInt(range[1], 10), b = parseInt(range[2], 10);
+    if (!isNaN(a) && !isNaN(b)) return Math.round((a + b) / 2);
+  }
+  const horaMatch = s.match(/(\d+)\s*h/);
+  if (horaMatch) return parseInt(horaMatch[1], 10) * 60;
+  const single = s.match(/(\d+)/);
+  if (single) return parseInt(single[1], 10);
+  return 45;
+}
+
+function loadOrders() {
+  try { return JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+
+function saveOrders(list) {
+  try { localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(list)); }
+  catch (e) { console.error('Erro ao salvar pedidos:', e); }
+}
+
+function persistOrder(order) {
+  const orders = loadOrders();
+  // mantém últimos 50 pedidos
+  orders.unshift(order);
+  while (orders.length > 50) orders.pop();
+  saveOrders(orders);
+}
+
+function getOrderById(id) {
+  return loadOrders().find(o => o.id === id) || null;
+}
+
+function generateOrderId() {
+  const n = (Date.now() % 100000).toString().padStart(5, '0');
+  return `#${n}`;
+}
+
+function saveCustomerProfile(snapshot) {
+  try {
+    localStorage.setItem(CUSTOMER_PROFILE_KEY, JSON.stringify({
+      ...snapshot,
+      lastUsedAt: Date.now()
+    }));
+  } catch (e) { console.error('Erro ao salvar perfil:', e); }
+}
+
+function loadCustomerProfile() {
+  try {
+    const raw = localStorage.getItem(CUSTOMER_PROFILE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function clearCustomerProfile() {
+  try { localStorage.removeItem(CUSTOMER_PROFILE_KEY); }
+  catch (e) { /* ignore */ }
+}
+
+function restoreCustomerProfile() {
+  const profile = loadCustomerProfile();
+  const toggleLabel = document.getElementById('profile-clear-toggle');
+  if (!profile) { if (toggleLabel) toggleLabel.style.display = 'none'; return; }
+  if (toggleLabel) toggleLabel.style.display = 'flex';
+  if (checkoutName && !checkoutName.value && profile.name) checkoutName.value = profile.name;
+  if (checkoutPhone && !checkoutPhone.value && profile.phone) checkoutPhone.value = formatPhoneInput(profile.phone);
+  if (profile.lastAddress) {
+    if (checkoutStreet && !checkoutStreet.value && profile.lastAddress.street) checkoutStreet.value = profile.lastAddress.street;
+    if (checkoutNeighborhood && !checkoutNeighborhood.value && profile.lastAddress.neighborhood) checkoutNeighborhood.value = profile.lastAddress.neighborhood;
+    if (checkoutRef && !checkoutRef.value && profile.lastAddress.ref) checkoutRef.value = profile.lastAddress.ref;
+  }
+  if (checkoutPayment && profile.lastPayment) {
+    const opt = Array.from(checkoutPayment.options).find(o => o.value === profile.lastPayment);
+    if (opt) checkoutPayment.value = profile.lastPayment;
+  }
+  if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+}
+
+function formatPaymentLabel(payment, changeVal) {
+  if (payment === 'pix') return 'Pix';
+  if (payment === 'mercadopago') return 'Mercado Pago (Online)';
+  if (payment === 'cartao') return 'Cartão (Máquina)';
+  if (payment === 'dinheiro') return changeVal ? `Dinheiro (troco p/ ${changeVal})` : 'Dinheiro (sem troco)';
+  return payment || '—';
+}
+
+function paymentIconFor(payment) {
+  if (payment === 'pix') return '🔑';
+  if (payment === 'mercadopago') return '💳';
+  if (payment === 'cartao') return '💳';
+  if (payment === 'dinheiro') return '💵';
+  return '💳';
+}
+
+function renderReceipt(order) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('receipt-order-id', order.id);
+  const d = new Date(order.createdAt);
+  set('receipt-time', `Recebido às ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`);
+  set('receipt-total', formatBRL(order.total));
+  set('receipt-customer-name', order.customerName || '—');
+  set('receipt-customer-phone', order.customerPhone || '—');
+  set('receipt-payment-method', formatPaymentLabel(order.paymentMethod, order.changeFor));
+  set('receipt-payment-icon', paymentIconFor(order.paymentMethod));
+  if (order.deliveryType === 'delivery') {
+    set('receipt-delivery-icon', '🛵');
+    const addr = order.address ? `${order.address.street} · ${order.address.neighborhood}` : 'Entrega';
+    set('receipt-delivery-info', `Entrega · ${addr} · ~${order.estimatedMinutes}min`);
+  } else {
+    set('receipt-delivery-icon', '🛍️');
+    set('receipt-delivery-info', `Retirada no balcão · pronto em ~${order.estimatedMinutes}min`);
+  }
+  currentOrderId = order.id;
+  renderOrderTimeline(order);
+  if (timelineTimerHandle) clearInterval(timelineTimerHandle);
+  timelineTimerHandle = setInterval(() => {
+    const fresh = getOrderById(order.id) || order;
+    renderOrderTimeline(fresh);
+  }, 30000);
+}
+
+function buildTimelineStages(order) {
+  const isDelivery = order.deliveryType === 'delivery';
+  return [
+    { key: 'received',  icon: '📥', label: 'Pedido recebido',                    pct: 0 },
+    { key: 'preparing', icon: '🍕', label: 'Em preparo',                         pct: 30 },
+    { key: 'ready',     icon: isDelivery ? '🛵' : '🛍️', label: isDelivery ? 'Saiu pra entrega' : 'Pronto para retirar', pct: 80 },
+    { key: 'ontheway',  icon: isDelivery ? '📍' : '⏳', label: isDelivery ? 'A caminho' : 'Aguardando você retirar', pct: 100 },
+    { key: 'delivered', icon: '🎉', label: isDelivery ? 'Entregue' : 'Retirado', pct: 100 }
+  ];
+}
+
+function computeAutoStageIndex(order) {
+  const elapsed = (Date.now() - order.createdAt) / 60000; // min
+  const eta = order.estimatedMinutes || 45;
+  const pct = (elapsed / eta) * 100;
+  if (pct >= 100) return 4;
+  if (pct >= 80)  return 3;
+  if (pct >= 30)  return 2;
+  if (pct >= 0)   return 1; // já entra Em preparo no instante 0
+  return 0;
+}
+
+function renderOrderTimeline(order) {
+  const el = document.getElementById('order-timeline');
+  if (!el) return;
+  const stages = buildTimelineStages(order);
+  const autoIdx = computeAutoStageIndex(order);
+  const start = order.createdAt;
+  const eta = order.estimatedMinutes || 45;
+  const html = stages.map((s, i) => {
+    const stageTime = new Date(start + (eta * 60000 * (s.pct / 100)));
+    const hh = stageTime.getHours().toString().padStart(2,'0');
+    const mm = stageTime.getMinutes().toString().padStart(2,'0');
+    let cls = 'timeline-stage';
+    if (i < autoIdx) cls += ' is-done';
+    else if (i === autoIdx) cls += ' is-current';
+    else cls += ' is-pending';
+    return `
+      <div class="${cls}">
+        <div class="timeline-stage__dot"><span>${s.icon}</span></div>
+        <div class="timeline-stage__body">
+          <strong>${s.label}</strong>
+          <span>${i === 0 ? `às ${hh}:${mm}` : `~${hh}:${mm}`}</span>
+        </div>
+      </div>`;
+  }).join('');
+  el.innerHTML = html;
+}
+
 function finalizeOrder() {
   const name = checkoutName.value.trim();
   const phone = checkoutPhone.value.trim();
   const payment = checkoutPayment.value;
   const obs = checkoutObs ? checkoutObs.value.trim() : '';
-  
-  let paymentStr = '';
-  if (payment === 'pix') {
-    paymentStr = 'Pix';
-  } else if (payment === 'mercadopago') {
-    paymentStr = 'Mercado Pago (Online)';
-  } else if (payment === 'cartao') {
-    paymentStr = 'Cartão de Crédito/Débito (Máquina)';
-  } else if (payment === 'dinheiro') {
-    const changeVal = checkoutChange ? checkoutChange.value.trim() : '';
-    paymentStr = changeVal ? `Dinheiro (Troco para ${changeVal})` : 'Dinheiro (Sem troco)';
-  }
-  
+
+  const changeVal = (payment === 'dinheiro' && checkoutChange) ? checkoutChange.value.trim() : '';
+  const paymentStr = formatPaymentLabel(payment, changeVal);
+
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
   const cartTotal = subtotal + deliveryFee;
 
   let deliveryStr = '';
+  let addressSnap = null;
   if (deliveryType === 'delivery') {
     const street = checkoutStreet ? checkoutStreet.value.trim() : '';
     const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
     const ref = checkoutRef ? checkoutRef.value.trim() : '';
-    
     if (!street || !neighborhood) {
-      window.alert('Por favor, preencha a rua e o bairro para a entrega.');
+      showToast('⚠️ Preencha rua e bairro para entrega', 3000);
+      navigateCartStep('cart-step-delivery');
       return;
     }
-    
+    addressSnap = { street, neighborhood, ref };
     deliveryStr = `🛵 *Entrega para:*\n- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}\n- Taxa de Entrega: ${formatBRL(deliveryFee)}`;
   } else {
     deliveryStr = `🛍️ *Retirada no Balcão*`;
   }
-  
+
+  const orderId = generateOrderId();
+  const itemsSnap = cart.map(item => ({
+    id: item.id, itemId: item.itemId, type: item.type,
+    name: item.name, price: item.price, quantity: item.quantity,
+    details: item.details || null
+  }));
+  const estimatedMinutes = parseEstimatedMinutes(ESTIMATED_TIME);
+
   const itemsLines = cart.map(item => {
     let detailsStr = '';
     if (item.type === 'pizza' && item.details) {
@@ -2112,9 +2291,9 @@ function finalizeOrder() {
     }
     return `*${item.quantity}x ${item.name}* (${formatBRL(item.price * item.quantity)})\n${detailsStr}`;
   }).join('\n\n');
-  
+
   const messageLines = [
-    `*🍕 NOVO PEDIDO - PIZZARIA PREMIUM 🍕*`,
+    `*🍕 NOVO PEDIDO ${orderId} - PIZZARIA PREMIUM 🍕*`,
     `---------------------------------------------`,
     `👤 *Cliente:* ${name}`,
     `📞 *WhatsApp:* ${phone}`,
@@ -2124,22 +2303,51 @@ function finalizeOrder() {
     `---------------------------------------------`,
     deliveryStr,
     `💳 *Forma de Pagamento:* ${paymentStr}`,
+    `⏱ *Tempo estimado:* ${estimatedMinutes} min`,
     `---------------------------------------------`,
     obs ? `📝 *Observações:* ${obs}\n---------------------------------------------` : '',
     `💰 *Total Geral:* *${formatBRL(cartTotal)}*`,
     `---------------------------------------------`,
     `Gostaria de confirmar meu pedido, obrigado!`
   ];
-  
+
   const fullMessage = messageLines.join('\n');
   lastOrderMessage = fullMessage;
-  
+
+  const order = {
+    id: orderId,
+    createdAt: Date.now(),
+    customerName: name,
+    customerPhone: phone,
+    items: itemsSnap,
+    subtotal,
+    deliveryFee,
+    total: cartTotal,
+    paymentMethod: payment,
+    changeFor: changeVal || null,
+    deliveryType,
+    address: addressSnap,
+    estimatedMinutes,
+    obs: obs || null,
+    status: 'received',
+    statusManual: null
+  };
+  persistOrder(order);
+
+  // Salva perfil do cliente para próximo pedido
+  saveCustomerProfile({
+    name, phone,
+    lastAddress: addressSnap,
+    lastPayment: payment
+  });
+
   // Open WhatsApp
   window.open(buildWhatsAppUrl(fullMessage), '_blank', 'noopener,noreferrer');
-  
-  // Show success step
+
+  // Render receipt + show success step
+  renderReceipt(order);
   navigateCartStep('cart-step-success');
-  
+
   // Clear cart state
   cart = [];
   try {
@@ -2168,15 +2376,28 @@ function calculateCRC16(data) {
   return hex.padStart(4, '0');
 }
 
+function generatePixTxId(len = 25) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let out = '';
+  if (window.crypto && crypto.getRandomValues) {
+    const arr = new Uint32Array(len);
+    crypto.getRandomValues(arr);
+    for (let i = 0; i < len; i++) out += chars[arr[i] % chars.length];
+  } else {
+    for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
+
 function generatePixPayload(pixKey, merchantName, merchantCity, amount, txId = '***') {
   const cleanName = merchantName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().substring(0, 25);
   const cleanCity = merchantCity.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().substring(0, 15);
   const formattedAmount = Number(amount).toFixed(2);
-  
+
   let payload = '000201';
   let accountInfo = '0014br.gov.bcb.pix';
   accountInfo += '01' + String(pixKey.length).padStart(2, '0') + pixKey;
-  
+
   payload += '26' + String(accountInfo.length).padStart(2, '0') + accountInfo;
   payload += '52040000';
   payload += '5303986';
@@ -2184,13 +2405,134 @@ function generatePixPayload(pixKey, merchantName, merchantCity, amount, txId = '
   payload += '5802BR';
   payload += '59' + String(cleanName.length).padStart(2, '0') + cleanName;
   payload += '60' + String(cleanCity.length).padStart(2, '0') + cleanCity;
-  
+
   let additionalInfo = '05' + String(txId.length).padStart(2, '0') + txId;
   payload += '62' + String(additionalInfo.length).padStart(2, '0') + additionalInfo;
   payload += '6304';
-  
+
   const crc = calculateCRC16(payload);
   return payload + crc;
+}
+
+function renderPixQRCode(payload) {
+  const img = document.getElementById('pix-qrcode-img');
+  if (!img) return;
+  if (typeof window.qrcode !== 'function') {
+    console.warn('Lib QR n\u00e3o carregada \u2014 fallback p/ texto');
+    img.alt = 'QR Pix (lib n\u00e3o dispon\u00edvel)';
+    return;
+  }
+  try {
+    const qr = window.qrcode(0, 'M');
+    qr.addData(payload);
+    qr.make();
+    img.src = qr.createDataURL(5, 12);
+  } catch (e) {
+    console.error('Erro ao gerar QR Pix:', e);
+  }
+}
+
+function startPixTimer() {
+  if (pixTimerHandle) clearInterval(pixTimerHandle);
+  const tick = () => {
+    const remainMs = pixExpiresAt - Date.now();
+    const badge = document.getElementById('pix-timer-badge');
+    const txt = document.getElementById('pix-timer-text');
+    const expired = document.getElementById('pix-expired-card');
+    if (!badge || !txt) return;
+    if (remainMs <= 0) {
+      badge.style.display = 'none';
+      if (expired) expired.style.display = 'block';
+      if (pixTimerHandle) { clearInterval(pixTimerHandle); pixTimerHandle = null; }
+      return;
+    }
+    if (expired) expired.style.display = 'none';
+    badge.style.display = 'inline-flex';
+    const totalSec = Math.floor(remainMs / 1000);
+    const mm = Math.floor(totalSec / 60).toString().padStart(2, '0');
+    const ss = (totalSec % 60).toString().padStart(2, '0');
+    txt.textContent = `${mm}:${ss}`;
+    badge.classList.toggle('pix-timer--urgent', totalSec <= 60);
+  };
+  tick();
+  pixTimerHandle = setInterval(tick, 1000);
+}
+
+function regeneratePixCode(total) {
+  pixTxId = generatePixTxId(25);
+  pixExpiresAt = Date.now() + 15 * 60 * 1000;
+  const code = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, total, pixTxId);
+  const ta = document.getElementById('pix-copia-cola');
+  if (ta) ta.value = code;
+  renderPixQRCode(code);
+  startPixTimer();
+}
+
+function showPaymentToast(icon, text, kind = 'success', durationMs = 4000) {
+  const el = document.getElementById('pay-toast');
+  const ic = document.getElementById('pay-toast-icon');
+  const tx = document.getElementById('pay-toast-text');
+  if (!el || !ic || !tx) return;
+  el.classList.remove('pay-toast--success', 'pay-toast--pending', 'pay-toast--error');
+  el.classList.add(`pay-toast--${kind}`);
+  ic.textContent = icon;
+  tx.textContent = text;
+  el.classList.add('is-visible');
+  setTimeout(() => el.classList.remove('is-visible'), durationMs);
+}
+
+function hidePaymentResultModal() {
+  const m = document.getElementById('pay-result-modal');
+  if (!m) return;
+  m.classList.remove('is-open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+function showPaymentResult(status, opts = {}) {
+  if (status === 'success') {
+    showPaymentToast('\ud83c\udf89', 'Pagamento aprovado pelo Mercado Pago!', 'success', 5000);
+    setTimeout(() => {
+      openCartDrawer();
+      // Se j\u00e1 h\u00e1 comprovante (pedido finalizado), continua nele; sen\u00e3o, segue pro WhatsApp
+      const success = document.getElementById('cart-step-success');
+      if (success && success.classList.contains('is-active')) return;
+      navigateCartStep('cart-step-payment-details');
+    }, 200);
+    return;
+  }
+  if (status === 'pending') {
+    showPaymentToast('\u23f3', 'Pagamento em an\u00e1lise. Voc\u00ea pode confirmar pelo WhatsApp.', 'pending', 6000);
+    setTimeout(() => {
+      openCartDrawer();
+      navigateCartStep('cart-step-payment-details');
+    }, 200);
+    return;
+  }
+  // failure \u2192 modal
+  const modal = document.getElementById('pay-result-modal');
+  const icon = document.getElementById('pay-result-icon');
+  const title = document.getElementById('pay-result-title');
+  const msg = document.getElementById('pay-result-message');
+  const actions = document.getElementById('pay-result-actions');
+  if (!modal || !actions) return;
+  icon.textContent = '\u274c';
+  title.textContent = 'Pagamento n\u00e3o conclu\u00eddo';
+  msg.textContent = 'N\u00e3o conseguimos confirmar seu pagamento no Mercado Pago. Voc\u00ea pode tentar novamente ou escolher outro m\u00e9todo.';
+  actions.innerHTML = `
+    <button type="button" class="button button--primary" data-action="retry">\ud83d\udd04 Tentar de novo</button>
+    <button type="button" class="button button--ghost" data-action="change">\u21a9 Mudar forma de pagamento</button>
+  `;
+  actions.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const act = btn.getAttribute('data-action');
+      hidePaymentResultModal();
+      openCartDrawer();
+      if (act === 'retry') navigateCartStep('cart-step-payment-details');
+      else navigateCartStep('cart-step-delivery');
+    }, { once: true });
+  });
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
 }
 
 async function getMPPreferenceUrl(cartItems, total) {
@@ -2228,43 +2570,9 @@ async function getMPPreferenceUrl(cartItems, total) {
     console.log('API serverless local falhou/indisponível. Tentando CORS proxy...');
   }
 
-  // 2. Tenta gerar via chamada direta client-side se tiver token local
-  if (MP_TOKEN && MP_INTEGRATION_TYPE === 'api') {
-    try {
-      const targetUrl = 'https://api.mercadopago.com/checkout/preferences';
-      const origin = window.location.origin + window.location.pathname;
-      const bodyData = {
-        items: items,
-        back_urls: {
-          success: `${origin}?payment_status=success`,
-          failure: `${origin}?payment_status=failure`,
-          pending: `${origin}?payment_status=pending`
-        },
-        auto_return: 'approved'
-      };
-
-      const res = await fetch(targetUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${MP_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bodyData)
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.init_point) return data.init_point;
-      } else {
-        const errorText = await res.text();
-        console.error('Mercado Pago API error:', errorText);
-      }
-    } catch (e) {
-      console.error('Criação direta da preferência falhou:', e);
-    }
-  }
-
-  // 3. Fallback definitivo: link manual configurado no Admin
+  // 2. Fallback: link manual configurado no Admin (sem expor MP_TOKEN no client)
+  //    Para usar a API direta de forma segura, configure uma função serverless
+  //    em /api/create-preference (ver MERCADOPAGO_SKILL.md).
   return MP_LINK || 'https://www.mercadopago.com.br/';
 }
 
@@ -2362,27 +2670,58 @@ if (paymentStatus) {
   const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
   window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
 
-  if (paymentStatus === 'success') {
-    // Se o pagamento foi aprovado, abre o drawer diretamente no fluxo para facilitar o envio no WhatsApp
-    setTimeout(() => {
-      openCartDrawer();
-      navigateCartStep('cart-step-payment-details');
-      showToast('🎉 Pagamento Aprovado pelo Mercado Pago!', 5000);
-      alert('🎉 Pagamento Aprovado pelo Mercado Pago!\n\nAgora, clique no botão verde "Enviar Pedido no WhatsApp" abaixo para nos enviar o comprovante de pagamento e confirmar o pedido na cozinha.');
-    }, 800);
-  } else if (paymentStatus === 'failure') {
-    setTimeout(() => {
-      openCartDrawer();
-      navigateCartStep('cart-step-payment-details');
-      alert('⚠️ Ocorreu um erro no processamento do seu pagamento pelo Mercado Pago. Por favor, tente novamente ou escolha outro método de pagamento.');
-    }, 800);
-  } else if (paymentStatus === 'pending') {
-    setTimeout(() => {
-      openCartDrawer();
-      navigateCartStep('cart-step-payment-details');
-      alert('⏳ Seu pagamento pelo Mercado Pago está em análise/pendente.\n\nVocê pode prosseguir clicando no botão "Enviar Pedido no WhatsApp" abaixo para registrar seu pedido.');
-    }, 800);
-  }
+  setTimeout(() => showPaymentResult(paymentStatus), 600);
+}
+
+// Pré-preenche checkout com perfil salvo, se houver
+restoreCustomerProfile();
+
+// Hooks adicionais: regenera Pix, fechar modal, imprimir comprovante, limpar perfil
+const btnRegenPix = document.getElementById('btn-regen-pix');
+if (btnRegenPix) {
+  btnRegenPix.addEventListener('click', () => {
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+    regeneratePixCode(subtotal + deliveryFee);
+    showToast('Novo código Pix gerado ✅');
+  });
+}
+
+const payResultModal = document.getElementById('pay-result-modal');
+if (payResultModal) {
+  payResultModal.addEventListener('click', (e) => {
+    if (e.target && e.target.matches('[data-pay-result-close]')) hidePaymentResultModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && payResultModal.classList.contains('is-open')) hidePaymentResultModal();
+  });
+}
+
+const receiptPrintBtn = document.getElementById('receipt-print-btn');
+if (receiptPrintBtn) {
+  receiptPrintBtn.addEventListener('click', () => {
+    document.body.classList.add('is-printing-receipt');
+    window.print();
+    setTimeout(() => document.body.classList.remove('is-printing-receipt'), 500);
+  });
+}
+
+const profileClearCheckbox = document.getElementById('profile-clear-checkbox');
+if (profileClearCheckbox) {
+  profileClearCheckbox.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      clearCustomerProfile();
+      if (checkoutName) checkoutName.value = '';
+      if (checkoutPhone) checkoutPhone.value = '';
+      if (checkoutStreet) checkoutStreet.value = '';
+      if (checkoutNeighborhood) checkoutNeighborhood.value = '';
+      if (checkoutRef) checkoutRef.value = '';
+      const toggleLabel = document.getElementById('profile-clear-toggle');
+      if (toggleLabel) toggleLabel.style.display = 'none';
+      showToast('Dados limpos deste dispositivo 🔒');
+      if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+    }
+  });
 }
 
 /* ============================================================
