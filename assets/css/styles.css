@@ -245,16 +245,17 @@ textarea {
 }
 
 .store-hero__cover {
-  min-height: clamp(320px, 56vw, 480px);
-  border-radius: 24px;
+  height: clamp(120px, 22vw, 200px);
+  width: 100%;
+  border-radius: 0;
   background:
-    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v3') center/cover no-repeat;
+    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v4') center 45% / cover no-repeat;
   box-shadow: var(--shadow);
 }
 
 .store-hero__identity {
   max-width: 860px;
-  margin: -52px auto 0;
+  margin: -64px auto 0;
   text-align: center;
 }
 
@@ -3592,28 +3593,29 @@ body.has-cart .floating-whatsapp {
   text-underline-offset: 2px;
 }
 
-/* --- Hero: refino premium --- */
+/* --- Hero: banner panoramico estilo "cinema strip" --- */
+.store-hero { padding: 0; }
+
 .store-hero__cover {
   position: relative;
-  border-radius: 28px;
-  border: 2px solid rgba(232, 193, 112, 0.55);
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.6),
-    0 0 0 4px rgba(232, 193, 112, 0.10),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  height: clamp(120px, 22vw, 200px);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgba(232, 193, 112, 0.35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(10, 5, 3, 0) 60%, rgba(10, 5, 3, 0.55) 100%),
-    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v3') center 45% / cover no-repeat;
-  min-height: clamp(320px, 56vw, 480px);
+    linear-gradient(180deg, rgba(10, 5, 3, 0.05) 60%, rgba(10, 5, 3, 0.55) 100%),
+    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v4') center 45% / cover no-repeat;
 }
 
 .store-hero__focus { display: none; }
 
 @media (max-width: 560px) {
   .store-hero__cover {
-    min-height: clamp(260px, 62vw, 360px);
-    border-radius: 22px;
+    height: clamp(100px, 28vw, 150px);
   }
 }
 
