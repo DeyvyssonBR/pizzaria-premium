@@ -3604,7 +3604,7 @@ body.has-cart .floating-whatsapp {
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, 0.55) 100%),
-    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026') center / cover no-repeat;
+    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v2') center / cover no-repeat;
   min-height: clamp(280px, 48vw, 420px);
 }
 
