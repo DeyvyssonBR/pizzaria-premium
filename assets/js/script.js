@@ -3725,20 +3725,25 @@ const dCalcInput = document.getElementById('delivery-calc-cep');
 const dCalcResult = document.getElementById('delivery-calc-result');
 maskCepInput(dCalcInput);
 if (dCalcForm) {
-  dCalcForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  let _dCalcBusy = false;
+  const runDeliveryCalc = async () => {
+    if (_dCalcBusy) return;
     if (!dCalcResult) return;
+    const cep = (dCalcInput.value || '').replace(/\D/g, '');
+    _dCalcBusy = true;
     dCalcResult.className = 'delivery-calc__result is-visible';
     dCalcResult.innerHTML = '<div class="delivery-calc__result-row">Consultando CEP…</div>';
-    const cep = (dCalcInput.value || '').replace(/\D/g, '');
     if (cep.length !== 8) {
       dCalcResult.className = 'delivery-calc__result is-visible is-out';
       dCalcResult.innerHTML = '<div class="delivery-calc__result-row">✗ Digite um CEP válido (8 dígitos).</div>';
+      _dCalcBusy = false;
       return;
     }
     try {
+      console.log('[delivery-calc] consultando', cep);
       const cepData = await fetchCep(cep);
       const zone = calcDeliveryByCep(cep);
+      console.log('[delivery-calc]', { cep, cepData, zone });
       if (zone.outOfRange) {
         dCalcResult.className = 'delivery-calc__result is-visible is-out';
         dCalcResult.innerHTML = `
@@ -3773,8 +3778,16 @@ if (dCalcForm) {
     } catch (err) {
       dCalcResult.className = 'delivery-calc__result is-visible is-out';
       dCalcResult.innerHTML = `<div class="delivery-calc__result-row">✗ ${err.message}</div>`;
+    } finally {
+      _dCalcBusy = false;
     }
-  });
+  };
+  dCalcForm.addEventListener('submit', (e) => { e.preventDefault(); runDeliveryCalc(); });
+  if (dCalcInput) {
+    dCalcInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); runDeliveryCalc(); }
+    });
+  }
 }
 
 // ---------- Cupons no checkout ----------
