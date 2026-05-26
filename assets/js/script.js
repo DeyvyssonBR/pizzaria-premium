@@ -44,7 +44,7 @@ const defaultMenu = [
     name: 'Calabresa Premium',
     description: 'Molho artesanal, mussarela especial, calabresa selecionada, cebola roxa e orégano.',
     price: 30,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'frango-catupiry',
@@ -53,7 +53,7 @@ const defaultMenu = [
     name: 'Frango com Catupiry',
     description: 'Frango bem temperado, muito recheio e catupiry cremoso.',
     price: 34,
-    image: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1594007654729-407eedc4be65.webp'
   },
   {
     id: 'portuguesa',
@@ -62,7 +62,7 @@ const defaultMenu = [
     name: 'Portuguesa',
     description: 'Presunto, ovos, cebola, ervilha, mussarela e toque especial da casa.',
     price: 35,
-    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1541745537411-b8046dc6d66c.webp'
   },
   {
     id: 'quatro-queijos',
@@ -71,7 +71,7 @@ const defaultMenu = [
     name: 'Quatro Queijos',
     description: 'Mix intenso de queijos derretidos para quem ama cremosidade.',
     price: 39,
-    image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1574071318508-1cdbab80d002.webp'
   },
   {
     id: 'bacon-especial',
@@ -80,7 +80,7 @@ const defaultMenu = [
     name: 'Bacon Especial',
     description: 'Bacon crocante, mussarela e cobertura generosa.',
     price: 41,
-    image: 'https://images.unsplash.com/photo-1601924582975-7e6ec6dc1b08?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'chocolate-morango',
@@ -89,7 +89,7 @@ const defaultMenu = [
     name: 'Chocolate com Morango',
     description: 'Uma sobremesa irresistível para fechar o pedido com chave de ouro.',
     price: 36,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'bombom-chocolate',
@@ -98,7 +98,7 @@ const defaultMenu = [
     name: 'Bombom de Chocolate',
     description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
     price: 5,
-    image: 'https://images.unsplash.com/photo-1548907040-4d42b52125e0?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'combo-premium',
@@ -107,7 +107,7 @@ const defaultMenu = [
     name: 'Combo Premium',
     description: '2 pizzas grandes + borda recheada + refrigerante 2L.',
     price: 89,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'combo-casal',
@@ -116,7 +116,7 @@ const defaultMenu = [
     name: 'Combo Casal',
     description: '1 pizza grande + 1 refrigerante lata + 1 pizza doce média.',
     price: 69,
-    image: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1594007654729-407eedc4be65.webp'
   },
   {
     id: 'combo-galera',
@@ -125,7 +125,7 @@ const defaultMenu = [
     name: 'Combo Galera',
     description: '3 pizzas grandes + borda recheada + refrigerante 2L.',
     price: 119,
-    image: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1590947132387-155cc02f3212.webp'
   },
   {
     id: 'combo-familia',
@@ -134,7 +134,7 @@ const defaultMenu = [
     name: 'Combo Família',
     description: '2 pizzas família + borda recheada + 2 guaraná 2L.',
     price: 139,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1565299624946-b28f40a0ae38.webp'
   },
   {
     id: 'refrigerante-2l',
@@ -143,7 +143,7 @@ const defaultMenu = [
     name: 'Refrigerante 2L',
     description: 'Acompanhamento ideal para combos e família.',
     price: 12,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=1200&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'carne-chapa-150',
@@ -152,7 +152,7 @@ const defaultMenu = [
     name: 'Carne na Chapa (150g)',
     description: 'Carne acebolada na chapa quente, servida no ponto certo.',
     price: 15,
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1544025162-d76694265947.webp'
   },
   {
     id: 'file-fritas-500',
@@ -161,7 +161,7 @@ const defaultMenu = [
     name: 'Filé com Fritas (500g)',
     description: 'Tiras de filé mignon aceboladas com porção generosa de batatas fritas crocantes.',
     price: 45,
-    image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1576107232684-1279f390859f.webp'
   },
   {
     id: 'frango-500',
@@ -170,7 +170,7 @@ const defaultMenu = [
     name: 'Frango Frito (500g)',
     description: 'Pedaços de frango crocantes e suculentos, bem temperados.',
     price: 35,
-    image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1562967914-608f82629710.webp'
   },
   {
     id: 'farofa',
@@ -179,7 +179,7 @@ const defaultMenu = [
     name: 'Farofa da Casa',
     description: 'Farofa crocante e temperada, acompanhamento perfeito para carnes.',
     price: 5,
-    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1589301760014-d929f3979dbc.webp'
   },
   {
     id: 'maria-isabel',
@@ -188,7 +188,7 @@ const defaultMenu = [
     name: 'Maria Isabel',
     description: 'Arroz tradicional piauiense com carne de sol picadinha e temperos regionais.',
     price: 15,
-    image: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1608039829572-78524f79c4c7.webp'
   },
   {
     id: 'batata-300',
@@ -197,7 +197,7 @@ const defaultMenu = [
     name: 'Porção de Batata Frita (300g)',
     description: 'Batatas fritas douradas e crocantes, sequinhas e salgadas na medida.',
     price: 16,
-    image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp'
   },
   {
     id: 'batata-400',
@@ -206,7 +206,7 @@ const defaultMenu = [
     name: 'Porção de Batata Frita (400g)',
     description: 'Porção grande de batatas fritas crocantes, perfeita para compartilhar.',
     price: 20,
-    image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp'
   },
   {
     id: 'vinagrete',
@@ -215,7 +215,7 @@ const defaultMenu = [
     name: 'Vinagrete Especial',
     description: 'Molho vinagrete fresco com tomate, cebola e pimentão picadinhos.',
     price: 5,
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1546069901-ba9599a7e63c.webp'
   },
   {
     id: 'cerveja-stella',
@@ -224,7 +224,7 @@ const defaultMenu = [
     name: 'Cerveja Stella Artois Long Neck',
     description: 'Cerveja premium Stella Artois, gelada e refrescante.',
     price: 9,
-    image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1608270586620-248524c67de9.webp'
   },
   {
     id: 'cerveja-skol',
@@ -233,7 +233,7 @@ const defaultMenu = [
     name: 'Cerveja Skol Lata',
     description: 'Cerveja Skol gelada, a preferida para os momentos de descontração.',
     price: 7,
-    image: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1566633806327-68e152aaf26d.webp'
   },
   {
     id: 'cerveja-budweiser',
@@ -242,7 +242,7 @@ const defaultMenu = [
     name: 'Cerveja Budweiser Long Neck',
     description: 'Cerveja americana Budweiser long neck bem gelada.',
     price: 9,
-    image: 'https://images.unsplash.com/photo-1527838832700-50592524df75?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'agua-com-gas',
@@ -251,7 +251,7 @@ const defaultMenu = [
     name: 'Água Mineral com Gás 500ml',
     description: 'Água mineral gaseificada fresca.',
     price: 4.5,
-    image: 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'agua-sem-gas',
@@ -260,7 +260,7 @@ const defaultMenu = [
     name: 'Água Mineral sem Gás 500ml',
     description: 'Água mineral natural fresca.',
     price: 4,
-    image: 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'guarana-1l-item',
@@ -269,7 +269,7 @@ const defaultMenu = [
     name: 'Guaraná Antarctica 1L',
     description: 'Refrigerante Guaraná Antarctica 1 litro bem gelado.',
     price: 8,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'guarana-2l-item',
@@ -278,7 +278,7 @@ const defaultMenu = [
     name: 'Guaraná Antarctica 2L',
     description: 'Refrigerante Guaraná Antarctica tamanho família 2 litros.',
     price: 12,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'coca-1l',
@@ -287,7 +287,7 @@ const defaultMenu = [
     name: 'Coca-Cola 1L',
     description: 'Refrigerante Coca-Cola garrafa de 1 litro bem gelada.',
     price: 9,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'guarana-350ml',
@@ -296,7 +296,7 @@ const defaultMenu = [
     name: 'Guaraná Antarctica Lata 350ml',
     description: 'Refrigerante Guaraná Antarctica lata de 350ml gelada.',
     price: 5,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'coca-350ml',
@@ -305,7 +305,7 @@ const defaultMenu = [
     name: 'Coca-Cola Lata 350ml',
     description: 'Refrigerante Coca-Cola lata de 350ml gelada.',
     price: 5.5,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'coca-1-5l',
@@ -314,7 +314,7 @@ const defaultMenu = [
     name: 'Coca-Cola 1.5L',
     description: 'Refrigerante Coca-Cola garrafa de 1.5 litros.',
     price: 11,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'fanta-laranja-retornavel',
@@ -323,7 +323,7 @@ const defaultMenu = [
     name: 'Fanta Laranja Retornável 2L',
     description: 'Refrigerante Fanta Laranja garrafa retornável de 2 litros.',
     price: 8.5,
-    image: 'https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/photo-1624552184280-9e9631bbeee9.webp'
   },
   {
     id: 'suco-maracuja-300',
@@ -332,7 +332,7 @@ const defaultMenu = [
     name: 'Suco Natural de Maracujá 300ml',
     description: 'Suco natural e refrescante de maracujá da fruta.',
     price: 8,
-    image: 'https://images.unsplash.com/photo-1536746803623-cef87080bfc8?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   }
 ];
 
@@ -345,7 +345,7 @@ if (menu && !menu.some(item => item.id === 'bombom-chocolate')) {
     name: 'Bombom de Chocolate',
     description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
     price: 5,
-    image: 'https://images.unsplash.com/photo-1548907040-4d42b52125e0?auto=format&fit=crop&w=600&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   });
   localStorage.setItem('premium_pizzaria_menu', JSON.stringify(menu));
 } else if (!localStorage.getItem('premium_pizzaria_menu')) {
@@ -394,21 +394,21 @@ const drinkOptions = [
     label: '02x Guaraná 01L',
     detail: 'Duas unidades para acompanhar sua pizza.',
     price: 14,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'guarana-zero-1l',
     label: '02x Guaraná Zero 01L',
     detail: 'Opção zero açúcar para o combo.',
     price: 14,
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
   },
   {
     id: 'sem-bebida',
     label: 'Não quero bebida',
     detail: 'Continuar apenas com a pizza.',
     price: 0,
-    image: 'https://images.unsplash.com/photo-1601924582975-7e6ec6dc1b08?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   }
 ];
 
@@ -418,21 +418,21 @@ const sachetOptions = [
     label: 'Não quero sachê',
     detail: 'Enviar sem ketchup ou maionese.',
     price: 0,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'ketchup-maionese',
     label: 'Enviar ketchup e maionese',
     detail: 'Sachês variados para acompanhar.',
     price: 0,
-    image: 'https://images.unsplash.com/photo-1601924582975-7e6ec6dc1b08?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/placeholder.webp'
   },
   {
     id: 'somente-ketchup',
     label: 'Enviar somente ketchup',
     detail: 'Apenas sachês de ketchup.',
     price: 0,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=500&q=80'
+    image: 'assets/img/cardapio/photo-1565299624946-b28f40a0ae38.webp'
   }
 ];
 
@@ -643,7 +643,7 @@ function renderMenu() {
 
       return `
         <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
-          <div class="menu-card__image" style="background-image:url('${item.image}')"></div>
+          <div class="menu-card__image"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
           <div class="menu-card__body">
             ${isPizza ? '<span class="menu-card__badge">Personalizável</span>' : ''}
             <div class="menu-card__meta">
@@ -922,7 +922,7 @@ function getStepShortLabel(id) {
 function renderStepProgress(selectedPizza) {
   return `
     <div class="product-detail-head">
-      <div class="product-detail-head__image" style="background-image:url('${selectedPizza.image}')"></div>
+      <div class="product-detail-head__image"><img src="${selectedPizza.image}" alt="${selectedPizza.name}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
       <div>
         <strong>${selectedPizza.name}</strong>
         <span>${formatBRL(calculatePizzaPrice())}</span>
@@ -1205,7 +1205,7 @@ function renderOptionCard({ active, attribute, title, detail, price = '' }) {
 function renderProductRow({ active, attribute, image, title, detail, meta = '', badge = '', style = '' }) {
   return `
     <button class="product-option ${active ? 'is-active' : ''}" type="button" ${attribute} style="${style}">
-      <span class="product-option__image" style="background-image:url('${image}')"></span>
+      <span class="product-option__image"><img src="${image}" alt="${title}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></span>
       <span class="product-option__body">
         <strong>${title}</strong>
         <span>${detail}</span>
@@ -1224,7 +1224,7 @@ function renderPopularFlavorCard(flavor, role) {
   return `
     <button class="popular-flavor-card ${isSelected ? 'is-selected' : ''}" type="button" data-flavor-role="${role}" data-flavor-id="${flavor.id}">
       <span class="popular-flavor-card__image-container">
-        <span class="popular-flavor-card__image" style="background-image: url('${flavor.image}')"></span>
+        <span class="popular-flavor-card__image"><img src="${flavor.image}" alt="${flavor.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></span>
         <span class="popular-flavor-card__add-btn ${isSelected ? 'is-active' : ''}">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
             ${isSelected 
@@ -1417,7 +1417,7 @@ function renderCombosCarousel() {
         <div class="carousel-slide" data-combo-id="${combo.id}">
           <div class="combo-slide-card">
             <div class="combo-slide-card__image-container">
-              <div class="combo-slide-card__image" style="background-image:url('${combo.image}')"></div>
+              <div class="combo-slide-card__image"><img src="${combo.image}" alt="${combo.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
               <span class="combo-slide-card__tag">🔥 MAIS PEDIDO</span>
             </div>
             <div class="combo-slide-card__content">

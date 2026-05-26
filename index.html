@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#c90814" />
-    <link rel="apple-touch-icon" href="assets/img/logo-premium.png" />
+    <link rel="apple-touch-icon" href="assets/img/pizzaria-premium-logo.webp" />
+    <link rel="preload" as="image" href="assets/img/pizzaria-premium-logo.webp" />
+    <script src="assets/js/script.js" defer></script>
   </head>
   <body>
     <header class="store-appbar">
@@ -47,7 +49,7 @@
 
           <div class="store-hero__identity">
             <div class="store-hero__logo-wrap">
-              <img class="store-hero__logo" src="assets/img/logo-premium.png" alt="Pizzaria Premium" onerror="this.hidden=true" />
+              <img class="store-hero__logo" src="assets/img/pizzaria-premium-logo.webp" alt="Pizzaria Premium" width="120" height="120" onerror="this.hidden=true" />
               <span class="store-hero__logo-fallback">P</span>
             </div>
 
@@ -476,7 +478,6 @@
       </div>
     </div>
 
-    <script src="assets/js/script.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

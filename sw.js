@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v1';
+const CACHE_NAME = 'pizzaria-premium-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -6,8 +6,8 @@ const ASSETS = [
   './assets/css/styles.css',
   './assets/js/script.js',
   './assets/img/pizzaria-premium-logo.webp',
-  './assets/img/logo-premium.png',
-  './assets/img/hero-fachada-premium.jpg'
+  './assets/img/hero-fachada-premium.webp',
+  './assets/img/cardapio/placeholder.webp'
 ];
 
 // Install Event

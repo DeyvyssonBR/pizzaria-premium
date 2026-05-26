@@ -249,7 +249,7 @@ textarea {
   border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(10, 5, 3, 0.2), rgba(10, 5, 3, 0.28)),
-    url('../img/hero-fachada-premium.jpg?v=fachada-oficial') center/cover;
+    url('../img/hero-fachada-premium.webp?v=fachada-oficial') center/cover;
   box-shadow: var(--shadow);
 }
 
@@ -514,7 +514,7 @@ textarea {
   padding-bottom: clamp(60px, 8vw, 90px);
   background:
     linear-gradient(135deg, rgba(117, 19, 33, 0.92), rgba(33, 26, 24, 0.98)),
-    url('https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=1600&q=80') center/cover;
+    url('../img/cardapio/photo-1579751626657-72bc17010498@2x.webp') center/cover;
   color: var(--text);
 }
 
@@ -806,6 +806,20 @@ textarea {
   flex: 0 0 auto;
   background-size: cover;
   background-position: center;
+  overflow: hidden;
+}
+
+/* Fotos do cardápio: <img> renderizada dentro do container preenche 100% como background-size:cover. */
+.menu-card__image > img,
+.combo-slide-card__image > img,
+.popular-flavor-card__image > img,
+.product-option__image > img,
+.product-detail-head__image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
 }
 
 .menu-card__body {
@@ -892,7 +906,7 @@ textarea {
 .panel--light {
   background:
     linear-gradient(135deg, rgba(255, 250, 242, 0.98), rgba(246, 223, 189, 0.78)),
-    url('https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=1000&q=80') right center/44% auto no-repeat;
+    url('../img/cardapio/photo-1628840042765-356cda07504e.webp') right center/44% auto no-repeat;
 }
 
 .panel--dark,

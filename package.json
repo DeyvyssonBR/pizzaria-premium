@@ -1,0 +1,11 @@
+{
+  "name": "pizzaria-premium-build",
+  "private": true,
+  "description": "Build scripts for image optimization. Not shipped to GitHub Pages.",
+  "scripts": {
+    "build:images": "node scripts/build-images.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.0"
+  }
+}
