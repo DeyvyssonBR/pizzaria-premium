@@ -3,3 +3,8 @@ scripts/.cache/
 .DS_Store
 *.log
 .overclock-app/
+
+# Documentacao local — NAO enviar ao GitHub
+CHANGELOG_LOCAL.md
+docs-local/
+*.local.md
