@@ -245,17 +245,16 @@ textarea {
 }
 
 .store-hero__cover {
-  min-height: clamp(220px, 36vw, 340px);
-  border-radius: 18px;
+  min-height: clamp(320px, 56vw, 480px);
+  border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(10, 5, 3, 0.2), rgba(10, 5, 3, 0.28)),
-    url('../img/hero-fachada-premium.webp?v=fachada-oficial') center/cover;
+    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v3') center/cover no-repeat;
   box-shadow: var(--shadow);
 }
 
 .store-hero__identity {
   max-width: 860px;
-  margin: -42px auto 0;
+  margin: -52px auto 0;
   text-align: center;
 }
 
@@ -3597,18 +3596,26 @@ body.has-cart .floating-whatsapp {
 .store-hero__cover {
   position: relative;
   border-radius: 28px;
-  border: 2px solid rgba(232, 193, 112, 0.35);
+  border: 2px solid rgba(232, 193, 112, 0.55);
   box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 4px rgba(232, 193, 112, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, 0.55) 100%),
-    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v2') center / cover no-repeat;
-  min-height: clamp(280px, 48vw, 420px);
+    linear-gradient(180deg, rgba(10, 5, 3, 0) 60%, rgba(10, 5, 3, 0.55) 100%),
+    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v3') center 45% / cover no-repeat;
+  min-height: clamp(320px, 56vw, 480px);
 }
 
 .store-hero__focus { display: none; }
+
+@media (max-width: 560px) {
+  .store-hero__cover {
+    min-height: clamp(260px, 62vw, 360px);
+    border-radius: 22px;
+  }
+}
 
 .store-hero__logo-wrap {
   width: 148px;
