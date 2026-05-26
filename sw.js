@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v4-logo-oficial';
+const CACHE_NAME = 'pizzaria-premium-v5-fachada-oficial';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,7 @@ const ASSETS = [
   './assets/css/styles.css',
   './assets/js/script.js',
   './assets/img/logo-premium-2026.png',
-  './assets/img/hero-fachada-premium.webp',
+  './assets/img/hero-fachada-premium-2026.jpg',
   './assets/img/cardapio/placeholder.webp'
 ];
 
