@@ -39,12 +39,32 @@
 
         <a class="store-appbar__brand" href="#inicio">PIZZARIA <span class="brand-accent">PREMIUM</span></a>
 
-        <a class="store-appbar__search" href="#cardapio" aria-label="Buscar no cardápio">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </a>
+        <div class="store-appbar__actions">
+          <button class="appbar-icon-btn" type="button" id="appbar-account-btn" aria-label="Minha conta">
+            <span class="appbar-account-avatar" id="appbar-account-avatar" data-initial="">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+          </button>
+
+          <button class="appbar-icon-btn appbar-icon-btn--cart" type="button" id="appbar-cart-btn" aria-label="Abrir carrinho">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span class="appbar-cart-badge" id="appbar-cart-badge" aria-live="polite" hidden>0</span>
+          </button>
+
+          <a class="appbar-icon-btn" href="#cardapio" id="appbar-search-btn" aria-label="Buscar no cardápio">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </a>
+        </div>
       </div>
     </header>
     <div class="site-shell">
@@ -138,6 +158,18 @@
             <div class="carousel-dots" id="combos-carousel-dots">
               <!-- Dynamically rendered dots -->
             </div>
+          </div>
+        </section>
+
+        <section class="delivery-calc" aria-labelledby="delivery-calc-title">
+          <div class="delivery-calc__card">
+            <h2 class="delivery-calc__title" id="delivery-calc-title">📍 Calcule sua taxa de entrega</h2>
+            <p class="delivery-calc__subtitle">Digite seu CEP para ver taxa e tempo estimado de entrega.</p>
+            <form class="delivery-calc__form" id="delivery-calc-form" novalidate>
+              <input type="text" id="delivery-calc-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code" />
+              <button type="submit" id="delivery-calc-btn">Calcular</button>
+            </form>
+            <div class="delivery-calc__result" id="delivery-calc-result" role="status" aria-live="polite"></div>
           </div>
         </section>
 
@@ -486,6 +518,13 @@
                 <textarea id="checkout-obs" rows="2" placeholder="Ex: sem cebola, ponto da carne, borda recheada..."></textarea>
               </div>
 
+              <div class="form-group" id="cart-coupon-group" style="display:none;">
+                <label for="cart-coupon-select">🎟️ Usar cupom de fidelidade</label>
+                <select id="cart-coupon-select" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(36,19,15,0.15);background:#fafafa;font-size:0.95rem;">
+                  <option value="">— Não usar cupom —</option>
+                </select>
+              </div>
+
               <button class="button button--checkout-next" type="button" id="cart-next-btn-3">
                 Avançar para o pagamento
               </button>
@@ -634,6 +673,283 @@
 
       </div>
     </div>
+
+    <!-- Auth Modal (login / registro / esqueci senha) -->
+    <div class="auth-modal" id="auth-modal" aria-hidden="true">
+      <div class="auth-modal__backdrop" data-auth-close></div>
+      <div class="auth-modal__card" role="dialog" aria-labelledby="auth-modal-title">
+        <button type="button" class="auth-modal__close" data-auth-close aria-label="Fechar">×</button>
+
+        <h2 class="auth-modal__title" id="auth-modal-title">Bem-vindo 👋</h2>
+        <p class="auth-modal__subtitle">Crie uma conta para acumular pontos e salvar endereços.</p>
+
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab is-active" data-auth-tab="login">Entrar</button>
+          <button type="button" class="auth-tab" data-auth-tab="register">Registrar</button>
+          <button type="button" class="auth-tab" data-auth-tab="forgot" id="auth-tab-forgot" style="display:none;">Esqueci</button>
+        </div>
+
+        <div class="auth-error" id="auth-error"></div>
+
+        <form class="auth-form is-active" data-auth-form="login" novalidate>
+          <div>
+            <label for="auth-login-email">E-mail</label>
+            <input type="email" id="auth-login-email" required autocomplete="email" placeholder="voce@email.com" />
+          </div>
+          <div>
+            <label for="auth-login-password">Senha</label>
+            <input type="password" id="auth-login-password" required autocomplete="current-password" placeholder="••••••" />
+          </div>
+          <button type="submit" class="auth-form__submit">Entrar</button>
+          <div class="auth-form__links">
+            <a href="#" data-auth-switch="register">Não tem conta? Registre-se</a>
+            <a href="#" data-auth-switch="forgot">Esqueci minha senha</a>
+          </div>
+        </form>
+
+        <form class="auth-form" data-auth-form="register" novalidate>
+          <div>
+            <label for="auth-reg-name">Nome completo</label>
+            <input type="text" id="auth-reg-name" required autocomplete="name" placeholder="João da Silva" />
+          </div>
+          <div>
+            <label for="auth-reg-email">E-mail</label>
+            <input type="email" id="auth-reg-email" required autocomplete="email" placeholder="voce@email.com" />
+          </div>
+          <div>
+            <label for="auth-reg-password">Senha (mín. 6 caracteres)</label>
+            <input type="password" id="auth-reg-password" required autocomplete="new-password" minlength="6" placeholder="••••••" />
+          </div>
+          <div>
+            <label for="auth-reg-phone">Telefone (WhatsApp)</label>
+            <input type="tel" id="auth-reg-phone" autocomplete="tel" placeholder="(86) 99999-0000" />
+          </div>
+          <div>
+            <label for="auth-reg-cep">CEP (opcional)</label>
+            <input type="text" id="auth-reg-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" />
+          </div>
+          <button type="submit" class="auth-form__submit">Criar conta</button>
+          <div class="auth-warning">
+            ⚠️ Sua conta fica apenas neste dispositivo. Se trocar de celular ou limpar dados do navegador, será necessário recadastrar.
+          </div>
+          <div class="auth-form__links">
+            <a href="#" data-auth-switch="login">Já tem conta? Entrar</a>
+          </div>
+        </form>
+
+        <form class="auth-form" data-auth-form="forgot" novalidate>
+          <div>
+            <label for="auth-forgot-email">E-mail da conta</label>
+            <input type="email" id="auth-forgot-email" required placeholder="voce@email.com" />
+          </div>
+          <div>
+            <label for="auth-forgot-newpw">Nova senha (mín. 6 caracteres)</label>
+            <input type="password" id="auth-forgot-newpw" required minlength="6" placeholder="••••••" />
+          </div>
+          <button type="submit" class="auth-form__submit">Redefinir senha</button>
+          <div class="auth-warning">
+            🔒 Como não temos servidor de e-mail, qualquer pessoa com acesso a este dispositivo pode redefinir senhas. Use apenas no seu celular pessoal.
+          </div>
+          <div class="auth-form__links">
+            <a href="#" data-auth-switch="login">Voltar para o login</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Account Drawer (perfil completo, sub-telas) -->
+    <div class="account-drawer__backdrop" id="account-drawer-backdrop"></div>
+    <aside class="account-drawer" id="account-drawer" aria-hidden="true">
+      <header class="account-drawer__header">
+        <button class="account-drawer__back" type="button" id="account-back-btn" style="display:none;" aria-label="Voltar">←</button>
+        <h2 class="account-drawer__title" id="account-drawer-title">Minha conta</h2>
+        <button class="account-drawer__close" type="button" id="account-close-btn" aria-label="Fechar">×</button>
+      </header>
+      <div class="account-drawer__body">
+
+        <!-- Step: Menu principal -->
+        <div class="account-step is-active" data-account-step="menu">
+          <div class="account-hero">
+            <div class="account-hero__row">
+              <div class="account-hero__avatar" id="account-hero-avatar">?</div>
+              <div class="account-hero__info">
+                <h3 class="account-hero__name" id="account-hero-name">—</h3>
+                <p class="account-hero__email" id="account-hero-email">—</p>
+              </div>
+            </div>
+            <div class="account-points-card">
+              <div class="account-points-card__left">
+                <span class="account-points-card__icon">⭐</span>
+                <div>
+                  <div class="account-points-card__value" id="account-hero-points">0</div>
+                  <div class="account-points-card__label">pontos disponíveis</div>
+                </div>
+              </div>
+              <button class="account-points-card__cta" type="button" data-account-go="prizes">Resgatar</button>
+            </div>
+          </div>
+
+          <nav class="account-menu">
+            <button type="button" class="account-menu__item" data-account-go="orders">
+              <span class="account-menu__item-icon">📦</span>
+              <span class="account-menu__item-label">Meus pedidos</span>
+              <span class="account-menu__item-meta" id="account-menu-orders-count"></span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item" data-account-go="prizes">
+              <span class="account-menu__item-icon">🎁</span>
+              <span class="account-menu__item-label">Resgatar pontos</span>
+              <span class="account-menu__item-meta" id="account-menu-coupons-count"></span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item" data-account-go="addresses">
+              <span class="account-menu__item-icon">📍</span>
+              <span class="account-menu__item-label">Endereços salvos</span>
+              <span class="account-menu__item-meta" id="account-menu-addresses-count"></span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item" data-account-go="profile">
+              <span class="account-menu__item-icon">⚙️</span>
+              <span class="account-menu__item-label">Dados pessoais</span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item" data-account-go="password">
+              <span class="account-menu__item-icon">🔒</span>
+              <span class="account-menu__item-label">Mudar senha</span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item account-menu__item--danger" id="account-logout-btn">
+              <span class="account-menu__item-icon">🚪</span>
+              <span class="account-menu__item-label">Sair da conta</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Step: Meus pedidos -->
+        <div class="account-step" data-account-step="orders">
+          <div class="account-section">
+            <h3 class="account-section__title">Meus pedidos</h3>
+            <div class="history-filter-tabs" role="tablist">
+              <button type="button" class="history-filter-tab is-active" data-history-filter="all">Todos</button>
+              <button type="button" class="history-filter-tab" data-history-filter="active">Em andamento</button>
+              <button type="button" class="history-filter-tab" data-history-filter="done">Concluídos</button>
+            </div>
+            <div id="account-orders-list">
+              <div class="account-section__empty">
+                <div class="account-section__empty-icon">📭</div>
+                <p>Você ainda não tem pedidos por aqui.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step: Resgatar prêmios -->
+        <div class="account-step" data-account-step="prizes">
+          <div class="account-section">
+            <h3 class="account-section__title">Prêmios disponíveis</h3>
+            <div id="account-prizes-list"></div>
+
+            <h3 class="account-section__title" style="margin-top:24px;">Meus cupons</h3>
+            <div id="account-coupons-list">
+              <div class="account-section__empty">
+                <div class="account-section__empty-icon">🎟️</div>
+                <p>Você ainda não resgatou cupons.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step: Endereços salvos -->
+        <div class="account-step" data-account-step="addresses">
+          <div class="account-section address-form-section">
+            <h3 class="account-section__title">Endereços salvos</h3>
+            <div id="account-addresses-list"></div>
+            <button type="button" class="auth-form__submit" id="account-add-address-btn" style="margin-top:12px;">+ Adicionar endereço</button>
+          </div>
+        </div>
+
+        <!-- Step: Form de endereço -->
+        <div class="account-step" data-account-step="address-form">
+          <div class="account-section address-form-section">
+            <h3 class="account-section__title" id="address-form-title">Novo endereço</h3>
+            <form id="address-form" novalidate>
+              <label for="addr-label">Etiqueta</label>
+              <input type="text" id="addr-label" placeholder="Ex: Casa, Trabalho" required />
+              <label for="addr-cep">CEP</label>
+              <div class="cep-row">
+                <input type="text" id="addr-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required />
+                <button type="button" id="addr-cep-btn">Buscar</button>
+              </div>
+              <div class="cep-feedback" id="addr-cep-feedback"></div>
+
+              <label for="addr-street">Rua</label>
+              <input type="text" id="addr-street" required />
+              <div class="row-2-cols">
+                <div>
+                  <label for="addr-number">Número</label>
+                  <input type="text" id="addr-number" required />
+                </div>
+                <div>
+                  <label for="addr-neighborhood">Bairro</label>
+                  <input type="text" id="addr-neighborhood" required />
+                </div>
+              </div>
+              <div class="row-2-cols" style="margin-top:12px;">
+                <div>
+                  <label for="addr-city">Cidade</label>
+                  <input type="text" id="addr-city" required />
+                </div>
+                <div>
+                  <label for="addr-uf">UF</label>
+                  <input type="text" id="addr-uf" maxlength="2" required />
+                </div>
+              </div>
+              <label for="addr-ref" style="margin-top:12px;">Referência (opcional)</label>
+              <input type="text" id="addr-ref" placeholder="Ex: prédio azul, perto da praça" />
+
+              <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:500;">
+                <input type="checkbox" id="addr-is-default" />
+                <span>Definir como endereço padrão</span>
+              </label>
+
+              <button type="submit" class="auth-form__submit" style="margin-top:14px;">Salvar endereço</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Step: Dados pessoais -->
+        <div class="account-step" data-account-step="profile">
+          <div class="account-section address-form-section">
+            <h3 class="account-section__title">Dados pessoais</h3>
+            <form id="profile-form" novalidate>
+              <label for="profile-name">Nome</label>
+              <input type="text" id="profile-name" required />
+              <label for="profile-phone">Telefone</label>
+              <input type="tel" id="profile-phone" />
+              <label for="profile-email">E-mail (não editável)</label>
+              <input type="email" id="profile-email" readonly style="background:#f0f0f0;color:#888;" />
+              <button type="submit" class="auth-form__submit" style="margin-top:14px;">Salvar alterações</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Step: Mudar senha -->
+        <div class="account-step" data-account-step="password">
+          <div class="account-section address-form-section">
+            <h3 class="account-section__title">Mudar senha</h3>
+            <form id="password-form" novalidate>
+              <label for="pwd-current">Senha atual</label>
+              <input type="password" id="pwd-current" required />
+              <label for="pwd-new">Nova senha (mín. 6 caracteres)</label>
+              <input type="password" id="pwd-new" required minlength="6" />
+              <label for="pwd-confirm">Confirmar nova senha</label>
+              <input type="password" id="pwd-confirm" required minlength="6" />
+              <button type="submit" class="auth-form__submit" style="margin-top:14px;">Atualizar senha</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </aside>
 
     <!-- Payment Result Modal (replaces alert() after Mercado Pago return) -->
     <div class="pay-result-modal" id="pay-result-modal" aria-hidden="true">

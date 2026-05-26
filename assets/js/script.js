@@ -1714,6 +1714,10 @@ function navigateCartStep(stepId) {
   });
   const target = document.getElementById(stepId);
   if (target) target.classList.add('is-active');
+  if (stepId === 'cart-step-delivery' && typeof refreshCheckoutCoupons === 'function') {
+    refreshCheckoutCoupons();
+    if (typeof renderSavedAddressesSelector === 'function') renderSavedAddressesSelector();
+  }
 }
 
 function renderCart() {
@@ -1722,6 +1726,8 @@ function renderCart() {
   } catch (e) {
     console.error('Erro ao salvar o carrinho no localStorage:', e);
   }
+
+  if (typeof updateAppbarCartBadge === 'function') updateAppbarCartBadge();
 
   if (!cartItemsList) return;
   
@@ -2314,6 +2320,17 @@ function finalizeOrder() {
   const fullMessage = messageLines.join('\n');
   lastOrderMessage = fullMessage;
 
+  // Conta logada (para vincular pedido + pontos)
+  const _acc = (typeof getCurrentAccount === 'function') ? getCurrentAccount() : null;
+
+  // Cupom aplicado (se houver)
+  const _couponEl = document.getElementById('cart-coupon-select');
+  const _couponCode = _couponEl ? _couponEl.value : '';
+  let _couponObj = null;
+  if (_couponCode && _acc) {
+    _couponObj = (_acc.coupons || []).find(c => c.code === _couponCode && !c.used) || null;
+  }
+
   const order = {
     id: orderId,
     createdAt: Date.now(),
@@ -2330,9 +2347,30 @@ function finalizeOrder() {
     estimatedMinutes,
     obs: obs || null,
     status: 'received',
-    statusManual: null
+    statusManual: null,
+    accountEmail: _acc ? _acc.email : null,
+    couponCode: _couponObj ? _couponObj.code : null,
+    couponName: _couponObj ? _couponObj.name : null,
+    paymentConfirmed: false
   };
   persistOrder(order);
+
+  // Marca cupom como usado e adiciona linha na mensagem do WhatsApp
+  if (_couponObj) {
+    markCouponUsed(_couponObj.code);
+    messageLines.push(`\n🎟️ *Cupom de fidelidade:* ${_couponObj.code} — ${_couponObj.name}`);
+    lastOrderMessage = messageLines.join('\n');
+  }
+
+  // Premia pontos pra conta logada
+  if (_acc) {
+    const awarded = awardPointsForOrder(order);
+    if (awarded) {
+      setTimeout(() => {
+        showToast(`+${awarded.earned} pontos! Total: ${awarded.total} ⭐`, 3000);
+      }, 1200);
+    }
+  }
 
   // Salva perfil do cliente para próximo pedido
   saveCustomerProfile({
@@ -2809,4 +2847,986 @@ if (profileClearCheckbox) {
   updateStatus();
   setInterval(updateStatus, 60 * 1000);
 })();
+
+/* ========================================================================
+   ACCOUNTS — contas locais, sessão, hash, pontos, cupons, endereços, ViaCEP
+   Sem backend. Hash SHA-256 + salt aleatório. Limitação: troca de aparelho
+   significa perda de conta (avisado no UI).
+   ======================================================================== */
+
+const ACCOUNTS_KEY = 'premium_pizzaria_accounts';
+const SESSION_KEY = 'premium_pizzaria_session';
+const PRIZES_KEY = 'premium_pizzaria_prizes';
+const ZONES_KEY = 'premium_pizzaria_zones';
+const LOYALTY_CONFIG_KEY = 'premium_pizzaria_loyalty_cfg';
+let currentAccount = null;
+
+// ---------- Hash SHA-256 ----------
+function bytesToHex(bytes) {
+  return Array.from(new Uint8Array(bytes))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function genSalt() {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return bytesToHex(arr);
+}
+async function hashPassword(salt, pwd) {
+  const enc = new TextEncoder().encode(salt + ':' + pwd);
+  const digest = await crypto.subtle.digest('SHA-256', enc);
+  return bytesToHex(digest);
+}
+
+// ---------- Accounts CRUD ----------
+function loadAccounts() {
+  try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function saveAccounts(list) {
+  try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); }
+  catch (e) { console.error('Erro ao salvar contas:', e); }
+}
+function getCurrentAccount() {
+  if (currentAccount) return currentAccount;
+  try {
+    const email = localStorage.getItem(SESSION_KEY);
+    if (!email) return null;
+    const acc = loadAccounts().find(a => a.email === email);
+    currentAccount = acc || null;
+    return currentAccount;
+  } catch (e) { return null; }
+}
+function setSession(email) {
+  if (email) localStorage.setItem(SESSION_KEY, email);
+  else localStorage.removeItem(SESSION_KEY);
+  currentAccount = null;
+}
+async function registerAccount(data) {
+  const accounts = loadAccounts();
+  const email = (data.email || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) throw new Error('E-mail inválido.');
+  if ((data.password || '').length < 6) throw new Error('Senha precisa ter pelo menos 6 caracteres.');
+  if (!data.name || data.name.trim().length < 2) throw new Error('Nome muito curto.');
+  if (accounts.find(a => a.email === email)) throw new Error('Este e-mail já está registrado neste dispositivo.');
+  const salt = genSalt();
+  const passwordHash = await hashPassword(salt, data.password);
+  const account = {
+    email,
+    name: data.name.trim(),
+    phone: data.phone || '',
+    salt,
+    passwordHash,
+    points: 0,
+    pointsHistory: [],
+    coupons: [],
+    addresses: [],
+    createdAt: Date.now(),
+    lastLoginAt: Date.now()
+  };
+  if (data.cep) {
+    const cep = data.cep.replace(/\D/g, '');
+    if (cep.length === 8) {
+      account.addresses.push({
+        id: 'a' + Date.now(), label: 'Casa',
+        cep, street: data.street || '', number: '',
+        neighborhood: data.neighborhood || '', city: data.city || '', uf: data.uf || '',
+        ref: '', isDefault: true
+      });
+    }
+  }
+  accounts.push(account);
+  saveAccounts(accounts);
+  setSession(email);
+  return account;
+}
+async function login(email, pwd) {
+  const accounts = loadAccounts();
+  const acc = accounts.find(a => a.email === (email || '').trim().toLowerCase());
+  if (!acc) throw new Error('Nenhuma conta encontrada com este e-mail neste dispositivo.');
+  const hash = await hashPassword(acc.salt, pwd);
+  if (hash !== acc.passwordHash) throw new Error('Senha incorreta.');
+  acc.lastLoginAt = Date.now();
+  saveAccounts(accounts);
+  setSession(acc.email);
+  return acc;
+}
+function logout() {
+  setSession(null);
+  refreshAppbarAccount();
+  if (typeof showToast === 'function') showToast('Você saiu da conta', 2000);
+}
+async function resetPassword(email, newPwd) {
+  const accounts = loadAccounts();
+  const acc = accounts.find(a => a.email === (email || '').trim().toLowerCase());
+  if (!acc) throw new Error('Nenhuma conta com esse e-mail.');
+  if ((newPwd || '').length < 6) throw new Error('Senha precisa ter pelo menos 6 caracteres.');
+  acc.salt = genSalt();
+  acc.passwordHash = await hashPassword(acc.salt, newPwd);
+  saveAccounts(accounts);
+}
+function updateCurrentAccount(patch) {
+  const cur = getCurrentAccount();
+  if (!cur) return null;
+  const accounts = loadAccounts();
+  const idx = accounts.findIndex(a => a.email === cur.email);
+  if (idx === -1) return null;
+  accounts[idx] = { ...accounts[idx], ...patch };
+  saveAccounts(accounts);
+  currentAccount = accounts[idx];
+  return currentAccount;
+}
+
+// ---------- Appbar badge + avatar ----------
+function updateAppbarCartBadge() {
+  const badge = document.getElementById('appbar-cart-badge');
+  if (!badge) return;
+  const count = Array.isArray(cart) ? cart.reduce((s, i) => s + (i.quantity || 1), 0) : 0;
+  if (count > 0) {
+    const prev = parseInt(badge.textContent || '0', 10);
+    badge.textContent = count > 99 ? '99+' : String(count);
+    badge.hidden = false;
+    if (count > prev) {
+      badge.classList.remove('is-bumping');
+      void badge.offsetWidth;
+      badge.classList.add('is-bumping');
+    }
+  } else {
+    badge.hidden = true;
+    badge.textContent = '0';
+  }
+}
+function refreshAppbarAccount() {
+  const avatar = document.getElementById('appbar-account-avatar');
+  if (!avatar) return;
+  const acc = getCurrentAccount();
+  if (acc && acc.name) {
+    avatar.setAttribute('data-initial', acc.name.trim().charAt(0).toUpperCase());
+  } else {
+    avatar.setAttribute('data-initial', '');
+  }
+}
+
+// ---------- ViaCEP ----------
+async function fetchCep(rawCep) {
+  const cep = (rawCep || '').replace(/\D/g, '');
+  if (cep.length !== 8) throw new Error('CEP precisa ter 8 dígitos.');
+  const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { mode: 'cors' });
+  if (!resp.ok) throw new Error('Não consegui consultar o CEP.');
+  const data = await resp.json();
+  if (data.erro) throw new Error('CEP não encontrado.');
+  return {
+    cep,
+    street: data.logradouro || '',
+    neighborhood: data.bairro || '',
+    city: data.localidade || '',
+    uf: data.uf || ''
+  };
+}
+
+// ---------- Zones (frete por CEP) ----------
+function loadZones() {
+  try {
+    const z = JSON.parse(localStorage.getItem(ZONES_KEY) || 'null');
+    if (Array.isArray(z) && z.length) return z;
+  } catch (e) {}
+  // default: Teresina
+  return [{
+    id: 'z-default',
+    label: 'Teresina-PI',
+    cepFrom: '64000000',
+    cepTo: '64099999',
+    fee: DELIVERY_FEE || 5,
+    minutesMin: 30,
+    minutesMax: 60,
+    active: true
+  }];
+}
+function saveZones(list) {
+  try { localStorage.setItem(ZONES_KEY, JSON.stringify(list)); }
+  catch (e) { console.error('Erro ao salvar zonas:', e); }
+}
+function calcDeliveryByCep(rawCep) {
+  const cep = (rawCep || '').replace(/\D/g, '');
+  if (cep.length !== 8) return { outOfRange: true, reason: 'CEP inválido' };
+  const cepNum = parseInt(cep, 10);
+  const zones = loadZones().filter(z => z.active !== false);
+  const z = zones.find(zone => {
+    const from = parseInt(String(zone.cepFrom).replace(/\D/g, ''), 10);
+    const to = parseInt(String(zone.cepTo).replace(/\D/g, ''), 10);
+    return cepNum >= from && cepNum <= to;
+  });
+  if (!z) return { outOfRange: true, reason: 'Fora da área de entrega', cep };
+  return {
+    outOfRange: false,
+    cep,
+    label: z.label,
+    fee: Number(z.fee) || 0,
+    minutesMin: Number(z.minutesMin) || 30,
+    minutesMax: Number(z.minutesMax) || 60
+  };
+}
+
+// ---------- Prizes ----------
+function loadPrizes() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PRIZES_KEY) || 'null');
+    if (Array.isArray(p) && p.length) return p;
+  } catch (e) {}
+  return [
+    { id: 'p1', name: 'Pizza Pequena Grátis', description: 'Sabor à escolha (pequena)', icon: '🍕', points: 500, active: true },
+    { id: 'p2', name: 'Refri 2L Grátis', description: 'Coca-Cola, Guaraná ou Sprite', icon: '🥤', points: 800, active: true },
+    { id: 'p3', name: 'Sobremesa Grátis', description: 'Brownie, mousse ou pudim', icon: '🍰', points: 600, active: true }
+  ];
+}
+function savePrizes(list) {
+  try { localStorage.setItem(PRIZES_KEY, JSON.stringify(list)); }
+  catch (e) { console.error('Erro ao salvar prêmios:', e); }
+}
+
+function loadLoyaltyConfig() {
+  try {
+    const c = JSON.parse(localStorage.getItem(LOYALTY_CONFIG_KEY) || 'null');
+    if (c) return c;
+  } catch (e) {}
+  return { enabled: true, pointsPerReal: 1 };
+}
+function saveLoyaltyConfig(cfg) {
+  try { localStorage.setItem(LOYALTY_CONFIG_KEY, JSON.stringify(cfg)); }
+  catch (e) {}
+}
+
+// ---------- Cupons (gerados ao resgatar prêmios) ----------
+function genCouponCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = 'PREMIO-';
+  for (let i = 0; i < 5; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+function redeemPrize(prizeId) {
+  const acc = getCurrentAccount();
+  if (!acc) throw new Error('Faça login para resgatar prêmios.');
+  const prize = loadPrizes().find(p => p.id === prizeId && p.active !== false);
+  if (!prize) throw new Error('Prêmio não encontrado.');
+  if ((acc.points || 0) < prize.points) throw new Error('Pontos insuficientes.');
+  const coupon = {
+    code: genCouponCode(),
+    prizeId: prize.id,
+    name: prize.name,
+    used: false,
+    createdAt: Date.now()
+  };
+  const newAcc = updateCurrentAccount({
+    points: (acc.points || 0) - prize.points,
+    coupons: [...(acc.coupons || []), coupon],
+    pointsHistory: [...(acc.pointsHistory || []), {
+      type: 'redeem', amount: -prize.points, prizeId: prize.id, at: Date.now()
+    }]
+  });
+  return { coupon, account: newAcc };
+}
+function getActiveCoupons() {
+  const acc = getCurrentAccount();
+  if (!acc) return [];
+  return (acc.coupons || []).filter(c => !c.used);
+}
+function markCouponUsed(code) {
+  const acc = getCurrentAccount();
+  if (!acc) return;
+  const coupons = (acc.coupons || []).map(c => c.code === code ? { ...c, used: true, usedAt: Date.now() } : c);
+  updateCurrentAccount({ coupons });
+}
+
+// ---------- Award points after finalizeOrder ----------
+function awardPointsForOrder(order) {
+  const acc = getCurrentAccount();
+  if (!acc) return null;
+  const cfg = loadLoyaltyConfig();
+  if (!cfg.enabled) return null;
+  const earned = Math.floor((order.total || 0) * (cfg.pointsPerReal || 1));
+  if (earned <= 0) return null;
+  const newAcc = updateCurrentAccount({
+    points: (acc.points || 0) + earned,
+    pointsHistory: [...(acc.pointsHistory || []), {
+      type: 'earn', amount: earned, orderId: order.id, at: Date.now()
+    }]
+  });
+  return { earned, total: newAcc.points };
+}
+
+/* ========================================================================
+   UI WIRING — Auth modal, account drawer, calculadora CEP
+   ======================================================================== */
+
+// ---------- Máscara CEP genérica ----------
+function maskCepInput(el) {
+  if (!el) return;
+  el.addEventListener('input', () => {
+    const digits = el.value.replace(/\D/g, '').slice(0, 8);
+    el.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+  });
+}
+
+// ---------- Auth modal ----------
+const authModalEl = document.getElementById('auth-modal');
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  if (!el) return;
+  if (msg) { el.textContent = msg; el.classList.add('is-visible'); }
+  else { el.classList.remove('is-visible'); }
+}
+function switchAuthTab(name) {
+  document.querySelectorAll('.auth-tab').forEach(t => {
+    t.classList.toggle('is-active', t.dataset.authTab === name);
+  });
+  document.querySelectorAll('.auth-form').forEach(f => {
+    f.classList.toggle('is-active', f.dataset.authForm === name);
+  });
+  const forgotTab = document.getElementById('auth-tab-forgot');
+  if (forgotTab) forgotTab.style.display = (name === 'forgot') ? '' : 'none';
+  showAuthError('');
+}
+function openAuthModal(initialTab) {
+  if (!authModalEl) return;
+  switchAuthTab(initialTab || 'login');
+  authModalEl.classList.add('is-open');
+  authModalEl.setAttribute('aria-hidden', 'false');
+}
+function closeAuthModal() {
+  if (!authModalEl) return;
+  authModalEl.classList.remove('is-open');
+  authModalEl.setAttribute('aria-hidden', 'true');
+  showAuthError('');
+}
+
+if (authModalEl) {
+  authModalEl.querySelectorAll('[data-auth-close]').forEach(el => {
+    el.addEventListener('click', closeAuthModal);
+  });
+  authModalEl.querySelectorAll('.auth-tab').forEach(t => {
+    t.addEventListener('click', () => switchAuthTab(t.dataset.authTab));
+  });
+  authModalEl.querySelectorAll('[data-auth-switch]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchAuthTab(a.dataset.authSwitch);
+    });
+  });
+  // Máscaras
+  maskCepInput(document.getElementById('auth-reg-cep'));
+
+  // Submit Login
+  const loginForm = authModalEl.querySelector('[data-auth-form="login"]');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showAuthError('');
+      const email = document.getElementById('auth-login-email').value;
+      const pwd = document.getElementById('auth-login-password').value;
+      try {
+        const acc = await login(email, pwd);
+        closeAuthModal();
+        refreshAppbarAccount();
+        showToast(`Bem-vindo de volta, ${acc.name.split(' ')[0]}!`, 2500);
+        loginForm.reset();
+      } catch (err) {
+        showAuthError(err.message);
+      }
+    });
+  }
+
+  // Submit Register
+  const regForm = authModalEl.querySelector('[data-auth-form="register"]');
+  if (regForm) {
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showAuthError('');
+      const data = {
+        name: document.getElementById('auth-reg-name').value,
+        email: document.getElementById('auth-reg-email').value,
+        password: document.getElementById('auth-reg-password').value,
+        phone: document.getElementById('auth-reg-phone').value,
+        cep: document.getElementById('auth-reg-cep').value
+      };
+      try {
+        // Se tem CEP, tenta puxar dados via ViaCEP (não bloqueia em falha)
+        if (data.cep) {
+          try {
+            const cepData = await fetchCep(data.cep);
+            data.street = cepData.street;
+            data.neighborhood = cepData.neighborhood;
+            data.city = cepData.city;
+            data.uf = cepData.uf;
+          } catch (e) { /* ignora, salva sem detalhes */ }
+        }
+        const acc = await registerAccount(data);
+        closeAuthModal();
+        refreshAppbarAccount();
+        showToast(`Conta criada! Bem-vindo, ${acc.name.split(' ')[0]}.`, 2800);
+        regForm.reset();
+      } catch (err) {
+        showAuthError(err.message);
+      }
+    });
+  }
+
+  // Submit Forgot
+  const forgotForm = authModalEl.querySelector('[data-auth-form="forgot"]');
+  if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showAuthError('');
+      const email = document.getElementById('auth-forgot-email').value;
+      const newPwd = document.getElementById('auth-forgot-newpw').value;
+      try {
+        await resetPassword(email, newPwd);
+        showToast('Senha redefinida! Faça login com a nova senha.', 3000);
+        switchAuthTab('login');
+        document.getElementById('auth-login-email').value = email;
+        forgotForm.reset();
+      } catch (err) {
+        showAuthError(err.message);
+      }
+    });
+  }
+}
+
+// ---------- Appbar buttons ----------
+const appbarAccountBtn = document.getElementById('appbar-account-btn');
+const appbarCartBtn = document.getElementById('appbar-cart-btn');
+
+if (appbarAccountBtn) {
+  appbarAccountBtn.addEventListener('click', () => {
+    if (getCurrentAccount()) {
+      openAccountDrawer('menu');
+    } else {
+      openAuthModal('login');
+    }
+  });
+}
+if (appbarCartBtn) {
+  appbarCartBtn.addEventListener('click', () => {
+    if (typeof openCartDrawer === 'function') openCartDrawer();
+  });
+}
+
+// ---------- Account drawer ----------
+const accountDrawerEl = document.getElementById('account-drawer');
+const accountDrawerBackdrop = document.getElementById('account-drawer-backdrop');
+let accountStepHistory = ['menu'];
+
+function setAccountStep(name) {
+  document.querySelectorAll('.account-step').forEach(s => {
+    s.classList.toggle('is-active', s.dataset.accountStep === name);
+  });
+  const back = document.getElementById('account-back-btn');
+  if (back) back.style.display = (name === 'menu') ? 'none' : '';
+  const title = document.getElementById('account-drawer-title');
+  if (title) {
+    const titles = {
+      menu: 'Minha conta', orders: 'Meus pedidos', prizes: 'Resgatar pontos',
+      addresses: 'Endereços', 'address-form': 'Endereço',
+      profile: 'Dados pessoais', password: 'Mudar senha'
+    };
+    title.textContent = titles[name] || 'Minha conta';
+  }
+}
+function openAccountDrawer(step) {
+  if (!accountDrawerEl) return;
+  refreshAccountHero();
+  accountStepHistory = ['menu'];
+  setAccountStep(step || 'menu');
+  if (step && step !== 'menu') {
+    accountStepHistory.push(step);
+    renderAccountStep(step);
+  }
+  accountDrawerEl.classList.add('is-open');
+  accountDrawerEl.setAttribute('aria-hidden', 'false');
+  if (accountDrawerBackdrop) accountDrawerBackdrop.classList.add('is-open');
+}
+function closeAccountDrawer() {
+  if (!accountDrawerEl) return;
+  accountDrawerEl.classList.remove('is-open');
+  accountDrawerEl.setAttribute('aria-hidden', 'true');
+  if (accountDrawerBackdrop) accountDrawerBackdrop.classList.remove('is-open');
+}
+function goAccountStep(step) {
+  accountStepHistory.push(step);
+  setAccountStep(step);
+  renderAccountStep(step);
+}
+function popAccountStep() {
+  if (accountStepHistory.length > 1) accountStepHistory.pop();
+  const prev = accountStepHistory[accountStepHistory.length - 1] || 'menu';
+  setAccountStep(prev);
+  renderAccountStep(prev);
+}
+function refreshAccountHero() {
+  const acc = getCurrentAccount();
+  if (!acc) return;
+  const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setT('account-hero-avatar', (acc.name || '?').charAt(0).toUpperCase());
+  setT('account-hero-name', acc.name);
+  setT('account-hero-email', acc.email);
+  setT('account-hero-points', String(acc.points || 0));
+  const ordersForMe = loadOrders().filter(o => o.accountEmail === acc.email);
+  setT('account-menu-orders-count', ordersForMe.length ? String(ordersForMe.length) : '');
+  const couponsActive = (acc.coupons || []).filter(c => !c.used).length;
+  setT('account-menu-coupons-count', couponsActive ? `${couponsActive} cupom` : '');
+  setT('account-menu-addresses-count', (acc.addresses || []).length ? String((acc.addresses || []).length) : '');
+}
+function renderAccountStep(step) {
+  if (step === 'orders') renderAccountOrders('all');
+  else if (step === 'prizes') renderAccountPrizes();
+  else if (step === 'addresses') renderAccountAddresses();
+  else if (step === 'profile') renderAccountProfileForm();
+  else if (step === 'menu') refreshAccountHero();
+}
+
+// Drawer wiring
+if (accountDrawerEl) {
+  document.getElementById('account-close-btn').addEventListener('click', closeAccountDrawer);
+  document.getElementById('account-back-btn').addEventListener('click', popAccountStep);
+  if (accountDrawerBackdrop) accountDrawerBackdrop.addEventListener('click', closeAccountDrawer);
+  accountDrawerEl.querySelectorAll('[data-account-go]').forEach(b => {
+    b.addEventListener('click', () => goAccountStep(b.dataset.accountGo));
+  });
+  document.getElementById('account-logout-btn').addEventListener('click', () => {
+    if (confirm('Deseja sair da sua conta? Seus dados ficam guardados neste dispositivo.')) {
+      logout();
+      closeAccountDrawer();
+    }
+  });
+  document.querySelectorAll('.history-filter-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.history-filter-tab').forEach(x => x.classList.toggle('is-active', x === t));
+      renderAccountOrders(t.dataset.historyFilter);
+    });
+  });
+}
+
+// Init appbar state na carga
+refreshAppbarAccount();
+updateAppbarCartBadge();
+
+// ---------- Render: Meus pedidos ----------
+function statusLabel(status) {
+  if (status === 'delivered') return ['Entregue', 'delivered'];
+  if (status === 'ontheway' || status === 'ready') return ['Saiu/Pronto', 'ready'];
+  if (status === 'preparing') return ['Em preparo', 'preparing'];
+  return ['Recebido', 'received'];
+}
+function renderAccountOrders(filter) {
+  const list = document.getElementById('account-orders-list');
+  if (!list) return;
+  const acc = getCurrentAccount();
+  if (!acc) { list.innerHTML = ''; return; }
+  let orders = loadOrders().filter(o => o.accountEmail === acc.email);
+  if (filter === 'active') orders = orders.filter(o => (o.statusManual || o.status) !== 'delivered');
+  else if (filter === 'done') orders = orders.filter(o => (o.statusManual || o.status) === 'delivered');
+  if (!orders.length) {
+    list.innerHTML = `
+      <div class="account-section__empty">
+        <div class="account-section__empty-icon">📭</div>
+        <p>Nenhum pedido nesta categoria.</p>
+      </div>`;
+    return;
+  }
+  list.innerHTML = orders.map(o => {
+    const d = new Date(o.createdAt);
+    const dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    const [stLabel, stCls] = statusLabel(o.statusManual || o.status);
+    const paidBadge = (o.paymentMethod === 'pix' || o.paymentMethod === 'mercadopago') && o.paymentConfirmed
+      ? `<span class="order-history-card__status order-history-card__status--paid">Pago</span>` : '';
+    return `
+      <div class="order-history-card" data-order-id="${o.id}">
+        <div class="order-history-card__head">
+          <span class="order-history-card__id">${o.id}</span>
+          <span class="order-history-card__status order-history-card__status--${stCls}">${stLabel}</span>
+        </div>
+        <div class="order-history-card__meta">${dateStr} · <strong class="order-history-card__total">${formatBRL(o.total)}</strong> ${paidBadge}</div>
+        <div class="order-history-card__actions">
+          <button class="order-history-card__btn" data-order-view="${o.id}">Ver detalhes</button>
+          <button class="order-history-card__btn order-history-card__btn--primary" data-order-repeat="${o.id}">Repetir</button>
+        </div>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('[data-order-view]').forEach(b => {
+    b.addEventListener('click', () => {
+      const o = getOrderById(b.dataset.orderView);
+      if (!o) return;
+      alert(`Pedido ${o.id}\n${new Date(o.createdAt).toLocaleString('pt-BR')}\nTotal: ${formatBRL(o.total)}\nItens: ${(o.items||[]).map(i => `${i.quantity}x ${i.name}`).join(', ')}`);
+    });
+  });
+  list.querySelectorAll('[data-order-repeat]').forEach(b => {
+    b.addEventListener('click', () => {
+      const o = getOrderById(b.dataset.orderRepeat);
+      if (!o || !o.items) return;
+      o.items.forEach(it => {
+        cart.push({
+          id: 'r' + Date.now() + Math.random().toString(36).slice(2,6),
+          itemId: it.itemId, type: it.type,
+          name: it.name, price: it.price,
+          quantity: it.quantity, details: it.details
+        });
+      });
+      renderCart();
+      closeAccountDrawer();
+      if (typeof openCartDrawer === 'function') openCartDrawer();
+      showToast('Itens adicionados ao carrinho!', 2000);
+    });
+  });
+}
+
+// ---------- Render: Prêmios ----------
+function renderAccountPrizes() {
+  const acc = getCurrentAccount();
+  const list = document.getElementById('account-prizes-list');
+  const coupons = document.getElementById('account-coupons-list');
+  if (!list || !acc) return;
+  const prizes = loadPrizes().filter(p => p.active !== false);
+  list.innerHTML = prizes.map(p => {
+    const canAfford = (acc.points || 0) >= p.points;
+    return `
+      <div class="prize-card">
+        <div class="prize-card__head">
+          <span class="prize-card__icon">${p.icon || '🎁'}</span>
+          <div class="prize-card__body">
+            <h4 class="prize-card__name">${p.name}</h4>
+            <p class="prize-card__desc">${p.description || ''}</p>
+          </div>
+          <span class="prize-card__cost">⭐ ${p.points}</span>
+        </div>
+        <button class="prize-card__btn" data-prize-redeem="${p.id}" ${canAfford ? '' : 'disabled'}>
+          ${canAfford ? 'Resgatar' : `Faltam ${p.points - (acc.points||0)} pts`}
+        </button>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('[data-prize-redeem]').forEach(b => {
+    b.addEventListener('click', () => {
+      try {
+        const { coupon } = redeemPrize(b.dataset.prizeRedeem);
+        showToast(`Cupom ${coupon.code} gerado! Use no próximo pedido.`, 3500);
+        refreshAccountHero();
+        renderAccountPrizes();
+      } catch (err) {
+        showToast(err.message, 2800);
+      }
+    });
+  });
+
+  // Cupons ativos
+  const active = (acc.coupons || []).filter(c => !c.used);
+  if (!coupons) return;
+  if (!active.length) {
+    coupons.innerHTML = `
+      <div class="account-section__empty">
+        <div class="account-section__empty-icon">🎟️</div>
+        <p>Resgate um prêmio para ganhar um cupom.</p>
+      </div>`;
+    return;
+  }
+  coupons.innerHTML = active.map(c => `
+    <div class="coupon-chip">
+      <span class="coupon-chip__code">${c.code}</span>
+      <span class="coupon-chip__name">${c.name}</span>
+    </div>`).join('');
+}
+
+// ---------- Render: Endereços ----------
+let editingAddressId = null;
+function renderAccountAddresses() {
+  const acc = getCurrentAccount();
+  const list = document.getElementById('account-addresses-list');
+  if (!list || !acc) return;
+  const addrs = acc.addresses || [];
+  if (!addrs.length) {
+    list.innerHTML = `
+      <div class="account-section__empty">
+        <div class="account-section__empty-icon">📍</div>
+        <p>Sem endereços salvos ainda.</p>
+      </div>`;
+    return;
+  }
+  list.innerHTML = addrs.map(a => `
+    <div class="address-card ${a.isDefault ? 'is-default' : ''}">
+      <div class="address-card__head">
+        <span class="address-card__label">📍 ${a.label} ${a.isDefault ? '<span class="address-card__default-badge">Padrão</span>' : ''}</span>
+      </div>
+      <p class="address-card__text">${a.street}${a.number ? ', ' + a.number : ''} · ${a.neighborhood}<br>${a.city}/${a.uf} · CEP ${a.cep}${a.ref ? '<br>Ref: ' + a.ref : ''}</p>
+      <div class="address-card__actions">
+        ${!a.isDefault ? `<button class="address-card__btn" data-addr-default="${a.id}">Tornar padrão</button>` : ''}
+        <button class="address-card__btn" data-addr-edit="${a.id}">Editar</button>
+        <button class="address-card__btn address-card__btn--danger" data-addr-delete="${a.id}">Excluir</button>
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('[data-addr-default]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.addrDefault;
+      const acc2 = getCurrentAccount();
+      const newAddrs = (acc2.addresses || []).map(a => ({ ...a, isDefault: a.id === id }));
+      updateCurrentAccount({ addresses: newAddrs });
+      renderAccountAddresses();
+      refreshAccountHero();
+    });
+  });
+  list.querySelectorAll('[data-addr-edit]').forEach(b => {
+    b.addEventListener('click', () => openAddressForm(b.dataset.addrEdit));
+  });
+  list.querySelectorAll('[data-addr-delete]').forEach(b => {
+    b.addEventListener('click', () => {
+      if (!confirm('Excluir este endereço?')) return;
+      const acc2 = getCurrentAccount();
+      const newAddrs = (acc2.addresses || []).filter(a => a.id !== b.dataset.addrDelete);
+      updateCurrentAccount({ addresses: newAddrs });
+      renderAccountAddresses();
+      refreshAccountHero();
+    });
+  });
+}
+function openAddressForm(addressId) {
+  editingAddressId = addressId || null;
+  goAccountStep('address-form');
+  const form = document.getElementById('address-form');
+  if (form) form.reset();
+  document.getElementById('addr-cep-feedback').textContent = '';
+  document.getElementById('address-form-title').textContent = addressId ? 'Editar endereço' : 'Novo endereço';
+  if (addressId) {
+    const acc = getCurrentAccount();
+    const a = (acc.addresses || []).find(x => x.id === addressId);
+    if (a) {
+      document.getElementById('addr-label').value = a.label || '';
+      document.getElementById('addr-cep').value = a.cep || '';
+      document.getElementById('addr-street').value = a.street || '';
+      document.getElementById('addr-number').value = a.number || '';
+      document.getElementById('addr-neighborhood').value = a.neighborhood || '';
+      document.getElementById('addr-city').value = a.city || '';
+      document.getElementById('addr-uf').value = a.uf || '';
+      document.getElementById('addr-ref').value = a.ref || '';
+      document.getElementById('addr-is-default').checked = !!a.isDefault;
+    }
+  }
+}
+
+// Address form wiring
+const addrForm = document.getElementById('address-form');
+const addrCepInput = document.getElementById('addr-cep');
+const addrCepBtn = document.getElementById('addr-cep-btn');
+const addrCepFb = document.getElementById('addr-cep-feedback');
+maskCepInput(addrCepInput);
+if (addrCepBtn && addrCepInput) {
+  addrCepBtn.addEventListener('click', async () => {
+    addrCepFb.textContent = 'Consultando CEP…';
+    addrCepFb.className = 'cep-feedback';
+    try {
+      const data = await fetchCep(addrCepInput.value);
+      document.getElementById('addr-street').value = data.street;
+      document.getElementById('addr-neighborhood').value = data.neighborhood;
+      document.getElementById('addr-city').value = data.city;
+      document.getElementById('addr-uf').value = data.uf;
+      const zone = calcDeliveryByCep(data.cep);
+      if (zone.outOfRange) {
+        addrCepFb.textContent = '⚠️ CEP fora da área de entrega da pizzaria.';
+        addrCepFb.className = 'cep-feedback is-error';
+      } else {
+        addrCepFb.textContent = `✓ ${data.neighborhood}, ${data.city}/${data.uf} · Taxa ${formatBRL(zone.fee)} · ${zone.minutesMin}-${zone.minutesMax}min`;
+        addrCepFb.className = 'cep-feedback is-ok';
+      }
+    } catch (err) {
+      addrCepFb.textContent = '✗ ' + err.message;
+      addrCepFb.className = 'cep-feedback is-error';
+    }
+  });
+}
+if (addrForm) {
+  addrForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const acc = getCurrentAccount();
+    if (!acc) return;
+    const addrData = {
+      id: editingAddressId || ('a' + Date.now()),
+      label: document.getElementById('addr-label').value.trim() || 'Endereço',
+      cep: document.getElementById('addr-cep').value.replace(/\D/g, ''),
+      street: document.getElementById('addr-street').value.trim(),
+      number: document.getElementById('addr-number').value.trim(),
+      neighborhood: document.getElementById('addr-neighborhood').value.trim(),
+      city: document.getElementById('addr-city').value.trim(),
+      uf: document.getElementById('addr-uf').value.trim().toUpperCase(),
+      ref: document.getElementById('addr-ref').value.trim(),
+      isDefault: document.getElementById('addr-is-default').checked
+    };
+    let addrs = (acc.addresses || []).slice();
+    if (editingAddressId) {
+      addrs = addrs.map(a => a.id === editingAddressId ? addrData : a);
+    } else {
+      if (!addrs.length) addrData.isDefault = true;
+      addrs.push(addrData);
+    }
+    if (addrData.isDefault) {
+      addrs = addrs.map(a => ({ ...a, isDefault: a.id === addrData.id }));
+    }
+    updateCurrentAccount({ addresses: addrs });
+    editingAddressId = null;
+    showToast('Endereço salvo!', 2000);
+    popAccountStep();
+    renderAccountAddresses();
+  });
+}
+const addAddrBtn = document.getElementById('account-add-address-btn');
+if (addAddrBtn) addAddrBtn.addEventListener('click', () => openAddressForm(null));
+
+// ---------- Render: Profile ----------
+function renderAccountProfileForm() {
+  const acc = getCurrentAccount();
+  if (!acc) return;
+  document.getElementById('profile-name').value = acc.name || '';
+  document.getElementById('profile-phone').value = acc.phone || '';
+  document.getElementById('profile-email').value = acc.email || '';
+}
+const profileForm = document.getElementById('profile-form');
+if (profileForm) {
+  profileForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('profile-name').value.trim();
+    const phone = document.getElementById('profile-phone').value.trim();
+    if (!name) return showToast('Nome obrigatório', 2000);
+    updateCurrentAccount({ name, phone });
+    refreshAppbarAccount();
+    showToast('Dados atualizados!', 2000);
+    popAccountStep();
+  });
+}
+
+// ---------- Mudar senha ----------
+const pwdForm = document.getElementById('password-form');
+if (pwdForm) {
+  pwdForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cur = document.getElementById('pwd-current').value;
+    const nw = document.getElementById('pwd-new').value;
+    const cf = document.getElementById('pwd-confirm').value;
+    if (nw !== cf) return showToast('Nova senha e confirmação diferentes.', 2500);
+    if (nw.length < 6) return showToast('Senha precisa ter pelo menos 6 caracteres.', 2500);
+    const acc = getCurrentAccount();
+    if (!acc) return;
+    const curHash = await hashPassword(acc.salt, cur);
+    if (curHash !== acc.passwordHash) return showToast('Senha atual incorreta.', 2500);
+    const newSalt = genSalt();
+    const newHash = await hashPassword(newSalt, nw);
+    updateCurrentAccount({ salt: newSalt, passwordHash: newHash });
+    showToast('Senha atualizada!', 2000);
+    pwdForm.reset();
+    popAccountStep();
+  });
+}
+
+// ---------- Calculadora pública de frete ----------
+const dCalcForm = document.getElementById('delivery-calc-form');
+const dCalcInput = document.getElementById('delivery-calc-cep');
+const dCalcResult = document.getElementById('delivery-calc-result');
+maskCepInput(dCalcInput);
+if (dCalcForm) {
+  dCalcForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!dCalcResult) return;
+    dCalcResult.className = 'delivery-calc__result is-visible';
+    dCalcResult.innerHTML = '<div class="delivery-calc__result-row">Consultando CEP…</div>';
+    const cep = (dCalcInput.value || '').replace(/\D/g, '');
+    if (cep.length !== 8) {
+      dCalcResult.className = 'delivery-calc__result is-visible is-out';
+      dCalcResult.innerHTML = '<div class="delivery-calc__result-row">✗ Digite um CEP válido (8 dígitos).</div>';
+      return;
+    }
+    try {
+      const cepData = await fetchCep(cep);
+      const zone = calcDeliveryByCep(cep);
+      if (zone.outOfRange) {
+        dCalcResult.className = 'delivery-calc__result is-visible is-out';
+        dCalcResult.innerHTML = `
+          <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood}</strong>, ${cepData.city}/${cepData.uf}</span></div>
+          <div class="delivery-calc__result-row">⚠️ <strong>Fora da área de entrega.</strong></div>
+          <div class="delivery-calc__result-row" style="font-size:0.85rem;color:#6b5a55;">Você ainda pode retirar pessoalmente na pizzaria.</div>`;
+      } else {
+        dCalcResult.className = 'delivery-calc__result is-visible is-ok';
+        dCalcResult.innerHTML = `
+          <div class="delivery-calc__result-row">📍 <span><strong>${cepData.neighborhood}</strong>, ${cepData.city}/${cepData.uf}</span></div>
+          <div class="delivery-calc__result-row">💰 Taxa de entrega: <strong>${formatBRL(zone.fee)}</strong></div>
+          <div class="delivery-calc__result-row">⏱ Tempo estimado: <strong>${zone.minutesMin}-${zone.minutesMax} min</strong></div>
+          <div class="delivery-calc__result-actions">
+            <a class="button button--ghost" href="#cardapio" onclick="document.getElementById('delivery-calc-result').classList.remove('is-visible')">Ver cardápio</a>
+            ${getCurrentAccount() ? '<button type="button" class="button button--whatsapp-pulse" id="dcalc-save-addr">📍 Salvar este CEP</button>' : ''}
+          </div>`;
+        const saveBtn = document.getElementById('dcalc-save-addr');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', () => {
+            openAccountDrawer('addresses');
+            setTimeout(() => {
+              openAddressForm(null);
+              document.getElementById('addr-cep').value = cep.length > 5 ? `${cep.slice(0,5)}-${cep.slice(5)}` : cep;
+              document.getElementById('addr-street').value = cepData.street;
+              document.getElementById('addr-neighborhood').value = cepData.neighborhood;
+              document.getElementById('addr-city').value = cepData.city;
+              document.getElementById('addr-uf').value = cepData.uf;
+            }, 350);
+          });
+        }
+      }
+    } catch (err) {
+      dCalcResult.className = 'delivery-calc__result is-visible is-out';
+      dCalcResult.innerHTML = `<div class="delivery-calc__result-row">✗ ${err.message}</div>`;
+    }
+  });
+}
+
+// ---------- Cupons no checkout ----------
+function refreshCheckoutCoupons() {
+  const group = document.getElementById('cart-coupon-group');
+  const sel = document.getElementById('cart-coupon-select');
+  if (!group || !sel) return;
+  const coupons = getActiveCoupons();
+  if (!coupons.length) { group.style.display = 'none'; return; }
+  group.style.display = '';
+  sel.innerHTML = '<option value="">— Não usar cupom —</option>' +
+    coupons.map(c => `<option value="${c.code}">${c.code} · ${c.name}</option>`).join('');
+}
+
+// ---------- Endereços salvos no checkout ----------
+function renderSavedAddressesSelector() {
+  const acc = getCurrentAccount();
+  if (!acc || !(acc.addresses || []).length) return;
+  let host = document.getElementById('saved-address-selector');
+  const checkoutStreetEl = document.getElementById('checkout-street');
+  if (!checkoutStreetEl) return;
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'saved-address-selector';
+    host.className = 'form-group';
+    host.style.marginBottom = '12px';
+    // Insere antes do form de rua
+    const parent = checkoutStreetEl.closest('.form-group')?.parentElement;
+    if (parent) parent.insertBefore(host, checkoutStreetEl.closest('.form-group'));
+  }
+  host.innerHTML = `
+    <label for="saved-address-select" style="font-weight:600;color:#5a0a18;">📍 Usar endereço salvo</label>
+    <select id="saved-address-select" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(36,19,15,0.15);background:#fafafa;font-size:0.95rem;">
+      <option value="">— Preencher manualmente —</option>
+      ${acc.addresses.map(a => `<option value="${a.id}" ${a.isDefault ? 'selected' : ''}>${a.label} · ${a.neighborhood}/${a.city}</option>`).join('')}
+    </select>
+  `;
+  const sel = document.getElementById('saved-address-select');
+  const fillFromAddr = (id) => {
+    const a = acc.addresses.find(x => x.id === id);
+    if (!a) return;
+    if (checkoutStreetEl) checkoutStreetEl.value = `${a.street}${a.number ? ', ' + a.number : ''}`;
+    const nb = document.getElementById('checkout-neighborhood');
+    if (nb) nb.value = a.neighborhood;
+    const rf = document.getElementById('checkout-ref');
+    if (rf) rf.value = a.ref || '';
+  };
+  // Preenche padrão automaticamente
+  const def = acc.addresses.find(a => a.isDefault) || acc.addresses[0];
+  if (def && checkoutStreetEl && !checkoutStreetEl.value) fillFromAddr(def.id);
+  sel.addEventListener('change', () => {
+    if (sel.value) fillFromAddr(sel.value);
+  });
+}
 

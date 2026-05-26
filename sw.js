@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v8-receipt-btns';
+const CACHE_NAME = 'pizzaria-premium-v9-accounts';
 const ASSETS = [
   './',
   './index.html',

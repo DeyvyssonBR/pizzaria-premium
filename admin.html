@@ -1360,6 +1360,12 @@
         <div class="nav-item" onclick="switchTab('tab-orders-day', this)">
           <i class="fa-solid fa-clock-rotate-left"></i> Pedidos do Dia
         </div>
+        <div class="nav-item" onclick="switchTab('tab-loyalty', this)">
+          <i class="fa-solid fa-star"></i> Fidelidade
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-zones', this)">
+          <i class="fa-solid fa-map-location-dot"></i> Zonas de Entrega
+        </div>
         <div class="nav-item" onclick="switchTab('tab-dashboard', this)">
           <i class="fa-solid fa-chart-line"></i> Relatórios & Painel
         </div>
@@ -1687,6 +1693,121 @@
           </div>
         </div>
 
+        <!-- Tab: Fidelidade -->
+        <div class="tab-content" id="tab-loyalty">
+          <div class="section-title"><span>Programa de Fidelidade</span></div>
+          <div class="card" style="margin-bottom:18px;">
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" id="loyalty-enabled" />
+                <span>Ativar sistema de pontos</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="loyalty-ratio">Pontos por R$ 1 gasto</label>
+              <input type="number" id="loyalty-ratio" min="0" step="0.5" value="1" style="width:140px;" />
+            </div>
+            <button class="btn" onclick="saveLoyaltyCfgAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
+          </div>
+
+          <div class="section-title" style="margin-top:24px;">
+            <span>Prêmios cadastrados</span>
+            <button class="btn" style="width:auto;padding:10px 20px;font-size:0.88rem;" onclick="openPrizeForm()"><i class="fa-solid fa-plus"></i> Novo prêmio</button>
+          </div>
+          <div id="prizes-admin-list"></div>
+
+          <div id="prize-form-modal" style="display:none;margin-top:16px;padding:18px;background:#fafafa;border-radius:12px;border:1.5px solid rgba(36,19,15,0.1);">
+            <h3 style="margin-top:0;color:#5a0a18;" id="prize-form-title">Novo prêmio</h3>
+            <div class="form-group">
+              <label for="prize-name">Nome</label>
+              <input type="text" id="prize-name" placeholder="Ex: Pizza Pequena Grátis" />
+            </div>
+            <div class="form-group">
+              <label for="prize-desc">Descrição</label>
+              <input type="text" id="prize-desc" placeholder="Detalhes ou regras" />
+            </div>
+            <div class="form-group">
+              <label for="prize-icon">Ícone (emoji)</label>
+              <input type="text" id="prize-icon" placeholder="🍕" maxlength="3" style="width:80px;" />
+            </div>
+            <div class="form-group">
+              <label for="prize-points">Custo em pontos</label>
+              <input type="number" id="prize-points" min="1" step="50" value="500" style="width:140px;" />
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" id="prize-active" checked />
+                <span>Ativo</span>
+              </label>
+            </div>
+            <button class="btn" onclick="savePrizeAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
+            <button class="btn" style="background:#6b5a55;margin-left:8px;" onclick="closePrizeForm()">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Tab: Zonas de entrega -->
+        <div class="tab-content" id="tab-zones">
+          <div class="section-title">
+            <span>Zonas de Entrega (por CEP)</span>
+            <button class="btn" style="width:auto;padding:10px 20px;font-size:0.88rem;" onclick="openZoneForm()"><i class="fa-solid fa-plus"></i> Nova zona</button>
+          </div>
+          <div style="background:#fff7e6;border-left:3px solid #e0a300;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:0.88rem;color:#6b4a00;">
+            💡 CEPs fora de qualquer zona ativa serão tratados como "fora da área de entrega" na calculadora pública.
+            Para Teresina-PI, use a faixa <strong>64000000</strong> a <strong>64099999</strong>.
+          </div>
+
+          <div id="zones-admin-list"></div>
+
+          <div style="margin-top:24px;padding:16px;background:#f7f7f7;border-radius:12px;">
+            <h4 style="margin-top:0;">🧪 Testar CEP</h4>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="zone-test-cep" placeholder="00000-000" maxlength="9" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+              <button class="btn" onclick="testZoneCep()">Testar</button>
+            </div>
+            <div id="zone-test-result" style="margin-top:10px;font-size:0.92rem;"></div>
+          </div>
+
+          <div id="zone-form-modal" style="display:none;margin-top:16px;padding:18px;background:#fafafa;border-radius:12px;border:1.5px solid rgba(36,19,15,0.1);">
+            <h3 style="margin-top:0;color:#5a0a18;" id="zone-form-title">Nova zona</h3>
+            <div class="form-group">
+              <label for="zone-label">Nome da zona</label>
+              <input type="text" id="zone-label" placeholder="Ex: Centro, Zona Sul, Timon" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="form-group">
+                <label for="zone-cep-from">CEP inicial</label>
+                <input type="text" id="zone-cep-from" placeholder="64000000" maxlength="8" />
+              </div>
+              <div class="form-group">
+                <label for="zone-cep-to">CEP final</label>
+                <input type="text" id="zone-cep-to" placeholder="64099999" maxlength="8" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="zone-fee">Taxa de entrega (R$)</label>
+              <input type="number" id="zone-fee" min="0" step="0.5" value="5" style="width:140px;" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="form-group">
+                <label for="zone-min">Tempo mínimo (min)</label>
+                <input type="number" id="zone-min" min="0" value="30" />
+              </div>
+              <div class="form-group">
+                <label for="zone-max">Tempo máximo (min)</label>
+                <input type="number" id="zone-max" min="0" value="60" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" id="zone-active" checked />
+                <span>Ativa</span>
+              </label>
+            </div>
+            <button class="btn" onclick="saveZoneAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
+            <button class="btn" style="background:#6b5a55;margin-left:8px;" onclick="closeZoneForm()">Cancelar</button>
+          </div>
+        </div>
+
         <!-- Tab 5: Dashboard e Relatórios -->
         <div class="tab-content" id="tab-dashboard">
           <div class="section-title">
@@ -1986,6 +2107,12 @@
       });
       document.getElementById(tabId).classList.add('active');
       element.classList.add('active');
+      if (tabId === 'tab-loyalty') {
+        loadLoyaltyCfgIntoForm();
+        renderPrizesAdminList();
+      } else if (tabId === 'tab-zones') {
+        renderZonesAdminList();
+      }
     }
 
     const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -3110,6 +3237,300 @@
     window.addEventListener('storage', (e) => {
       if (e.key === ORDERS_KEY) refreshOrdersDay(true);
     });
+
+    // ============================================================
+    // Admin: Fidelidade + Zonas de Entrega
+    // ============================================================
+    const PRIZES_KEY = 'premium_pizzaria_prizes';
+    const ZONES_KEY = 'premium_pizzaria_zones';
+    const LOYALTY_CONFIG_KEY = 'premium_pizzaria_loyalty_cfg';
+
+    function adminToast(msg) {
+      try {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 22px;border-radius:999px;z-index:9999;font-size:0.92rem;box-shadow:0 8px 22px rgba(0,0,0,0.35);';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2400);
+      } catch (e) { console.log(msg); }
+    }
+
+    function loadPrizes() {
+      try {
+        const raw = localStorage.getItem(PRIZES_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const defaults = [
+        { id: 'pr-pizza-p', name: 'Pizza Pequena Grátis', description: 'Sabor a escolher (até R$ 35)', icon: '🍕', points: 500, active: true },
+        { id: 'pr-refri-2l', name: 'Refrigerante 2L Grátis', description: 'Coca, Guaraná ou Pepsi 2L', icon: '🥤', points: 800, active: true },
+        { id: 'pr-sobremesa', name: 'Sobremesa Grátis', description: 'Brownie, pudim ou mousse', icon: '🍰', points: 600, active: true }
+      ];
+      localStorage.setItem(PRIZES_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    function savePrizes(list) { localStorage.setItem(PRIZES_KEY, JSON.stringify(list)); }
+
+    function loadZones() {
+      try {
+        const raw = localStorage.getItem(ZONES_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const defaults = [
+        { id: 'zn-teresina', label: 'Teresina-PI', cepFrom: 64000000, cepTo: 64099999, fee: 5, minutesMin: 30, minutesMax: 45, active: true }
+      ];
+      localStorage.setItem(ZONES_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    function saveZones(list) { localStorage.setItem(ZONES_KEY, JSON.stringify(list)); }
+
+    function loadLoyaltyConfig() {
+      try {
+        const raw = localStorage.getItem(LOYALTY_CONFIG_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return { enabled: true, pointsPerReal: 1 };
+    }
+    function saveLoyaltyConfig(cfg) { localStorage.setItem(LOYALTY_CONFIG_KEY, JSON.stringify(cfg)); }
+
+    function loadLoyaltyCfgIntoForm() {
+      const cfg = loadLoyaltyConfig();
+      const enabled = document.getElementById('loyalty-enabled');
+      const ratio = document.getElementById('loyalty-ratio');
+      if (enabled) enabled.checked = !!cfg.enabled;
+      if (ratio) ratio.value = cfg.pointsPerReal || 1;
+    }
+    function saveLoyaltyCfgAdmin() {
+      const enabled = document.getElementById('loyalty-enabled');
+      const ratio = document.getElementById('loyalty-ratio');
+      const cfg = {
+        enabled: enabled ? !!enabled.checked : true,
+        pointsPerReal: ratio ? Math.max(0.1, parseFloat(ratio.value) || 1) : 1
+      };
+      saveLoyaltyConfig(cfg);
+      adminToast('Configuração de fidelidade salva.');
+    }
+
+    // ---------- Prêmios ----------
+    let _editingPrizeId = null;
+    function renderPrizesAdminList() {
+      const list = document.getElementById('prizes-admin-list');
+      if (!list) return;
+      const prizes = loadPrizes();
+      if (!prizes.length) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">Nenhum prêmio cadastrado.</div>';
+        return;
+      }
+      list.innerHTML = prizes.map(p => `
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #eee;border-radius:12px;margin-bottom:10px;background:#fff;">
+          <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#f5c84b,#e0a818);display:flex;align-items:center;justify-content:center;color:#5a0a18;font-size:1.3rem;">
+            ${escapeHtml(p.icon || '🎁')}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:#1a1a1a;">${escapeHtml(p.name)}</div>
+            <div style="font-size:0.85rem;color:#666;">${escapeHtml(p.description || '')}</div>
+            <div style="font-size:0.82rem;color:#b8860b;font-weight:600;margin-top:2px;">⭐ ${p.points} pontos · ${p.active ? 'Ativo' : 'Inativo'}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-circle" onclick="openPrizeForm('${escapeHtml(p.id)}')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>
+            <button class="btn-circle btn-delete" onclick="deletePrize('${escapeHtml(p.id)}')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openPrizeForm(id) {
+      const modal = document.getElementById('prize-form-modal');
+      if (!modal) return;
+      _editingPrizeId = id || null;
+      const title = document.getElementById('prize-form-title');
+      const nameEl = document.getElementById('prize-name');
+      const descEl = document.getElementById('prize-desc');
+      const iconEl = document.getElementById('prize-icon');
+      const pointsEl = document.getElementById('prize-points');
+      const activeEl = document.getElementById('prize-active');
+      if (id) {
+        const prize = loadPrizes().find(p => p.id === id);
+        if (prize) {
+          if (title) title.textContent = 'Editar prêmio';
+          if (nameEl) nameEl.value = prize.name || '';
+          if (descEl) descEl.value = prize.description || '';
+          if (iconEl) iconEl.value = prize.icon || '🎁';
+          if (pointsEl) pointsEl.value = prize.points || 500;
+          if (activeEl) activeEl.checked = prize.active !== false;
+        }
+      } else {
+        if (title) title.textContent = 'Novo prêmio';
+        if (nameEl) nameEl.value = '';
+        if (descEl) descEl.value = '';
+        if (iconEl) iconEl.value = '🎁';
+        if (pointsEl) pointsEl.value = 500;
+        if (activeEl) activeEl.checked = true;
+      }
+      modal.style.display = 'block';
+    }
+    function closePrizeForm() {
+      const modal = document.getElementById('prize-form-modal');
+      if (modal) modal.style.display = 'none';
+      _editingPrizeId = null;
+    }
+    function savePrizeAdmin() {
+      const name = (document.getElementById('prize-name') || {}).value || '';
+      const description = (document.getElementById('prize-desc') || {}).value || '';
+      const icon = (document.getElementById('prize-icon') || {}).value || '🎁';
+      const points = parseInt((document.getElementById('prize-points') || {}).value, 10) || 0;
+      const active = !!(document.getElementById('prize-active') || {}).checked;
+      if (!name.trim()) { adminToast('Informe o nome do prêmio.'); return; }
+      if (points < 1) { adminToast('Pontos deve ser maior que zero.'); return; }
+      const list = loadPrizes();
+      if (_editingPrizeId) {
+        const idx = list.findIndex(p => p.id === _editingPrizeId);
+        if (idx >= 0) list[idx] = Object.assign({}, list[idx], { name: name.trim(), description: description.trim(), icon, points, active });
+      } else {
+        list.push({ id: 'pr-' + Date.now().toString(36), name: name.trim(), description: description.trim(), icon, points, active });
+      }
+      savePrizes(list);
+      closePrizeForm();
+      renderPrizesAdminList();
+      adminToast('Prêmio salvo.');
+    }
+    function deletePrize(id) {
+      if (!confirm('Excluir este prêmio? Cupons já resgatados continuam valendo.')) return;
+      const list = loadPrizes().filter(p => p.id !== id);
+      savePrizes(list);
+      renderPrizesAdminList();
+      adminToast('Prêmio excluído.');
+    }
+
+    // ---------- Zonas ----------
+    let _editingZoneId = null;
+    function renderZonesAdminList() {
+      const list = document.getElementById('zones-admin-list');
+      if (!list) return;
+      const zones = loadZones();
+      if (!zones.length) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">Nenhuma zona cadastrada.</div>';
+        return;
+      }
+      list.innerHTML = zones.map(z => `
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #eee;border-radius:12px;margin-bottom:10px;background:#fff;">
+          <div style="width:46px;height:46px;border-radius:50%;background:#fff4e6;display:flex;align-items:center;justify-content:center;color:#c97a16;font-size:1.1rem;">
+            <i class="fa-solid fa-map-location-dot"></i>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:#1a1a1a;">${escapeHtml(z.label)}</div>
+            <div style="font-size:0.85rem;color:#666;">CEP ${formatCepDisplay(z.cepFrom)} → ${formatCepDisplay(z.cepTo)}</div>
+            <div style="font-size:0.82rem;color:#5a0a18;font-weight:600;margin-top:2px;">${formatCurrency(z.fee)} · ${z.minutesMin}-${z.minutesMax} min · ${z.active ? 'Ativa' : 'Inativa'}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-circle" onclick="openZoneForm('${escapeHtml(z.id)}')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>
+            <button class="btn-circle btn-delete" onclick="deleteZone('${escapeHtml(z.id)}')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function formatCepDisplay(n) {
+      const s = String(n || '').padStart(8, '0');
+      return s.slice(0, 5) + '-' + s.slice(5);
+    }
+    function parseCepInput(str) {
+      const digits = String(str || '').replace(/\D/g, '');
+      return parseInt(digits || '0', 10);
+    }
+
+    function openZoneForm(id) {
+      const modal = document.getElementById('zone-form-modal');
+      if (!modal) return;
+      _editingZoneId = id || null;
+      const title = document.getElementById('zone-form-title');
+      const labelEl = document.getElementById('zone-label');
+      const fromEl = document.getElementById('zone-cep-from');
+      const toEl = document.getElementById('zone-cep-to');
+      const feeEl = document.getElementById('zone-fee');
+      const minEl = document.getElementById('zone-min');
+      const maxEl = document.getElementById('zone-max');
+      const activeEl = document.getElementById('zone-active');
+      if (id) {
+        const z = loadZones().find(x => x.id === id);
+        if (z) {
+          if (title) title.textContent = 'Editar zona';
+          if (labelEl) labelEl.value = z.label || '';
+          if (fromEl) fromEl.value = formatCepDisplay(z.cepFrom);
+          if (toEl) toEl.value = formatCepDisplay(z.cepTo);
+          if (feeEl) feeEl.value = z.fee || 0;
+          if (minEl) minEl.value = z.minutesMin || 30;
+          if (maxEl) maxEl.value = z.minutesMax || 45;
+          if (activeEl) activeEl.checked = z.active !== false;
+        }
+      } else {
+        if (title) title.textContent = 'Nova zona';
+        if (labelEl) labelEl.value = '';
+        if (fromEl) fromEl.value = '';
+        if (toEl) toEl.value = '';
+        if (feeEl) feeEl.value = 5;
+        if (minEl) minEl.value = 30;
+        if (maxEl) maxEl.value = 45;
+        if (activeEl) activeEl.checked = true;
+      }
+      modal.style.display = 'block';
+    }
+    function closeZoneForm() {
+      const modal = document.getElementById('zone-form-modal');
+      if (modal) modal.style.display = 'none';
+      _editingZoneId = null;
+    }
+    function saveZoneAdmin() {
+      const label = ((document.getElementById('zone-label') || {}).value || '').trim();
+      const cepFrom = parseCepInput((document.getElementById('zone-cep-from') || {}).value);
+      const cepTo = parseCepInput((document.getElementById('zone-cep-to') || {}).value);
+      const fee = parseFloat((document.getElementById('zone-fee') || {}).value) || 0;
+      const minutesMin = parseInt((document.getElementById('zone-min') || {}).value, 10) || 0;
+      const minutesMax = parseInt((document.getElementById('zone-max') || {}).value, 10) || 0;
+      const active = !!(document.getElementById('zone-active') || {}).checked;
+      if (!label) { adminToast('Informe o label da zona.'); return; }
+      if (!cepFrom || !cepTo || cepFrom > cepTo) { adminToast('Faixa de CEP inválida.'); return; }
+      if (minutesMin > minutesMax) { adminToast('Tempo mínimo maior que máximo.'); return; }
+      const list = loadZones();
+      if (_editingZoneId) {
+        const idx = list.findIndex(z => z.id === _editingZoneId);
+        if (idx >= 0) list[idx] = Object.assign({}, list[idx], { label, cepFrom, cepTo, fee, minutesMin, minutesMax, active });
+      } else {
+        list.push({ id: 'zn-' + Date.now().toString(36), label, cepFrom, cepTo, fee, minutesMin, minutesMax, active });
+      }
+      saveZones(list);
+      closeZoneForm();
+      renderZonesAdminList();
+      adminToast('Zona salva.');
+    }
+    function deleteZone(id) {
+      if (!confirm('Excluir esta zona? CEPs nessa faixa cairão na taxa padrão.')) return;
+      const list = loadZones().filter(z => z.id !== id);
+      saveZones(list);
+      renderZonesAdminList();
+      adminToast('Zona excluída.');
+    }
+    function testZoneCep() {
+      const raw = (document.getElementById('zone-test-cep') || {}).value || '';
+      const out = document.getElementById('zone-test-result');
+      const cepNum = parseCepInput(raw);
+      if (!cepNum || String(cepNum).length < 7) {
+        if (out) out.innerHTML = '<span style="color:#a00;">CEP inválido.</span>';
+        return;
+      }
+      const zones = loadZones().filter(z => z.active !== false);
+      const zone = zones.find(z => cepNum >= z.cepFrom && cepNum <= z.cepTo);
+      if (out) {
+        if (zone) {
+          out.innerHTML = `<div style="padding:10px;background:#e8f5e9;border-radius:8px;color:#1b5e20;">
+            ✓ Caiu na zona <strong>${escapeHtml(zone.label)}</strong><br>
+            Taxa: <strong>${formatCurrency(zone.fee)}</strong> · Tempo: <strong>${zone.minutesMin}-${zone.minutesMax} min</strong>
+          </div>`;
+        } else {
+          out.innerHTML = `<div style="padding:10px;background:#fff4e6;border-radius:8px;color:#a35900;">
+            ⚠ Fora das zonas cadastradas. Usará taxa padrão.
+          </div>`;
+        }
+      }
+    }
 
     // Registra o Service Worker do PWA no Admin
     if ('serviceWorker' in navigator) {
