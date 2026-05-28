@@ -1709,6 +1709,16 @@ function closeCartDrawer() {
 }
 
 function navigateCartStep(stepId) {
+  // Atalho para contas logadas: pré-preenche o "Identifique-se" e avança direto
+  if (stepId === 'cart-step-auth' && typeof getCurrentAccount === 'function') {
+    const acc = getCurrentAccount();
+    if (acc && acc.name && acc.phone) {
+      if (checkoutName) checkoutName.value = acc.name;
+      if (checkoutPhone) checkoutPhone.value = formatPhoneInput(acc.phone);
+      if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+      stepId = 'cart-step-delivery';
+    }
+  }
   document.querySelectorAll('.cart-step').forEach(step => {
     step.classList.remove('is-active');
   });
@@ -2007,7 +2017,13 @@ if (cartNextBtn2) {
 }
 if (cartBackToAuth) {
   cartBackToAuth.addEventListener('click', () => {
-    navigateCartStep('cart-step-auth');
+    // Logado pula a tela "Identifique-se" — volta direto pros itens
+    const acc = (typeof getCurrentAccount === 'function') ? getCurrentAccount() : null;
+    if (acc && acc.name && acc.phone) {
+      navigateCartStep('cart-step-items');
+    } else {
+      navigateCartStep('cart-step-auth');
+    }
   });
 }
 
