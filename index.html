@@ -3,30 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pizzaria Premium Teresina</title>
+    <title>Pizzaria Premium Teresina · Pizza Artesanal com Entrega no WhatsApp</title>
     <meta
       name="description"
-      content="Site premium da Pizzaria Premium Teresina com cardápio visual, promoções, carrinho e pedido rápido pelo WhatsApp."
+      content="Pizzaria Premium em Teresina-PI: pizza artesanal, combos família e sabores piauienses (carne de sol, coalho, cajuína). Peça no WhatsApp com entrega rápida."
     />
+    <meta name="keywords" content="pizzaria Teresina, pizza Teresina, pizzaria delivery Teresina, pizza artesanal Piauí, pizzaria Verde Lar, Pizzaria Premium" />
+    <meta name="author" content="Pizzaria Premium Teresina" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="geo.region" content="BR-PI" />
+    <meta name="geo.placename" content="Teresina" />
+    <meta name="geo.position" content="-5.0617;-42.7775" />
+    <meta name="ICBM" content="-5.0617, -42.7775" />
+    <link rel="canonical" href="https://pizzaria-premium.vercel.app/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="restaurant.restaurant" />
+    <meta property="og:site_name" content="Pizzaria Premium Teresina" />
+    <meta property="og:title" content="Pizzaria Premium Teresina · Pizza Artesanal com Entrega no WhatsApp" />
+    <meta property="og:description" content="Pizza artesanal, combos família e sabores piauienses (carne de sol, coalho, cajuína). Peça pelo WhatsApp com entrega rápida em Teresina-PI." />
+    <meta property="og:url" content="https://pizzaria-premium.vercel.app/" />
+    <meta property="og:image" content="https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png" />
+    <meta property="og:image:alt" content="Logo Pizzaria Premium Teresina" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="restaurant:contact_info:street_address" content="Av. Sen. Sigefredo Pacheco, 4727 - Verde Lar" />
+    <meta property="restaurant:contact_info:locality" content="Teresina" />
+    <meta property="restaurant:contact_info:region" content="PI" />
+    <meta property="restaurant:contact_info:postal_code" content="64071-440" />
+    <meta property="restaurant:contact_info:country_name" content="Brasil" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pizzaria Premium Teresina · Pizza Artesanal com Entrega no WhatsApp" />
+    <meta name="twitter:description" content="Pizza artesanal, combos e sabores piauienses. Peça pelo WhatsApp com entrega rápida em Teresina-PI." />
+    <meta name="twitter:image" content="https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png" />
+    <meta name="twitter:image:alt" content="Logo Pizzaria Premium Teresina" />
 
     <!--
-      SITE_URL: canônico do deploy. Trocar para https://www.pizzariapremium.com.br
-      quando o domínio próprio entrar no ar (apenas substituir esta constante
-      nas 4 tags abaixo).
+      SITE_URL = https://pizzaria-premium.vercel.app/
+      Quando o domínio próprio for aprovado, trocar todas as ocorrências para
+      https://www.pizzariapremium.com.br (canonical, og:url, og:image, twitter:url, twitter:image).
     -->
-    <link rel="canonical" href="https://pizzaria-premium.vercel.app/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Pizzaria Premium Teresina" />
-    <meta property="og:title" content="Pizzaria Premium Teresina" />
-    <meta property="og:description" content="Cardápio digital premium, montagem de pizza, Pix e pedido rápido pelo WhatsApp." />
-    <meta property="og:url" content="https://pizzaria-premium.vercel.app/" />
-    <meta property="og:locale" content="pt_BR" />
-    <meta property="og:image" content="https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Pizzaria Premium Teresina" />
-    <meta name="twitter:description" content="Cardápio digital premium, montagem de pizza, Pix e pedido rápido pelo WhatsApp." />
-    <meta name="twitter:url" content="https://pizzaria-premium.vercel.app/" />
-    <meta name="twitter:image" content="https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -206,6 +225,8 @@
           </div>
 
           <div class="menu-tabs" id="menu-tabs"></div>
+
+          <div class="diet-filters" id="diet-filters" role="group" aria-label="Filtros por restrição alimentar"></div>
 
           <div class="menu-grid" id="menu-grid"></div>
         </section>
