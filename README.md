@@ -47,5 +47,46 @@ O site é uma **Single Page Application (SPA)** de alta conversão, construída 
 
 ---
 
+---
+
+## 🚀 Deploy (Vercel)
+
+O projeto é publicado continuamente na **Vercel** a partir do branch `main` deste repositório. Por que Vercel e não GitHub Pages:
+
+- HTTPS automático no subdomínio gratuito (ex.: `pizzaria-premium.vercel.app`).
+- Suporta a **função serverless** `api/create-preference.js` (Mercado Pago) — o GitHub Pages é estático puro e não atende.
+- Variável de ambiente `MP_ACCESS_TOKEN` fica protegida no servidor, nunca exposta ao cliente.
+- Deploy a cada push em `main`.
+
+### Configuração inicial (já feita)
+
+1. Importar o repo `deyvyssonbr/pizzaria-premium` na Vercel.
+2. Framework preset: **Other** (sem build step — é SPA estática).
+3. Output directory: raiz do repositório (default).
+4. Adicionar variável de ambiente em **Settings → Environment Variables**:
+   - `MP_ACCESS_TOKEN` = token do Mercado Pago (ambiente Production).
+5. Branch de produção: `main`.
+
+O arquivo `vercel.json` controla cache de assets (`/assets/*` por 1 ano, `sw.js` e `manifest.json` sem cache) e headers de segurança.
+
+### Trocar para o domínio próprio (quando aprovado)
+
+Quando o domínio `pizzariapremium.com.br` for comprado:
+
+1. Vercel → **Project → Settings → Domains → Add** → digitar `pizzariapremium.com.br` e `www.pizzariapremium.com.br`.
+2. A Vercel mostrará 2 registros DNS para criar no painel do registrador (Registro.br):
+   - **Apex (`pizzariapremium.com.br`)** → `A` apontando para `76.76.21.21` (IP da Vercel — confirmar o atual no painel da Vercel).
+   - **www (`www.pizzariapremium.com.br`)** → `CNAME` apontando para `cname.vercel-dns.com`.
+3. Salvar no Registro.br. Propagação leva de minutos a algumas horas.
+4. A Vercel emite o certificado HTTPS (Let's Encrypt) automaticamente assim que detecta os registros.
+5. **Atualizar as constantes de URL no código** — buscar por `pizzaria-premium.vercel.app` em:
+   - `index.html` (canonical, `og:url`, `og:image`, `twitter:url`, `twitter:image`)
+   - Substituir por `https://www.pizzariapremium.com.br`.
+6. Commit + push → Vercel redeploya automaticamente.
+
+Não é necessário mexer em `manifest.json` nem em paths internos — todos são relativos.
+
+---
+
 *Desenvolvido com ☕ & ❤️ por **Scheeren Company**.*
 
