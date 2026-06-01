@@ -1210,6 +1210,21 @@
       <span class="pay-toast__text" id="pay-toast-text">—</span>
     </div>
 
+    <!-- PWA Install Banner (Add to Home Screen) -->
+    <div class="pwa-install-banner" id="pwa-install-banner" aria-hidden="true" role="banner">
+      <div class="pwa-install-banner__body">
+        <span class="pwa-install-banner__icon">📲</span>
+        <div class="pwa-install-banner__text">
+          <strong class="pwa-install-banner__title">Instale o App</strong>
+          <span class="pwa-install-banner__desc">Adicione à tela inicial para um acesso mais rápido.</span>
+        </div>
+      </div>
+      <div class="pwa-install-banner__actions">
+        <button class="pwa-install-banner__btn" type="button" id="pwa-install-btn">Instalar</button>
+        <button class="pwa-install-banner__close" type="button" id="pwa-install-close" aria-label="Fechar">×</button>
+      </div>
+    </div>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

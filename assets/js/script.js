@@ -9,40 +9,22 @@ const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integratio
 const DELIVERY_FEE = parseFloat(localStorage.getItem('premium_pizzaria_delivery_fee') || '0');
 const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') || '40-60 min';
 
-const promotions = [
-  {
-    title: 'Segundou em Dobro',
-    description: 'Compre uma media, leve outra media gratis. So nas segundas, 18h-22h.',
-    priceLabel: 'a partir de R$ 45',
-    validade: 'Ativa toda segunda-feira',
-    destaque: true,
-    message: 'Ola! Quero a promo Segundou em Dobro (media + media gratis).'
-  },
-  {
-    title: 'Combo Familia',
-    description: '1 pizza grande + 1 refri 2L + borda recheada gratis.',
-    priceLabel: 'R$ 89,90',
-    validade: 'Ativa esta semana',
-    destaque: true,
-    message: 'Ola! Quero o Combo Familia (grande + refri 2L + borda gratis).'
-  },
-  {
-    title: 'Quarta do Doce',
-    description: 'Toda pizza doce media com 20% off. Quartas, o dia todo.',
-    priceLabel: 'a partir de R$ 35',
-    validade: 'Ativa toda quarta-feira',
-    destaque: false,
-    message: 'Ola! Quero a promo Quarta do Doce (pizza doce media com 20% off).'
-  },
-  {
-    title: 'Primeira Fatia',
-    description: '15% off no primeiro pedido pelo site. Cupom PRIMEIRA15.',
-    priceLabel: 'desconto no carrinho',
-    validade: 'Ativa esta semana',
-    destaque: false,
-    message: 'Ola! Quero usar o cupom PRIMEIRA15 (15% off na primeira compra).'
-  }
-];
+const PROMOS_KEY = 'premium_pizzaria_promos';
+
+function loadPromos() {
+  try {
+    const raw = localStorage.getItem(PROMOS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  const defaults = [
+    { id: 'promo-segundou', title: 'Segundou em Dobro', description: 'Compre uma media, leve outra media gratis. So nas segundas, 18h-22h.', priceLabel: 'a partir de R$ 45', message: 'Ola! Quero a promo Segundou em Dobro (media + media gratis).', validade: 'Ativa toda segunda-feira', destaque: true, active: true },
+    { id: 'promo-combo-familia', title: 'Combo Familia', description: '1 pizza grande + 1 refri 2L + borda recheada gratis.', priceLabel: 'R$ 89,90', message: 'Ola! Quero o Combo Familia (grande + refri 2L + borda gratis).', validade: 'Ativa esta semana', destaque: true, active: true },
+    { id: 'promo-quarta-doce', title: 'Quarta do Doce', description: 'Toda pizza doce media com 20% off. Quartas, o dia todo.', priceLabel: 'a partir de R$ 35', message: 'Ola! Quero a promo Quarta do Doce (pizza doce media com 20% off).', validade: 'Ativa toda quarta-feira', destaque: false, active: true },
+    { id: 'promo-primeira-fatia', title: 'Primeira Fatia', description: '15% off no primeiro pedido pelo site. Cupom PRIMEIRA15.', priceLabel: 'desconto no carrinho', message: 'Ola! Quero usar o cupom PRIMEIRA15 (15% off na primeira compra).', validade: 'Ativa esta semana', destaque: false, active: true }
+  ];
+  localStorage.setItem(PROMOS_KEY, JSON.stringify(defaults));
+  return defaults;
+}
 
 const reviewsSummary = { rating: 4.8, count: 287, source: 'Google' };
 
@@ -877,7 +859,8 @@ function hydrateStaticWhatsAppLinks() {
 
 function renderPromotions() {
   if (!promoGrid) return;
-  promoGrid.innerHTML = promotions
+  const promos = loadPromos().filter(p => p.active !== false);
+  promoGrid.innerHTML = promos
     .map(
       (promo) => `
         <article class="promo-card ${promo.destaque ? 'promo-card--featured' : ''}">
@@ -4614,4 +4597,121 @@ function renderSavedAddressesSelector() {
     if (sel.value) fillFromAddr(sel.value);
   });
 }
+
+/* ============================================================
+   PWA - Add to Home Screen (A2HS)
+   ============================================================ */
+(function initPwaInstall() {
+  const BANNER = document.getElementById('pwa-install-banner');
+  const INSTALL_BTN = document.getElementById('pwa-install-btn');
+  const CLOSE_BTN = document.getElementById('pwa-install-close');
+  const LS_KEY = 'premium_pizzaria_pwa_dismissed';
+  const LS_INSTALLED_KEY = 'premium_pizzaria_pwa_installed';
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  let deferredPrompt = null;
+
+  // Se já estiver rodando como standalone (instalado), não mostra o banner
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    if (BANNER) BANNER.remove();
+    return;
+  }
+
+  // Se o usuário já instalou antes (mesmo que noutra sessão), não mostra
+  if (localStorage.getItem(LS_INSTALLED_KEY) === 'true') {
+    if (BANNER) BANNER.remove();
+    return;
+  }
+
+  // Se o usuário dispensou recentemente (7 dias), não mostra
+  const dismissedAt = localStorage.getItem(LS_KEY);
+  if (dismissedAt) {
+    const daysSinceDismiss = (Date.now() - parseInt(dismissedAt, 10)) / 86400000;
+    if (daysSinceDismiss < 7) {
+      if (BANNER) BANNER.remove();
+      return;
+    }
+  }
+
+  function showBanner() {
+    if (!BANNER) return;
+    // Pequeno atraso para não aparecer imediatamente ao carregar
+    setTimeout(() => {
+      BANNER.setAttribute('aria-hidden', 'false');
+      BANNER.classList.add('is-visible');
+    }, 3000);
+  }
+
+  function hideBanner() {
+    if (!BANNER) return;
+    BANNER.classList.remove('is-visible');
+    BANNER.setAttribute('aria-hidden', 'true');
+  }
+
+  function dismissBanner() {
+    hideBanner();
+    localStorage.setItem(LS_KEY, String(Date.now()));
+    // Remove o banner do DOM após a transição
+    setTimeout(() => {
+      if (BANNER) BANNER.remove();
+    }, 400);
+  }
+
+  // Chrome / Android: beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showBanner();
+  });
+
+  if (INSTALL_BTN) {
+    INSTALL_BTN.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const result = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (result.outcome === 'accepted') {
+          localStorage.setItem(LS_INSTALLED_KEY, 'true');
+          dismissBanner();
+        }
+      } else if (iOS) {
+        // iOS Safari: não suporta beforeinstallprompt, então redirecionamos
+        // para um guia rápido ou apenas fechamos após instruir
+        dismissBanner();
+        // Poderia mostrar um modal de instruções, mas por ora apenas descarta
+      }
+    });
+  }
+
+  if (CLOSE_BTN) {
+    CLOSE_BTN.addEventListener('click', dismissBanner);
+  }
+
+  // App instalado com sucesso
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem(LS_INSTALLED_KEY, 'true');
+    dismissBanner();
+    deferredPrompt = null;
+  });
+
+  // iOS Safari: mostra hint educacional após 5s se nunca foi visto
+  if (iOS && !localStorage.getItem(LS_KEY) && !localStorage.getItem(LS_INSTALLED_KEY)) {
+    setTimeout(() => {
+      if (!BANNER || BANNER.classList.contains('is-visible')) return;
+      // Para iOS, muda o texto do banner para falar do Safari Share
+      const title = BANNER.querySelector('.pwa-install-banner__title');
+      const desc = BANNER.querySelector('.pwa-install-banner__desc');
+      if (title) title.textContent = 'Adicione à Tela Inicial';
+      if (desc) desc.textContent = 'No Safari, toque em Compartilhar › Adicionar à Tela de Início.';
+      if (INSTALL_BTN) {
+        INSTALL_BTN.textContent = 'Entendi';
+        INSTALL_BTN.addEventListener('click', dismissBanner, { once: true });
+      }
+      showBanner();
+    }, 5000);
+  }
+
+  // Re-mostrar após comprar/completar pedido (se ainda não instalou e não dispensou)
+  // Isso é acionado via evento customizado ou podemos apenas deixar o timer original.
+})();
 
