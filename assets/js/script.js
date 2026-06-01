@@ -3214,6 +3214,49 @@ if (successCloseBtn) {
   });
 }
 
+// ---------- Full‑screen "Pedido Recebido" page buttons ----------
+const prWhatsappBtn = document.getElementById('pr-whatsapp-btn');
+const prCloseBtn = document.getElementById('pr-close-btn');
+const prBackdrop = document.getElementById('pedido-recebido-close');
+
+if (prWhatsappBtn) {
+  prWhatsappBtn.addEventListener('click', () => {
+    if (lastOrderMessage) {
+      window.open(buildWhatsAppUrl(lastOrderMessage), '_blank', 'noopener,noreferrer');
+    }
+  });
+}
+
+if (prCloseBtn) {
+  prCloseBtn.addEventListener('click', () => {
+    closeOrderReceivedPage();
+  });
+}
+
+if (prBackdrop) {
+  prBackdrop.addEventListener('click', () => {
+    closeOrderReceivedPage();
+  });
+}
+
+// Escape fecha a tela de pedido recebido
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const page = document.getElementById('pedido-recebido-page');
+    if (page && page.style.display === 'flex') {
+      closeOrderReceivedPage();
+    }
+  }
+});
+
+// Limpa polling se navegar para outra seção via hash
+window.addEventListener('hashchange', () => {
+  const page = document.getElementById('pedido-recebido-page');
+  if (page && page.style.display === 'flex') {
+    closeOrderReceivedPage();
+  }
+});
+
 // ---------- Analytics tracking (guest → registered conversion) ----------
 const ANALYTICS_KEY = 'premium_pizzaria_analytics';
 

@@ -145,6 +145,153 @@ textarea {
   text-shadow: 0 0 10px rgba(229, 9, 20, 0.2);
 }
 
+/* --- Mobile Navigation Drawer --- */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+}
+
+.mobile-nav.is-open {
+  display: block;
+}
+
+.mobile-nav__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: mobile-nav-fade-in 0.25s ease;
+}
+
+@keyframes mobile-nav-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-nav__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 290px;
+  max-width: 80vw;
+  background: linear-gradient(180deg, #1a1110, #0d0b0a);
+  border-right: 1px solid rgba(232, 193, 112, 0.15);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: mobile-nav-slide-in 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes mobile-nav-slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-nav__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mobile-nav__brand {
+  font-family: var(--font-heading);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mobile-nav__close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 249, 239, 0.6);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mobile-nav__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fef9f0;
+}
+
+.mobile-nav__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobile-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: rgba(255, 249, 239, 0.78);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+.mobile-nav__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fef9f0;
+}
+
+.mobile-nav__link--action {
+  background: linear-gradient(135deg, rgba(213, 2, 1, 0.15), rgba(143, 1, 0, 0.1));
+  color: var(--red);
+  font-weight: 800;
+  border: 1px solid rgba(213, 2, 1, 0.2);
+}
+
+.mobile-nav__link--action:hover {
+  background: linear-gradient(135deg, rgba(213, 2, 1, 0.25), rgba(143, 1, 0, 0.2));
+}
+
+.mobile-nav__link--admin {
+  margin-top: auto;
+  opacity: 0.5;
+  font-size: 0.82rem;
+}
+
+.mobile-nav__divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 8px 16px;
+}
+
+@media (min-width: 720px) {
+  .mobile-nav__backdrop {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  .mobile-nav__panel {
+    width: 320px;
+  }
+}
+
 .brand strong,
 .hero h1,
 .section-heading h2,
@@ -359,7 +506,6 @@ textarea {
 .benefit-card p,
 .promo-card p,
 .menu-card p,
-.review-card p,
 .map-placeholder p,
 .tiny-note {
   color: var(--dark-muted);
@@ -432,11 +578,6 @@ textarea {
 .promo-grid,
 .menu-grid,
 .reasons-grid,
-.reviews-grid {
-  display: grid;
-  gap: 16px;
-}
-
 .quick-actions {
   grid-template-columns: 1fr;
   margin: 8px 0 0;
@@ -447,7 +588,6 @@ textarea {
 .promo-card,
 .menu-card,
 .reason-card,
-.review-card,
 .cart-card,
 .checkout-form,
 .panel,
@@ -506,8 +646,7 @@ textarea {
   box-shadow: 0 22px 64px rgba(10, 4, 3, 0.2);
 }
 
-.section--promo,
-.section--reviews {
+.section--promo {
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding-left: max(22px, calc((100vw - 1540px) / 2));
@@ -550,16 +689,9 @@ textarea {
   color: var(--text);
 }
 
-.reasons-grid,
-.reviews-grid,
 .promo-grid,
 .menu-grid {
   grid-template-columns: 1fr;
-}
-
-.reason-card,
-.review-card {
-  padding: 22px;
 }
 
 .promo-card {
@@ -1048,22 +1180,6 @@ textarea {
   align-items: center;
   color: var(--ink);
   font-weight: 900;
-}
-
-.review-card {
-  color: var(--text);
-  background: rgba(255, 250, 242, 0.08);
-  border-color: rgba(255, 244, 228, 0.18);
-  box-shadow: none;
-}
-
-.review-card span {
-  color: #ffd98a;
-  font-size: 1.1rem;
-}
-
-.review-card p {
-  color: rgba(255, 249, 239, 0.78);
 }
 
 .map-placeholder {
@@ -1714,8 +1830,7 @@ textarea {
   }
 
   .quick-actions,
-  .reasons-grid,
-  .reviews-grid {
+  .reasons-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -1752,8 +1867,7 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .promo-grid,
-  .reviews-grid {
+  .promo-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
@@ -3844,65 +3958,6 @@ body.has-cart .floating-whatsapp {
   color: rgba(255, 249, 239, 0.75);
   line-height: 1.55;
   font-size: 0.92rem;
-}
-
-/* --- Seção: Prova social premium --- */
-.section--reviews {
-  padding: 28px 0 24px;
-}
-
-.reviews-grid--premium {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-  margin-top: 28px;
-}
-
-.review-premium {
-  padding: 22px 20px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 250, 242, 0.05), rgba(255, 250, 242, 0.015));
-  border: 1px solid rgba(232, 193, 112, 0.18);
-  transition: transform 0.25s ease, border-color 0.25s ease;
-}
-
-.review-premium:hover {
-  transform: translateY(-3px);
-  border-color: var(--gold-soft);
-}
-
-.review-premium__stars {
-  color: var(--gold-bright);
-  font-size: 1.05rem;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
-}
-
-.review-premium__quote {
-  margin: 0 0 14px;
-  color: rgba(255, 249, 239, 0.88);
-  font-size: 0.96rem;
-  line-height: 1.55;
-  font-style: italic;
-}
-
-.review-premium__author {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.84rem;
-  color: rgba(255, 249, 239, 0.65);
-  font-weight: 700;
-}
-
-.review-premium__author::before {
-  content: "";
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--wine), var(--red-deep));
-  border: 1px solid rgba(232, 193, 112, 0.35);
-  flex-shrink: 0;
 }
 
 /* --- CTA fixo inferior (sempre visível no mobile) --- */
@@ -6317,63 +6372,7 @@ body.has-cart .floating-whatsapp {
 .admin-list-card__actions button:hover { background: rgba(90, 10, 24, 0.06); }
 .admin-list-card__actions button.is-danger { color: #c0392b; }
 
-/* Diet filters (chips above the menu) */
-.diet-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0 18px;
-}
-.diet-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(35, 20, 16, 0.14);
-  background: #fff;
-  color: rgba(32, 20, 16, 0.78);
-  font: 700 0.82rem/1 var(--font-body, system-ui);
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-.diet-chip:hover {
-  border-color: rgba(46, 125, 50, 0.4);
-  color: #2e7d32;
-  transform: translateY(-1px);
-}
-.diet-chip.is-active {
-  background: #2e7d32;
-  border-color: #2e7d32;
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.22);
-}
-.diet-chip__icon { font-size: 1rem; line-height: 1; }
-.diet-chip__label { white-space: nowrap; }
-
-.menu-card__diet {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: -2px;
-}
-.diet-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(46, 125, 50, 0.10);
-  color: #2e7d32;
-  font-size: 0.66rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-.diet-tag__short { font-size: 0.64rem; }
-
-/* === Demo TAKA-30: promo status badge + reviews social proof === */
+/* === Demo TAKA-30: promo status badge === */
 .promo-card { position: relative; }
 .promo-card__status {
   align-self: flex-end;
@@ -6392,50 +6391,7 @@ body.has-cart .floating-whatsapp {
   border-color: rgba(255, 217, 138, 0.42);
 }
 
-.reviews-summary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin: 0 auto 28px;
-  padding: 18px 26px;
-  max-width: 460px;
-  border-radius: var(--radius);
-  background: rgba(255, 250, 242, 0.1);
-  border: 1px solid rgba(255, 217, 138, 0.32);
-}
-.reviews-summary__rating {
-  font-size: 3rem;
-  font-weight: 900;
-  line-height: 1;
-  color: #ffd98a;
-}
-.reviews-summary__stars { font-size: 1.2rem; letter-spacing: 2px; }
-.reviews-summary__count { color: rgba(255, 249, 239, 0.78); font-size: 0.92rem; margin-top: 4px; }
 
-.review-card__head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.review-card__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border-radius: 50%;
-  font-weight: 800;
-  font-size: 1.05rem !important;
-  color: #2a160a !important;
-  background: linear-gradient(135deg, #ffe2a6, #ffc861);
-}
-.review-card__name { display: block; color: var(--text); font-size: 1rem; }
-.review-card__stars { font-size: 0.95rem; letter-spacing: 1px; margin-top: 2px; }
-.review-star { color: rgba(255, 249, 239, 0.28); }
-.review-star.is-filled { color: #ffd98a; }
 
 /* ============================================================
    PWA Install Banner (Add to Home Screen)
@@ -6564,4 +6520,105 @@ body.has-cart-items .pwa-install-banner {
   body.has-cart-items .pwa-install-banner {
     bottom: 88px;
   }
+}
+
+/* ============================================================
+   Pedido Recebido — tela cheia pós‑checkout
+   ============================================================ */
+.pedido-recebido-page {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.pedido-recebido-page__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.pedido-recebido-page__card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  animation: pr-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes pr-slide-up {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pedido-recebido-page__card .receipt-card {
+  max-width: 100%;
+  border: none;
+  box-shadow: none;
+  border-radius: 24px;
+}
+.pedido-recebido-page__card .receipt-card__icon {
+  animation: pr-check-bounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+@keyframes pr-check-bounce {
+  0%   { transform: scale(0); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.pedido-recebido-page__card .receipt-card__head {
+  border-bottom-color: rgba(47, 125, 74, 0.25);
+}
+
+/* Status badge (abaixo da timeline) */
+.pr-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(201, 8, 20, 0.08);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5a0a18;
+}
+.pr-status-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c90814;
+  animation: pr-dot-pulse 1.4s ease-in-out infinite;
+}
+@keyframes pr-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Indicador "Atualizando automaticamente" */
+.pr-auto-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 0.72rem;
+  color: rgba(35, 20, 16, 0.45);
+  font-weight: 500;
+}
+.pr-auto-indicator__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(35, 20, 16, 0.3);
+  animation: pr-dot-fade 1.8s ease-in-out infinite;
+}
+@keyframes pr-dot-fade {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
 }
