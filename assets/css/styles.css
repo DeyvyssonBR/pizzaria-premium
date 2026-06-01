@@ -249,6 +249,8 @@ textarea {
   width: 100%;
   border-radius: 0;
   background:
+    linear-gradient(180deg, rgba(20,10,6,0.05), rgba(20,10,6,0.35)),
+    url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&q=80') center 45% / cover no-repeat,
     url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v4') center 45% / cover no-repeat;
   box-shadow: var(--shadow);
 }

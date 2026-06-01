@@ -1,4 +1,4 @@
-let WHATSAPP_NUMBER = localStorage.getItem('premium_pizzaria_whatsapp') || '5586994854771';
+let WHATSAPP_NUMBER = localStorage.getItem('premium_pizzaria_whatsapp') || '5586981423367';
 const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '5586994854771';
 const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
@@ -3233,13 +3233,13 @@ if (profileClearCheckbox) {
   const list = document.getElementById('store-hours-list');
 
   const SCHEDULE = {
-    0: { open: '18:00', close: '23:00' },
-    1: { open: '18:00', close: '23:00' },
-    2: { open: '18:00', close: '23:00' },
-    3: { open: '18:00', close: '23:00' },
-    4: { open: '18:00', close: '23:00' },
-    5: { open: '18:00', close: '23:15' },
-    6: { open: '18:00', close: '23:15' }
+    0: { open: '18:00', close: '23:30' },
+    1: { open: '18:00', close: '22:00' },
+    2: { open: '18:00', close: '23:30' },
+    3: { open: '18:00', close: '23:30' },
+    4: { open: '18:00', close: '23:30' },
+    5: { open: '18:00', close: '23:30' },
+    6: { open: '18:00', close: '23:30' }
   };
 
   const toMinutes = (hhmm) => {
