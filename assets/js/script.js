@@ -38,58 +38,320 @@ const promotions = [
 
 const defaultMenu = [
   {
-    id: 'calabresa-premium',
+    id: 'cla-margherita',
     category: 'tradicionais',
     type: 'pizza',
-    name: 'Calabresa Premium',
-    description: 'Molho artesanal, mussarela especial, calabresa selecionada, cebola roxa e orégano.',
-    price: 30,
-    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
+    name: 'Margherita',
+    description: 'Molho de tomate, mussarela, manjericao fresco e azeite extravirgem.',
+    price: 32,
+    precos: { p: 32, m: 45, g: 58 },
+    image: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=800&q=80',
+    isVegetarian: true
   },
   {
-    id: 'frango-catupiry',
+    id: 'cla-calabresa',
     category: 'tradicionais',
     type: 'pizza',
-    name: 'Frango com Catupiry',
-    description: 'Frango bem temperado, muito recheio e catupiry cremoso.',
+    name: 'Calabresa',
+    description: 'Calabresa fatiada, cebola roxa e azeitonas sobre mussarela.',
     price: 34,
-    image: 'assets/img/cardapio/photo-1594007654729-407eedc4be65.webp'
+    precos: { p: 34, m: 48, g: 62 },
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80'
   },
   {
-    id: 'portuguesa',
+    id: 'cla-portuguesa',
     category: 'tradicionais',
     type: 'pizza',
     name: 'Portuguesa',
-    description: 'Presunto, ovos, cebola, ervilha, mussarela e toque especial da casa.',
-    price: 35,
-    image: 'assets/img/cardapio/photo-1541745537411-b8046dc6d66c.webp'
+    description: 'Presunto, ovo, cebola, ervilha, azeitona e mussarela.',
+    price: 36,
+    precos: { p: 36, m: 50, g: 64 },
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80'
   },
   {
-    id: 'quatro-queijos',
-    category: 'especiais',
+    id: 'cla-frango-catupiry',
+    category: 'tradicionais',
+    type: 'pizza',
+    name: 'Frango c/ Catupiry',
+    description: 'Frango desfiado temperado com requeijao cremoso Catupiry.',
+    price: 36,
+    precos: { p: 36, m: 50, g: 66 },
+    image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=800&q=80'
+  },
+  {
+    id: 'cla-quatro-queijos',
+    category: 'tradicionais',
     type: 'pizza',
     name: 'Quatro Queijos',
-    description: 'Mix intenso de queijos derretidos para quem ama cremosidade.',
-    price: 39,
-    image: 'assets/img/cardapio/photo-1574071318508-1cdbab80d002.webp'
+    description: 'Mussarela, provolone, parmesao e gorgonzola gratinados.',
+    price: 38,
+    precos: { p: 38, m: 52, g: 68 },
+    image: 'https://images.unsplash.com/photo-1593504049359-74330189a345?w=800&q=80',
+    isVegetarian: true
   },
   {
-    id: 'bacon-especial',
+    id: 'cla-pepperoni',
+    category: 'tradicionais',
+    type: 'pizza',
+    name: 'Pepperoni',
+    description: 'Fatias generosas de pepperoni picante sobre mussarela.',
+    price: 38,
+    precos: { p: 38, m: 53, g: 69 },
+    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=800&q=80'
+  },
+  {
+    id: 'cla-napolitana',
+    category: 'tradicionais',
+    type: 'pizza',
+    name: 'Napolitana',
+    description: 'Tomate em rodelas, mussarela, parmesao e oregano.',
+    price: 34,
+    precos: { p: 34, m: 47, g: 60 },
+    image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'cla-mussarela',
+    category: 'tradicionais',
+    type: 'pizza',
+    name: 'Mussarela',
+    description: 'Mussarela em camada generosa com molho da casa e oregano.',
+    price: 30,
+    precos: { p: 30, m: 42, g: 55 },
+    image: 'https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'reg-carne-sol-coalho',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Carne de Sol c/ Queijo Coalho',
+    description: 'Carne de sol desfiada, queijo coalho grelhado e cebola.',
+    price: 42,
+    precos: { p: 42, m: 58, g: 74 },
+    image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80'
+  },
+  {
+    id: 'reg-frango-cajuina',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Frango c/ Cajuina-glaze',
+    description: 'Frango ao glaze de cajuina, toque agridoce piauiense.',
+    price: 42,
+    precos: { p: 42, m: 58, g: 74 },
+    image: 'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=800&q=80'
+  },
+  {
+    id: 'reg-calabresa-coalho',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Calabresa c/ Queijo Coalho',
+    description: 'Calabresa artesanal com queijo coalho e melaco de cana.',
+    price: 40,
+    precos: { p: 40, m: 55, g: 70 },
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80'
+  },
+  {
+    id: 'reg-sertaneja',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Sertaneja',
+    description: 'Carne de sol, queijo coalho, banana-da-terra e pimenta.',
+    price: 44,
+    precos: { p: 44, m: 60, g: 76 },
+    image: 'https://images.unsplash.com/photo-1590534247854-e97d5e3feef6?w=800&q=80'
+  },
+  {
+    id: 'reg-vaqueiro',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Pizza do Vaqueiro',
+    description: 'Carne de sol, coalho, requeijao do sertao e cebola roxa.',
+    price: 46,
+    precos: { p: 46, m: 62, g: 78 },
+    image: 'https://images.unsplash.com/photo-1548365328-9f547fb09530?w=800&q=80'
+  },
+  {
+    id: 'reg-doce-cajuina',
+    category: 'piauienses',
+    type: 'pizza',
+    name: 'Doce de Cajuina',
+    description: 'Calda de cajuina, queijo coalho e raspas de limao.',
+    price: 40,
+    precos: { p: 40, m: 54, g: 68 },
+    image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'pre-camarao-catupiry',
     category: 'especiais',
     type: 'pizza',
-    name: 'Bacon Especial',
-    description: 'Bacon crocante, mussarela e cobertura generosa.',
-    price: 41,
-    image: 'assets/img/cardapio/placeholder.webp'
+    name: 'Camarao ao Catupiry',
+    description: 'Camarao salteado no alho com requeijao Catupiry cremoso.',
+    price: 56,
+    precos: { p: 56, m: 74, g: 92 },
+    image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&q=80'
   },
   {
-    id: 'chocolate-morango',
+    id: 'pre-file-cream',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'File c/ Cream Cheese',
+    description: 'File mignon em iscas com cream cheese e cebola caramelizada.',
+    price: 58,
+    precos: { p: 58, m: 76, g: 94 },
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80'
+  },
+  {
+    id: 'pre-salmao',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Salmao',
+    description: 'Salmao defumado, cream cheese, alcaparras e dill fresco.',
+    price: 60,
+    precos: { p: 60, m: 80, g: 98 },
+    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80'
+  },
+  {
+    id: 'pre-brie-damasco',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Brie c/ Damasco',
+    description: 'Queijo brie cremoso com geleia de damasco e nozes.',
+    price: 56,
+    precos: { p: 56, m: 74, g: 90 },
+    image: 'https://images.unsplash.com/photo-1571066811602-716837d681de?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'pre-trufada',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Trufada',
+    description: 'Mussarela de bufala, cogumelos e azeite trufado.',
+    price: 62,
+    precos: { p: 62, m: 82, g: 100 },
+    image: 'https://images.unsplash.com/photo-1598021680133-eb3a7c7a4d77?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'pre-burrata-confit',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Burrata c/ Tomate Confit',
+    description: 'Burrata cremosa, tomate confitado e manjericao fresco.',
+    price: 60,
+    precos: { p: 60, m: 80, g: 98 },
+    image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'pre-lombo-cheddar',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Lombo c/ Cheddar',
+    description: 'Lombo canadense, cheddar gratinado e cebola roxa.',
+    price: 54,
+    precos: { p: 54, m: 72, g: 88 },
+    image: 'https://images.unsplash.com/photo-1534308983496-4fefedf6c124?w=800&q=80'
+  },
+  {
+    id: 'pre-parma-rucula',
+    category: 'especiais',
+    type: 'pizza',
+    name: 'Parma c/ Rucula',
+    description: 'Presunto parma, rucula fresca, parmesao e tomate seco.',
+    price: 58,
+    precos: { p: 58, m: 76, g: 94 },
+    image: 'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&q=80'
+  },
+  {
+    id: 'doc-brigadeiro',
     category: 'doces',
     type: 'pizza',
-    name: 'Chocolate com Morango',
-    description: 'Uma sobremesa irresistível para fechar o pedido com chave de ouro.',
+    name: 'Brigadeiro',
+    description: 'Brigadeiro cremoso com granulado belga e raspas de chocolate.',
+    price: 34,
+    precos: { p: 34, m: 46, g: 58 },
+    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-romeu-julieta',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Romeu e Julieta',
+    description: 'Goiabada cremosa com queijo coalho derretido.',
+    price: 34,
+    precos: { p: 34, m: 46, g: 58 },
+    image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-banana-canela',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Banana c/ Canela',
+    description: 'Banana caramelizada, canela e acucar mascavo.',
+    price: 32,
+    precos: { p: 32, m: 44, g: 56 },
+    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-prestigio',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Prestigio',
+    description: 'Chocolate ao leite com coco ralado cremoso.',
+    price: 34,
+    precos: { p: 34, m: 46, g: 58 },
+    image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-nutella-morango',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Nutella c/ Morango',
+    description: 'Nutella derretida com morangos frescos fatiados.',
+    price: 38,
+    precos: { p: 38, m: 52, g: 66 },
+    image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-sensacao',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Sensacao',
+    description: 'Chocolate ao leite com morango, sabor classico nacional.',
     price: 36,
-    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
+    precos: { p: 36, m: 48, g: 62 },
+    image: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-ouro-branco',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Ouro Branco',
+    description: 'Chocolate branco cremoso com cobertura sedosa.',
+    price: 36,
+    precos: { p: 36, m: 48, g: 62 },
+    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80',
+    isVegetarian: true
+  },
+  {
+    id: 'doc-cookies-cream',
+    category: 'doces',
+    type: 'pizza',
+    name: 'Cookies & Cream',
+    description: 'Creme branco com pedacos de biscoito de chocolate.',
+    price: 38,
+    precos: { p: 38, m: 50, g: 64 },
+    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80',
+    isVegetarian: true
   },
   {
     id: 'bombom-chocolate',
@@ -98,7 +360,8 @@ const defaultMenu = [
     name: 'Bombom de Chocolate',
     description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
     price: 5,
-    image: 'assets/img/cardapio/placeholder.webp'
+    image: 'assets/img/cardapio/placeholder.webp',
+    isVegetarian: true
   },
   {
     id: 'combo-premium',
@@ -143,7 +406,11 @@ const defaultMenu = [
     name: 'Refrigerante 2L',
     description: 'Acompanhamento ideal para combos e família.',
     price: 12,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'carne-chapa-150',
@@ -197,7 +464,11 @@ const defaultMenu = [
     name: 'Porção de Batata Frita (300g)',
     description: 'Batatas fritas douradas e crocantes, sequinhas e salgadas na medida.',
     price: 16,
-    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp'
+    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'batata-400',
@@ -206,7 +477,11 @@ const defaultMenu = [
     name: 'Porção de Batata Frita (400g)',
     description: 'Porção grande de batatas fritas crocantes, perfeita para compartilhar.',
     price: 20,
-    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp'
+    image: 'assets/img/cardapio/photo-1573080496219-bb080dd4f877.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'vinagrete',
@@ -215,7 +490,11 @@ const defaultMenu = [
     name: 'Vinagrete Especial',
     description: 'Molho vinagrete fresco com tomate, cebola e pimentão picadinhos.',
     price: 5,
-    image: 'assets/img/cardapio/photo-1546069901-ba9599a7e63c.webp'
+    image: 'assets/img/cardapio/photo-1546069901-ba9599a7e63c.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'cerveja-stella',
@@ -251,7 +530,11 @@ const defaultMenu = [
     name: 'Água Mineral com Gás 500ml',
     description: 'Água mineral gaseificada fresca.',
     price: 4.5,
-    image: 'assets/img/cardapio/placeholder.webp'
+    image: 'assets/img/cardapio/placeholder.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'agua-sem-gas',
@@ -260,7 +543,11 @@ const defaultMenu = [
     name: 'Água Mineral sem Gás 500ml',
     description: 'Água mineral natural fresca.',
     price: 4,
-    image: 'assets/img/cardapio/placeholder.webp'
+    image: 'assets/img/cardapio/placeholder.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'guarana-1l-item',
@@ -269,7 +556,11 @@ const defaultMenu = [
     name: 'Guaraná Antarctica 1L',
     description: 'Refrigerante Guaraná Antarctica 1 litro bem gelado.',
     price: 8,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'guarana-2l-item',
@@ -278,7 +569,11 @@ const defaultMenu = [
     name: 'Guaraná Antarctica 2L',
     description: 'Refrigerante Guaraná Antarctica tamanho família 2 litros.',
     price: 12,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'coca-1l',
@@ -287,7 +582,11 @@ const defaultMenu = [
     name: 'Coca-Cola 1L',
     description: 'Refrigerante Coca-Cola garrafa de 1 litro bem gelada.',
     price: 9,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'guarana-350ml',
@@ -296,7 +595,11 @@ const defaultMenu = [
     name: 'Guaraná Antarctica Lata 350ml',
     description: 'Refrigerante Guaraná Antarctica lata de 350ml gelada.',
     price: 5,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'coca-350ml',
@@ -305,7 +608,11 @@ const defaultMenu = [
     name: 'Coca-Cola Lata 350ml',
     description: 'Refrigerante Coca-Cola lata de 350ml gelada.',
     price: 5.5,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'coca-1-5l',
@@ -314,7 +621,11 @@ const defaultMenu = [
     name: 'Coca-Cola 1.5L',
     description: 'Refrigerante Coca-Cola garrafa de 1.5 litros.',
     price: 11,
-    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp'
+    image: 'assets/img/cardapio/photo-1622483767028-3f66f32aef97.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'fanta-laranja-retornavel',
@@ -323,7 +634,11 @@ const defaultMenu = [
     name: 'Fanta Laranja Retornável 2L',
     description: 'Refrigerante Fanta Laranja garrafa retornável de 2 litros.',
     price: 8.5,
-    image: 'assets/img/cardapio/photo-1624552184280-9e9631bbeee9.webp'
+    image: 'assets/img/cardapio/photo-1624552184280-9e9631bbeee9.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   },
   {
     id: 'suco-maracuja-300',
@@ -332,28 +647,37 @@ const defaultMenu = [
     name: 'Suco Natural de Maracujá 300ml',
     description: 'Suco natural e refrescante de maracujá da fruta.',
     price: 8,
-    image: 'assets/img/cardapio/placeholder.webp'
+    image: 'assets/img/cardapio/placeholder.webp',
+    isVegetarian: true,
+    isVegan: true,
+    isGlutenFree: true,
+    isLactoseFree: true
   }
 ];
 
-let menu = JSON.parse(localStorage.getItem('premium_pizzaria_menu')) || defaultMenu;
-if (menu && !menu.some(item => item.id === 'bombom-chocolate')) {
-  menu.push({
-    id: 'bombom-chocolate',
-    category: 'doces',
-    type: 'sobremesa',
-    name: 'Bombom de Chocolate',
-    description: 'Bombom de chocolate caseiro com recheio cremoso para fechar com chave de ouro.',
-    price: 5,
-    image: 'assets/img/cardapio/placeholder.webp'
-  });
-  localStorage.setItem('premium_pizzaria_menu', JSON.stringify(menu));
-} else if (!localStorage.getItem('premium_pizzaria_menu')) {
-  localStorage.setItem('premium_pizzaria_menu', JSON.stringify(defaultMenu));
+// Versao do seed do cardapio: ao subir, menus antigos em cache sao refrescados.
+const MENU_SEED_VERSION = '2026-demo-30';
+let menu;
+const storedMenuVersion = localStorage.getItem('premium_pizzaria_menu_version');
+const storedMenuRaw = localStorage.getItem('premium_pizzaria_menu');
+if (storedMenuRaw && storedMenuVersion === MENU_SEED_VERSION) {
+  try {
+    menu = JSON.parse(storedMenuRaw);
+  } catch (e) {
+    menu = defaultMenu;
+  }
+} else {
+  menu = defaultMenu;
 }
+if (!Array.isArray(menu) || !menu.length) {
+  menu = defaultMenu;
+}
+localStorage.setItem('premium_pizzaria_menu', JSON.stringify(menu));
+localStorage.setItem('premium_pizzaria_menu_version', MENU_SEED_VERSION);
 
 const categories = [
   { id: 'todos', label: 'Todos', icon: '🍽️' },
+  { id: 'piauienses', label: 'Especiais Piauienses', icon: '🌵' },
   { id: 'tradicionais', label: 'Tradicionais', icon: '🍕' },
   { id: 'especiais', label: 'Especiais', icon: '✨' },
   { id: 'doces', label: 'Doces', icon: '🍫' },
@@ -467,6 +791,15 @@ let pizzaSelection = {
 const promoGrid = document.getElementById('promo-grid');
 const menuTabs = document.getElementById('menu-tabs');
 const menuGrid = document.getElementById('menu-grid');
+const dietFiltersEl = document.getElementById('diet-filters');
+
+const dietFilters = [
+  { id: 'isVegetarian', label: 'Vegetariana', icon: '🥗', badgeShort: 'VEG' },
+  { id: 'isVegan', label: 'Vegana', icon: '🌱', badgeShort: 'VG' },
+  { id: 'isGlutenFree', label: 'Sem glúten', icon: '🌾', badgeShort: 'SG' },
+  { id: 'isLactoseFree', label: 'Sem lactose', icon: '🥛', badgeShort: 'SL' }
+];
+const activeDietFilters = new Set();
 const pizzaModal = document.getElementById('pizza-modal');
 const pizzaChoiceMode = document.getElementById('pizza-choice-mode');
 const pizzaChoiceFlavors = document.getElementById('pizza-choice-flavors');
@@ -629,8 +962,43 @@ function hydrateCategoryTriggers() {
 }
 
 function getVisibleMenuItems() {
-  if (activeCategory === 'todos') return menu;
-  return menu.filter((item) => item.category === activeCategory);
+  const byCategory = activeCategory === 'todos'
+    ? menu.slice()
+    : menu.filter((item) => item.category === activeCategory);
+  if (activeDietFilters.size === 0) return byCategory;
+  return byCategory.filter((item) => {
+    for (const tag of activeDietFilters) {
+      if (!item[tag]) return false;
+    }
+    return true;
+  });
+}
+
+function getItemDietTags(item) {
+  return dietFilters.filter((f) => item[f.id]);
+}
+
+function renderDietFilters() {
+  if (!dietFiltersEl) return;
+  dietFiltersEl.innerHTML = dietFilters
+    .map((f) => `
+      <button type="button" class="diet-chip ${activeDietFilters.has(f.id) ? 'is-active' : ''}" data-diet-filter="${f.id}" aria-pressed="${activeDietFilters.has(f.id) ? 'true' : 'false'}">
+        <span class="diet-chip__icon" aria-hidden="true">${f.icon}</span>
+        <span class="diet-chip__label">${f.label}</span>
+      </button>
+    `).join('');
+  dietFiltersEl.querySelectorAll('[data-diet-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.dietFilter;
+      if (activeDietFilters.has(id)) {
+        activeDietFilters.delete(id);
+      } else {
+        activeDietFilters.add(id);
+      }
+      renderDietFilters();
+      renderMenu();
+    });
+  });
 }
 
 function renderMenu() {
@@ -640,6 +1008,13 @@ function renderMenu() {
       const requestMessage = isPizza
         ? `Olá! Quero pedir a pizza ${item.name}.`
         : `Olá! Quero pedir ${item.name}.`;
+
+      const tags = getItemDietTags(item);
+      const tagsHtml = tags.length
+        ? `<div class="menu-card__diet" aria-label="Restrições alimentares">${tags
+            .map((t) => `<span class="diet-tag" title="${t.label}" aria-label="${t.label}"><span aria-hidden="true">${t.icon}</span><span class="diet-tag__short">${t.badgeShort}</span></span>`)
+            .join('')}</div>`
+        : '';
 
       return `
         <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
@@ -651,6 +1026,7 @@ function renderMenu() {
               <strong class="menu-card__price">${isPizza ? `A partir de ${formatBRL(item.price)}` : formatBRL(item.price)}</strong>
             </div>
             <p>${item.description}</p>
+            ${tagsHtml}
             ${isPizza
               ? '<span class="menu-card__hint">Toque para montar seu pedido</span>'
               : `<div class="menu-card__actions"><button class="button button--add-to-cart" type="button" data-add-item="${item.id}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span class="button-text">Pedir</span></button></div>`}
@@ -2709,6 +3085,7 @@ if (successCloseBtn) {
 hydrateStaticWhatsAppLinks();
 renderPromotions();
 renderTabs();
+renderDietFilters();
 renderMenu();
 renderCombosCarousel();
 hydrateCategoryTriggers();
