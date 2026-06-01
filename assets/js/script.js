@@ -2733,8 +2733,11 @@ function orderStageIndex(order) {
 function updateStatusBadge(stageIdx) {
   const badge = document.getElementById('pr-status-badge');
   const label = document.getElementById('pr-status-label');
+  const icon = document.getElementById('pr-icon');
   if (!badge || !label) return;
+  const icons = ['✅','🍕','🛵','📍','🎉'];
   const labels = ['Pedido recebido','Preparando seu pedido','Saiu para entrega','A caminho','Entregue! 🎉'];
+  if (icon) icon.textContent = icons[stageIdx] || '✅';
   if (stageIdx >= 4) {
     badge.style.display = 'none';
     return;
@@ -4638,18 +4641,6 @@ if (dCalcForm) {
   }
 }
 
-// ---------- Cupons no checkout ----------
-function refreshCheckoutCoupons() {
-  const group = document.getElementById('cart-coupon-group');
-  const sel = document.getElementById('cart-coupon-select');
-  if (!group || !sel) return;
-  const coupons = getActiveCoupons();
-  if (!coupons.length) { group.style.display = 'none'; return; }
-  group.style.display = '';
-  sel.innerHTML = '<option value="">— Não usar cupom —</option>' +
-    coupons.map(c => `<option value="${c.code}">${c.code} · ${c.name}</option>`).join('');
-}
-
 // ---------- Endereços salvos no checkout ----------
 function renderSavedAddressesSelector() {
   const acc = getCurrentAccount();
@@ -4966,7 +4957,7 @@ function openNotificationDrawer() {
   drawer.setAttribute('aria-hidden', 'false');
   drawer.classList.add('is-open');
   document.body.style.overflow = 'hidden';
-  if (backdrop) backdrop.style.display = 'block';
+  if (backdrop) backdrop.classList.add('is-open');
 }
 
 function closeNotificationDrawer() {
@@ -4976,7 +4967,7 @@ function closeNotificationDrawer() {
   drawer.classList.remove('is-open');
   drawer.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  if (backdrop) backdrop.style.display = 'none';
+  if (backdrop) backdrop.classList.remove('is-open');
 }
 
 (function initNotificationUI() {
