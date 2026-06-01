@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v10-1-skip-auth';
+const CACHE_NAME = 'pizzaria-premium-v11-piauienses';
 const ASSETS = [
   './',
   './index.html',

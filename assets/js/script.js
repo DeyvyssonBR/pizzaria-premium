@@ -67,7 +67,7 @@ const defaultMenu = [
     description: 'Molho de tomate, mussarela, manjericao fresco e azeite extravirgem.',
     price: 32,
     precos: { p: 32, m: 45, g: 58 },
-    image: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1604068549290-dea0e4a305ca.webp',
     isVegetarian: true
   },
   {
@@ -78,7 +78,7 @@ const defaultMenu = [
     description: 'Calabresa fatiada, cebola roxa e azeitonas sobre mussarela.',
     price: 34,
     precos: { p: 34, m: 48, g: 62 },
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1565299624946-b28f40a0ae38.webp'
   },
   {
     id: 'cla-portuguesa',
@@ -88,7 +88,7 @@ const defaultMenu = [
     description: 'Presunto, ovo, cebola, ervilha, azeitona e mussarela.',
     price: 36,
     precos: { p: 36, m: 50, g: 64 },
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'cla-frango-catupiry',
@@ -98,7 +98,7 @@ const defaultMenu = [
     description: 'Frango desfiado temperado com requeijao cremoso Catupiry.',
     price: 36,
     precos: { p: 36, m: 50, g: 66 },
-    image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1571407970349-bc81e7e96d47.webp'
   },
   {
     id: 'cla-quatro-queijos',
@@ -108,7 +108,7 @@ const defaultMenu = [
     description: 'Mussarela, provolone, parmesao e gorgonzola gratinados.',
     price: 38,
     precos: { p: 38, m: 52, g: 68 },
-    image: 'https://images.unsplash.com/photo-1593504049359-74330189a345?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1593504049359-74330189a345.webp',
     isVegetarian: true
   },
   {
@@ -119,7 +119,7 @@ const defaultMenu = [
     description: 'Fatias generosas de pepperoni picante sobre mussarela.',
     price: 38,
     precos: { p: 38, m: 53, g: 69 },
-    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1628840042765-356cda07504e.webp'
   },
   {
     id: 'cla-napolitana',
@@ -129,7 +129,7 @@ const defaultMenu = [
     description: 'Tomate em rodelas, mussarela, parmesao e oregano.',
     price: 34,
     precos: { p: 34, m: 47, g: 60 },
-    image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1574071318508-1cdbab80d002.webp',
     isVegetarian: true
   },
   {
@@ -140,7 +140,7 @@ const defaultMenu = [
     description: 'Mussarela em camada generosa com molho da casa e oregano.',
     price: 30,
     precos: { p: 30, m: 42, g: 55 },
-    image: 'https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1595854341625-f33ee10dbf94.webp',
     isVegetarian: true
   },
   {
@@ -151,7 +151,7 @@ const defaultMenu = [
     description: 'Carne de sol desfiada, queijo coalho grelhado e cebola.',
     price: 42,
     precos: { p: 42, m: 58, g: 74 },
-    image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1565958011703-44f9829ba187.webp'
   },
   {
     id: 'reg-frango-cajuina',
@@ -161,7 +161,7 @@ const defaultMenu = [
     description: 'Frango ao glaze de cajuina, toque agridoce piauiense.',
     price: 42,
     precos: { p: 42, m: 58, g: 74 },
-    image: 'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1601924582970-9238bcb495d9.webp'
   },
   {
     id: 'reg-calabresa-coalho',
@@ -171,7 +171,7 @@ const defaultMenu = [
     description: 'Calabresa artesanal com queijo coalho e melaco de cana.',
     price: 40,
     precos: { p: 40, m: 55, g: 70 },
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1565299624946-b28f40a0ae38.webp'
   },
   {
     id: 'reg-sertaneja',
@@ -181,7 +181,7 @@ const defaultMenu = [
     description: 'Carne de sol, queijo coalho, banana-da-terra e pimenta.',
     price: 44,
     precos: { p: 44, m: 60, g: 76 },
-    image: 'https://images.unsplash.com/photo-1590534247854-e97d5e3feef6?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1590534247854-e97d5e3feef6.webp'
   },
   {
     id: 'reg-vaqueiro',
@@ -191,7 +191,7 @@ const defaultMenu = [
     description: 'Carne de sol, coalho, requeijao do sertao e cebola roxa.',
     price: 46,
     precos: { p: 46, m: 62, g: 78 },
-    image: 'https://images.unsplash.com/photo-1548365328-9f547fb09530?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1548365328-9f547fb09530.webp'
   },
   {
     id: 'reg-doce-cajuina',
@@ -201,7 +201,7 @@ const defaultMenu = [
     description: 'Calda de cajuina, queijo coalho e raspas de limao.',
     price: 40,
     precos: { p: 40, m: 54, g: 68 },
-    image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1571877227200-a0d98ea607e9.webp',
     isVegetarian: true
   },
   {
@@ -212,7 +212,7 @@ const defaultMenu = [
     description: 'Camarao salteado no alho com requeijao Catupiry cremoso.',
     price: 56,
     precos: { p: 56, m: 74, g: 92 },
-    image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1565299507177-b0ac66763828.webp'
   },
   {
     id: 'pre-file-cream',
@@ -222,7 +222,7 @@ const defaultMenu = [
     description: 'File mignon em iscas com cream cheese e cebola caramelizada.',
     price: 58,
     precos: { p: 58, m: 76, g: 94 },
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1513104890138-7c749659a591.webp'
   },
   {
     id: 'pre-salmao',
@@ -232,7 +232,7 @@ const defaultMenu = [
     description: 'Salmao defumado, cream cheese, alcaparras e dill fresco.',
     price: 60,
     precos: { p: 60, m: 80, g: 98 },
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1559056199-641a0ac8b55e.webp'
   },
   {
     id: 'pre-brie-damasco',
@@ -242,7 +242,7 @@ const defaultMenu = [
     description: 'Queijo brie cremoso com geleia de damasco e nozes.',
     price: 56,
     precos: { p: 56, m: 74, g: 90 },
-    image: 'https://images.unsplash.com/photo-1571066811602-716837d681de?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1571066811602-716837d681de.webp',
     isVegetarian: true
   },
   {
@@ -253,7 +253,7 @@ const defaultMenu = [
     description: 'Mussarela de bufala, cogumelos e azeite trufado.',
     price: 62,
     precos: { p: 62, m: 82, g: 100 },
-    image: 'https://images.unsplash.com/photo-1598021680133-eb3a7c7a4d77?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1598021680133-eb3a7c7a4d77.webp',
     isVegetarian: true
   },
   {
@@ -264,7 +264,7 @@ const defaultMenu = [
     description: 'Burrata cremosa, tomate confitado e manjericao fresco.',
     price: 60,
     precos: { p: 60, m: 80, g: 98 },
-    image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1604382354936-07c5d9983bd3.webp',
     isVegetarian: true
   },
   {
@@ -275,7 +275,7 @@ const defaultMenu = [
     description: 'Lombo canadense, cheddar gratinado e cebola roxa.',
     price: 54,
     precos: { p: 54, m: 72, g: 88 },
-    image: 'https://images.unsplash.com/photo-1534308983496-4fefedf6c124?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1534308983496-4fefedf6c124.webp'
   },
   {
     id: 'pre-parma-rucula',
@@ -285,7 +285,7 @@ const defaultMenu = [
     description: 'Presunto parma, rucula fresca, parmesao e tomate seco.',
     price: 58,
     precos: { p: 58, m: 76, g: 94 },
-    image: 'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&q=80'
+    image: 'assets/img/cardapio/photo-1571997478779-2adcbbe9ab2f.webp'
   },
   {
     id: 'doc-brigadeiro',
@@ -295,7 +295,7 @@ const defaultMenu = [
     description: 'Brigadeiro cremoso com granulado belga e raspas de chocolate.',
     price: 34,
     precos: { p: 34, m: 46, g: 58 },
-    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1606313564200-e75d5e30476c.webp',
     isVegetarian: true
   },
   {
@@ -306,7 +306,7 @@ const defaultMenu = [
     description: 'Goiabada cremosa com queijo coalho derretido.',
     price: 34,
     precos: { p: 34, m: 46, g: 58 },
-    image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1565958011703-44f9829ba187.webp',
     isVegetarian: true
   },
   {
@@ -317,7 +317,7 @@ const defaultMenu = [
     description: 'Banana caramelizada, canela e acucar mascavo.',
     price: 32,
     precos: { p: 32, m: 44, g: 56 },
-    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1551024601-bec78aea704b.webp',
     isVegetarian: true
   },
   {
@@ -328,7 +328,7 @@ const defaultMenu = [
     description: 'Chocolate ao leite com coco ralado cremoso.',
     price: 34,
     precos: { p: 34, m: 46, g: 58 },
-    image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1511381939415-e44015466834.webp',
     isVegetarian: true
   },
   {
@@ -339,7 +339,7 @@ const defaultMenu = [
     description: 'Nutella derretida com morangos frescos fatiados.',
     price: 38,
     precos: { p: 38, m: 52, g: 66 },
-    image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1505253716362-afaea1d3d1af.webp',
     isVegetarian: true
   },
   {
@@ -350,7 +350,7 @@ const defaultMenu = [
     description: 'Chocolate ao leite com morango, sabor classico nacional.',
     price: 36,
     precos: { p: 36, m: 48, g: 62 },
-    image: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1481391319762-47dff72954d9.webp',
     isVegetarian: true
   },
   {
@@ -361,7 +361,7 @@ const defaultMenu = [
     description: 'Chocolate branco cremoso com cobertura sedosa.',
     price: 36,
     precos: { p: 36, m: 48, g: 62 },
-    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1488477181946-6428a0291777.webp',
     isVegetarian: true
   },
   {
@@ -372,7 +372,7 @@ const defaultMenu = [
     description: 'Creme branco com pedacos de biscoito de chocolate.',
     price: 38,
     precos: { p: 38, m: 50, g: 64 },
-    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80',
+    image: 'assets/img/cardapio/photo-1563805042-7684c019e1cb.webp',
     isVegetarian: true
   },
   {
@@ -2210,6 +2210,8 @@ function navigateCartStep(stepId) {
       if (checkoutPhone) checkoutPhone.value = formatPhoneInput(acc.phone);
       if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
       stepId = 'cart-step-delivery';
+    } else {
+      trackEvent('guest_checkout_started');
     }
   }
   document.querySelectorAll('.cart-step').forEach(step => {
@@ -2895,6 +2897,14 @@ function finalizeOrder() {
   renderReceipt(order);
   navigateCartStep('cart-step-success');
 
+  // Exibe upsell de criação de conta apenas para guest
+  showAccountUpsell(order);
+
+  // Track guest order
+  if (!getCurrentAccount()) {
+    trackEvent('guest_order_placed', { orderId: order.id, total: cartTotal });
+  }
+
   // Clear cart state
   cart = [];
   try {
@@ -3197,6 +3207,62 @@ if (successCloseBtn) {
     closeCartDrawer();
   });
 }
+
+// ---------- Analytics tracking (guest → registered conversion) ----------
+const ANALYTICS_KEY = 'premium_pizzaria_analytics';
+
+function trackEvent(name, props = {}) {
+  try {
+    const log = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '[]');
+    log.push({ name, props, ts: Date.now() });
+    if (log.length > 500) log.splice(0, log.length - 500);
+    localStorage.setItem(ANALYTICS_KEY, JSON.stringify(log));
+  } catch (e) { /* ignore */ }
+  console.log(`[Analytics] ${name}`, props);
+}
+/* Eventos definidos:
+ * - guest_checkout_started     – ao entrar no passo de identidade (guest)
+ * - guest_order_placed         – pedido finalizado via WhatsApp sem login
+ * - upsell_impression          – upsell exibido na tela de sucesso
+ * - upsell_clicked_create      – clique em "Criar conta grátis"
+ * - upsell_dismissed           – clique em "Agora não"
+ * - guest_converted_to_registered – cadastro concluído após upsell
+ */
+
+// ---------- Guest → Account upsell ----------
+const UPSEL_DISMISS_KEY = 'premium_pizzaria_upsell_dismissed';
+
+function showAccountUpsell(order) {
+  const el = document.getElementById('receipt-upsell');
+  if (!el) return;
+  // Não exibir se já está logado ou se já dispensou
+  if (getCurrentAccount()) { el.style.display = 'none'; return; }
+  if (localStorage.getItem(UPSEL_DISMISS_KEY)) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  trackEvent('upsell_impression', { orderId: order ? order.id : null });
+}
+
+function dismissAccountUpsell() {
+  const el = document.getElementById('receipt-upsell');
+  if (el) el.style.display = 'none';
+  try { localStorage.setItem(UPSEL_DISMISS_KEY, '1'); } catch (e) { /* ignore */ }
+  trackEvent('upsell_dismissed');
+}
+
+function openUpsellRegister() {
+  const name = checkoutName ? checkoutName.value.trim() : '';
+  const phone = checkoutPhone ? checkoutPhone.value.trim() : '';
+  dismissAccountUpsell();
+  trackEvent('upsell_clicked_create');
+  if (typeof openAuthModal === 'function') {
+    openAuthModal('register', { name, phone });
+  }
+}
+
+const upsellCreateBtn = document.getElementById('upsell-create-account');
+const upsellSkipBtn = document.getElementById('upsell-skip');
+if (upsellCreateBtn) upsellCreateBtn.addEventListener('click', openUpsellRegister);
+if (upsellSkipBtn) upsellSkipBtn.addEventListener('click', dismissAccountUpsell);
 
 // Initial renders/hydrations
 hydrateStaticWhatsAppLinks();
@@ -3852,9 +3918,15 @@ function switchAuthTab(name) {
   if (forgotTab) forgotTab.style.display = (name === 'forgot') ? '' : 'none';
   showAuthError('');
 }
-function openAuthModal(initialTab) {
+function openAuthModal(initialTab, prefill) {
   if (!authModalEl) return;
   switchAuthTab(initialTab || 'login');
+  if (prefill) {
+    const nameEl = document.getElementById('auth-reg-name');
+    const phoneEl = document.getElementById('auth-reg-phone');
+    if (nameEl && prefill.name) nameEl.value = prefill.name;
+    if (phoneEl && prefill.phone) phoneEl.value = prefill.phone;
+  }
   authModalEl.classList.add('is-open');
   authModalEl.setAttribute('aria-hidden', 'false');
 }
@@ -3929,6 +4001,10 @@ if (authModalEl) {
         closeAuthModal();
         refreshAppbarAccount();
         showToast(`Conta criada! Bem-vindo, ${acc.name.split(' ')[0]}.`, 2800);
+        // Se cadastro veio do upsell pós-pedido, registra conversão
+        if (localStorage.getItem(UPSEL_DISMISS_KEY)) {
+          trackEvent('guest_converted_to_registered', { email: acc.email });
+        }
         regForm.reset();
       } catch (err) {
         showAuthError(err.message);

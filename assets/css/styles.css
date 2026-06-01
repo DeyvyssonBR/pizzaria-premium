@@ -250,7 +250,7 @@ textarea {
   border-radius: 0;
   background:
     linear-gradient(180deg, rgba(20,10,6,0.05), rgba(20,10,6,0.35)),
-    url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&q=80') center 45% / cover no-repeat,
+    url('../img/cardapio/photo-1513104890138-7c749659a591.webp') center 45% / cover no-repeat,
     url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v4') center 45% / cover no-repeat;
   box-shadow: var(--shadow);
 }
@@ -5194,6 +5194,60 @@ body.has-cart .floating-whatsapp {
 .receipt-card__actions .button--ghost:active {
   transform: translateY(0);
   background: rgba(90, 10, 24, 0.1) !important;
+}
+
+/* Upsell de criação de conta pós-pedido */
+.receipt-upsell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(90, 10, 24, 0.06), rgba(218, 165, 50, 0.08));
+  border: 1.5px solid rgba(218, 165, 50, 0.25);
+  text-align: center;
+}
+.receipt-upsell__icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.receipt-upsell__body {
+  flex: 1;
+}
+.receipt-upsell__title {
+  display: block;
+  font-size: 0.95rem;
+  color: #1f110e;
+  margin-bottom: 4px;
+}
+.receipt-upsell__desc {
+  font-size: 0.8rem;
+  color: rgba(36, 19, 15, 0.7);
+  margin: 0;
+  line-height: 1.4;
+}
+.receipt-upsell__desc strong {
+  color: #5a0a18;
+}
+.receipt-upsell .button--gold {
+  width: 100%;
+  margin-top: 4px;
+}
+.receipt-upsell__skip {
+  background: none;
+  border: none;
+  color: rgba(36, 19, 15, 0.45);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 6px 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+.receipt-upsell__skip:hover {
+  color: rgba(36, 19, 15, 0.75);
 }
 
 /* Timeline de status — mobile vertical */
