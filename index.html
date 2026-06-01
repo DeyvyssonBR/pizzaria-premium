@@ -299,7 +299,6 @@
           <a class="mobile-nav__link" href="#inicio" data-nav-close>🏠 Início</a>
           <a class="mobile-nav__link" href="#cardapio" data-nav-close>🍕 Cardápio</a>
           <a class="mobile-nav__link" href="#promocoes" data-nav-close>🔥 Promoções</a>
-          <a class="mobile-nav__link" href="#avaliacoes" data-nav-close>⭐ Avaliações</a>
           <a class="mobile-nav__link" href="#contato" data-nav-close>📍 Contato</a>
           <hr class="mobile-nav__divider">
           <button class="mobile-nav__link mobile-nav__link--action" type="button" id="mobile-nav-install" style="display:none;">
@@ -766,8 +765,8 @@
               </div>
 
               <div class="form-group" id="cart-coupon-group" style="display:none;">
-                <label for="cart-coupon-select">🎟️ Usar cupom de fidelidade</label>
-                <select id="cart-coupon-select" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(36,19,15,0.15);background:#fafafa;font-size:0.95rem;">
+                <label for="cart-coupon-select">🎟️ Cupom de desconto</label>
+                <select id="cart-coupon-select" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(36,19,15,0.15);background:#fafafa;font-size:0.95rem;" onchange="applyCouponDiscount()">
                   <option value="">— Não usar cupom —</option>
                 </select>
               </div>
@@ -806,6 +805,10 @@
                 <div id="summary-delivery-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                   <span>Taxa de Entrega:</span>
                   <strong id="summary-delivery-fee">R$ 0,00</strong>
+                </div>
+                <div id="summary-discount-row" style="display: none; justify-content: space-between; margin-bottom: 8px;">
+                  <span>🎟️ Desconto:</span>
+                  <strong id="summary-discount" style="color: #27ae60;">-R$ 0,00</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(35, 20, 16, 0.1); font-size: 1.05rem;">
                   <span>Total Geral:</span>

@@ -3923,10 +3923,7 @@
         if (ordersCard) ordersCard.style.display = 'block';
       }
 
-      // Track order count changes for new-order detection outside dashboard render
-      if (totalOrders > lastOrderCount) {
-        // Sound is now played in saveOrderToDashboard on new orders
-      }
+      // Track order count for cross-render new-order detection
       lastOrderCount = totalOrders;
     }
 
@@ -4375,9 +4372,22 @@
       const idx = all.findIndex(o => o.id === orderId);
       if (idx === -1) return;
       if (all[idx].statusManual === newStatus) return;
-      all[idx].statusManual = newStatus;
+      const order = all[idx];
+      const prevStatus = order.statusManual || 'received';
+      order.statusManual = newStatus;
       saveClientOrders(all);
       refreshOrdersDay(true);
+
+      // Pergunta se deseja notificar o cliente sobre o novo status
+      const stageLabel = ORDER_STAGES.find(s => s.value === newStatus);
+      if (stageLabel && order.customerPhone) {
+        setTimeout(() => {
+          if (confirm(`Notificar ${order.customerName || 'cliente'} via WhatsApp?\n\n"${stageLabel.label}"`)) {
+            const msg = whatsappTemplateFor(order, newStatus);
+            window.open(buildWaUrl(order.customerPhone, msg), '_blank', 'noopener,noreferrer');
+          }
+        }, 100);
+      }
     }
 
     function refreshOrdersDay(skipFlash) {

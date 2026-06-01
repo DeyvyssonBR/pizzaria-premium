@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposta Comercial · Pizzaria Premium Teresina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vinho: #5a0a18;
+  --vinho-claro: #7a1a2a;
+  --vermelho-escuro: #8b0000;
+  --preto-grafite: #1a1a1a;
+  --preto-suave: #2a2a2a;
+  --creme: #fffaf2;
+  --creme-escuro: #f0e6d8;
+  --branco: #ffffff;
+  --dourado: #d4a853;
+  --dourado-claro: #e8c170;
+  --dourado-escuro: #b8860b;
+  --font-title: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--preto-grafite);
+  color: var(--creme);
+  overflow-x: hidden;
+}
+
+/* Slide container */
+.slide {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5vh 6vw;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide-content {
+  max-width: 1200px;
+  width: 100%;
+  z-index: 2;
+}
+
+/* ===== SLIDE 1 - CAPA ===== */
+.slide--cover {
+  background: linear-gradient(160deg, #1a0a0e 0%, #2d0f18 30%, #3a1018 60%, #1a0a0e 100%);
+  text-align: center;
+  min-height: 100vh;
+}
+
+.slide--cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(212,168,83,0.06) 0%, transparent 60%);
+  z-index: 1;
+}
+
+.slide--cover .accent-bar {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--dourado), var(--dourado-claro));
+  margin: 0 auto 32px;
+  border-radius: 4px;
+}
+
+.cover-logo {
+  font-family: var(--font-title);
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+
+.cover-logo span {
+  color: var(--dourado);
+}
+
+.cover-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  color: rgba(255,250,242,0.7);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-bottom: 48px;
+}
+
+.cover-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.cover-title em {
+  font-style: normal;
+  color: var(--dourado);
+}
+
+.cover-meta {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+  color: rgba(255,250,242,0.6);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.cover-meta span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cover-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 48px;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+  color: #1a0a0e;
+  border: none;
+  border-radius: 50px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cover-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212,168,83,0.3);
+}
+
+.cover-page-indicator {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: rgba(255,250,242,0.3);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ===== SLIDE PADRÃO ===== */
+.slide--default {
+  background: linear-gradient(180deg, #1a0a0e 0%, #120608 100%);
+}
+
+.slide--default h2 {
+  font-family: var(--font-title);
+  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.slide--default .kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--dourado);
+  margin-bottom: 8px;
+  padding: 4px 14px;
+  border: 1px solid rgba(212,168,83,0.3);
+  border-radius: 100px;
+}
+
+.slide--default .subtitle {
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  color: rgba(255,250,242,0.6);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* ===== GRIDS ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: rgba(255,250,242,0.04);
+  border: 1px solid rgba(255,250,242,0.08);
+  border-radius: 20px;
+  padding: 28px 24px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212,168,83,0.3);
+}
+
+.card--gold {
+  border-color: rgba(212,168,83,0.2);
+  background: linear-gradient(180deg, rgba(212,168,83,0.06) 0%, transparent 100%);
+}
+
+.card--highlight {
+  border-color: var(--dourado);
+  box-shadow: 0 0 30px rgba(212,168,83,0.08);
+}
+
+.card__icon {
+  font-size: 2.2rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.card h3 {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--creme);
+}
+
+.card p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255,250,242,0.6);
+}
+
+.card .value {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dourado);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.card .value-label {
+  font-size: 0.78rem;
+  color: rgba(255,250,242,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Comparison table */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255,250,242,0.1);
+}
+
+.comparison__col {
+  padding: 28px 24px;
+}
+
+.comparison__col--competitor {
+  background: rgba(255,250,242,0.03);
+}
+
+.comparison__col--ours {
+  background: rgba(212,168,83,0.05);
+  border-left: 1px solid rgba(212,168,83,0.2);
+}
+
+.comparison__header {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255,250,242,0.1);
+}
+
+.comparison__header--ours {
+  color: var(--dourado);
+  border-color: rgba(212,168,83,0.3);
+}
+
+.comparison__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,250,242,0.04);
+}
+
+.comparison__row:last-child { border-bottom: none; }
+
+.comparison__label { font-size: 0.88rem; color: rgba(255,250,242,0.7); }
+
+.comparison__check {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.comparison__cross {
+  color: #e74c3c;
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+/* Tier cards */
+.tier {
+  background: rgba(255,250,242,0.04);
+  border: 1px solid rgba(255,250,242,0.1);
+  border-radius: 24px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.tier--recommended {
+  border-color: var(--dourado);
+  background: linear-gradient(180deg, rgba(212,168,83,0.08) 0%, rgba(255,250,242,0.03) 100%);
+  transform: scale(1.04);
+}
+
+.tier__badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+  color: #1a0a0e;
+  padding: 4px 16px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tier__name {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.tier__price {
+  font-family: var(--font-title);
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--dourado);
+  margin-bottom: 4px;
+}
+
+.tier__price-sub {
+  font-size: 0.85rem;
+  color: rgba(255,250,242,0.4);
+  margin-bottom: 20px;
+}
+
+.tier__list {
+  list-style: none;
+  margin-top: 16px;
+  flex: 1;
+}
+
+.tier__list li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,250,242,0.05);
+  font-size: 0.88rem;
+  color: rgba(255,250,242,0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tier__list li::before {
+  content: '✓';
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.tier__list li.missing::before {
+  content: '—';
+  color: rgba(255,250,242,0.2);
+}
+
+.tier__list li.missing {
+  color: rgba(255,250,242,0.3);
+}
+
+.tier__cta {
+  margin-top: 24px;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+  color: #1a0a0e;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Data highlight */
+.data-highlight {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.data-highlight__number {
+  font-family: var(--font-title);
+  font-size: clamp(3rem, 7vw, 5rem);
+  font-weight: 900;
+  color: var(--dourado);
+  line-height: 1;
+}
+
+.data-highlight__label {
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  color: rgba(255,250,242,0.6);
+  margin-top: 8px;
+}
+
+.data-highlight__context {
+  font-size: 0.85rem;
+  color: rgba(255,250,242,0.4);
+  margin-top: 4px;
+}
+
+/* Problem / pain point */
+.pain-point {
+  background: rgba(231, 76, 60, 0.06);
+  border: 1px solid rgba(231, 76, 60, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.pain-point__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.pain-point h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.pain-point p {
+  font-size: 0.85rem;
+  color: rgba(255,250,242,0.5);
+  line-height: 1.5;
+}
+
+.solution-point {
+  background: rgba(39, 174, 96, 0.06);
+  border: 1px solid rgba(39, 174, 96, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.solution-point__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.solution-point h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.solution-point p {
+  font-size: 0.85rem;
+  color: rgba(255,250,242,0.5);
+  line-height: 1.5;
+}
+
+/* Final slide */
+.slide--final {
+  background: linear-gradient(160deg, #1a0a0e 0%, #2d0f18 30%, #3a1018 60%, #1a0a0e 100%);
+  text-align: center;
+}
+
+.slide--final h2 {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.slide--final .highlight {
+  color: var(--dourado);
+}
+
+/* Screenshot placeholder */
+.screenshot-mock {
+  border-radius: 16px;
+  border: 1px solid rgba(255,250,242,0.1);
+  overflow: hidden;
+  background: rgba(255,250,242,0.02);
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.screenshot-mock--tall {
+  aspect-ratio: 9/16;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.mock-label {
+  font-size: 0.85rem;
+  color: rgba(255,250,242,0.3);
+  text-align: center;
+}
+
+.mock-device {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: rgba(255,250,242,0.2);
+  font-size: 0.85rem;
+}
+
+/* Page nav */
+.page-nav {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.page-nav__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,250,242,0.15);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.page-nav__dot:hover,
+.page-nav__dot.active {
+  background: var(--dourado);
+  transform: scale(1.3);
+}
+
+/* Print styles */
+@media print {
+  .page-nav { display: none; }
+  .slide { 
+    page-break-after: always; 
+    break-inside: avoid;
+    min-height: 100vh;
+    padding: 3vh 4vw;
+  }
+  .slide--cover { min-height: 100vh; }
+  body { background: white; color: black; }
+  .card, .tier, .comparison, .pain-point, .solution-point { break-inside: avoid; }
+  .tier--recommended { transform: none; }
+  @page { margin: 0; }
+}
+
+/* Typography helpers */
+.text-center { text-align: center; }
+.text-gold { color: var(--dourado); }
+.text-muted { color: rgba(255,250,242,0.5); }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mt-40 { margin-top: 40px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+.mb-40 { margin-bottom: 40px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+
+/* Stats bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 32px 0;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255,250,242,0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255,250,242,0.06);
+}
+
+.stat-box__num {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--dourado);
+}
+
+.stat-box__label {
+  font-size: 0.8rem;
+  color: rgba(255,250,242,0.5);
+  margin-top: 4px;
+}
+
+/* Divider */
+.divider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--dourado), var(--dourado-claro));
+  border-radius: 4px;
+  margin: 0 auto 24px;
+}
+
+/* Screenshots row for actual site */
+.site-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.site-gallery__item {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,250,242,0.08);
+  background: rgba(255,250,242,0.02);
+  text-align: center;
+  padding-bottom: 12px;
+}
+
+.site-gallery__item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.site-gallery__item .label {
+  font-size: 0.75rem;
+  color: rgba(255,250,242,0.4);
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 900px) {
+  .site-gallery { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr; }
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.timeline__step {
+  flex: 1;
+  min-width: 140px;
+  text-align: center;
+  position: relative;
+}
+
+.timeline__step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -12px;
+  top: 20px;
+  font-size: 1.5rem;
+  color: var(--dourado);
+  opacity: 0.4;
+}
+
+.timeline__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+  color: #1a0a0e;
+  font-family: var(--font-title);
+  font-weight: 900;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.timeline__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.timeline__desc {
+  font-size: 0.8rem;
+  color: rgba(255,250,242,0.5);
+  line-height: 1.4;
+}
+
+/* ===== VALUE PROPOSITION BANNER ===== */
+.value-banner {
+  background: linear-gradient(135deg, rgba(212,168,83,0.1), rgba(212,168,83,0.03));
+  border: 1px solid rgba(212,168,83,0.2);
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+  margin: 32px 0;
+}
+
+.value-banner h3 {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--dourado);
+  margin-bottom: 8px;
+}
+
+.value-banner p {
+  font-size: 0.95rem;
+  color: rgba(255,250,242,0.6);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Final sentiment */
+.final-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.final-actions .btn {
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.final-actions .btn--primary {
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+  color: #1a0a0e;
+}
+
+.final-actions .btn--secondary {
+  background: transparent;
+  color: var(--creme);
+  border: 2px solid rgba(255,250,242,0.2);
+}
+
+.final-actions .btn:hover {
+  transform: translateY(-2px);
+}
+
+.final-actions .btn--primary:hover {
+  box-shadow: 0 8px 30px rgba(212,168,83,0.3);
+}
+
+/* ROI callout */
+.roi-callout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 24px 0;
+}
+
+.roi-box {
+  background: rgba(255,250,242,0.03);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid rgba(255,250,242,0.06);
+}
+
+.roi-box--negative {
+  border-color: rgba(231,76,60,0.2);
+  background: rgba(231,76,60,0.04);
+}
+
+.roi-box--positive {
+  border-color: rgba(39,174,96,0.2);
+  background: rgba(39,174,96,0.04);
+}
+
+.roi-box__label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,250,242,0.4);
+  margin-bottom: 8px;
+}
+
+.roi-box__value {
+  font-family: var(--font-title);
+  font-size: 2.4rem;
+  font-weight: 900;
+}
+
+.roi-box--negative .roi-box__value {
+  color: #e74c3c;
+}
+
+.roi-box--positive .roi-box__value {
+  color: #27ae60;
+}
+
+.roi-box__desc {
+  font-size: 0.8rem;
+  color: rgba(255,250,242,0.5);
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .roi-callout { grid-template-columns: 1fr; }
+  .timeline__step:not(:last-child)::after { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation dots -->
+<nav class="page-nav" id="page-nav">
+  <button class="page-nav__dot active" data-slide="0" aria-label="Slide 1"></button>
+  <button class="page-nav__dot" data-slide="1" aria-label="Slide 2"></button>
+  <button class="page-nav__dot" data-slide="2" aria-label="Slide 3"></button>
+  <button class="page-nav__dot" data-slide="3" aria-label="Slide 4"></button>
+  <button class="page-nav__dot" data-slide="4" aria-label="Slide 5"></button>
+  <button class="page-nav__dot" data-slide="5" aria-label="Slide 6"></button>
+  <button class="page-nav__dot" data-slide="6" aria-label="Slide 7"></button>
+  <button class="page-nav__dot" data-slide="7" aria-label="Slide 8"></button>
+  <button class="page-nav__dot" data-slide="8" aria-label="Slide 9"></button>
+  <button class="page-nav__dot" data-slide="9" aria-label="Slide 10"></button>
+  <button class="page-nav__dot" data-slide="10" aria-label="Slide 11"></button>
+</nav>
+
+<!-- SLIDE 1: CAPA -->
+<section class="slide slide--cover">
+  <div class="slide-content">
+    <div class="accent-bar"></div>
+    <div class="cover-logo">PIZZARIA <span>PREMIUM</span></div>
+    <div class="cover-subtitle">Teresina · PI</div>
+    <div class="cover-title">
+      Site Profissional &amp; Sistema de Pedidos<br>
+      <em>Taxa Zero por Pedido · Sua Marca, Seus Dados</em>
+    </div>
+    <div class="cover-meta">
+      <span>✦ Proposta Comercial</span>
+      <span>✦ 2026</span>
+      <span>✦ <span class="text-gold">TAKA-21</span></span>
+    </div>
+    <div class="cover-cta" onclick="document.getElementById('slide-2').scrollIntoView({behavior:'smooth'})">
+      ↓ Ver Proposta
+    </div>
+  </div>
+  <div class="cover-page-indicator">Pizzaria Premium Teresina · Proposta Comercial</div>
+</section>
+
+<!-- SLIDE 2: DIAGNÓSTICO DO PROBLEMA -->
+<section class="slide slide--default" id="slide-2">
+  <div class="slide-content">
+    <span class="kicker">Diagnóstico</span>
+    <h2>Quanto sua pizzaria está <span class="text-gold">perdendo</span> em comissões?</h2>
+    <p class="subtitle" style="max-width: 700px;">
+      Plataformas como iFood, Rappi e Anota.ai cobram <strong>12% a 27%</strong> por pedido.<br>
+      Para uma pizzaria que fatura <strong>R$ 30.000/mês</strong>, isso representa:
+    </p>
+
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="stat-box__num">R$ 3.600</div>
+        <div class="stat-box__label">a R$ 8.100/mês em taxas</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__num">R$ 43.200</div>
+        <div class="stat-box__label">a R$ 97.200/ano perdidos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__num">~R$ 500</div>
+        <div class="stat-box__label">é o custo mensal do site próprio</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 24px;">
+      <div>
+        <div class="pain-point">
+          <div class="pain-point__icon">🔴</div>
+          <div>
+            <h4>Comissão por pedido (12-27%)</h4>
+            <p>Cada pizza vendida pelo iFood ou Rappi rende até 27% menos. Em um combo de R$ 60, você fica com apenas R$ 44.</p>
+          </div>
+        </div>
+        <div class="pain-point">
+          <div class="pain-point__icon">🔴</div>
+          <div>
+            <h4>Você não é dono dos seus clientes</h4>
+            <p>Os dados dos clientes são da plataforma. Você não pode fidelizar, criar promoções direcionadas ou construir relacionamento.</p>
+          </div>
+        </div>
+        <div class="pain-point">
+          <div class="pain-point__icon">🔴</div>
+          <div>
+            <h4>Marca genérica, sem identidade</h4>
+            <p>Seu cardápio atual no Zapermenu é funcional, mas não comunica a qualidade Premium da sua pizza. Parece genérico.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="solution-point">
+          <div class="solution-point__icon">🟢</div>
+          <div>
+            <h4>Taxa ZERO por pedido no site próprio</h4>
+            <p>Todo pedido feito pelo seu site é 100% seu. Sem repasse, sem comissão. O custo é uma mensalidade fixa.</p>
+          </div>
+        </div>
+        <div class="solution-point">
+          <div class="solution-point__icon">🟢</div>
+          <div>
+            <h4>Seus dados, seus clientes</h4>
+            <p>Você tem acesso a nome, telefone, endereço e histórico de pedidos. Crie programa de fidelidade, cupons e campanhas.</p>
+          </div>
+        </div>
+        <div class="solution-point">
+          <div class="solution-point__icon">🟢</div>
+          <div>
+            <h4>Marca Premium, visual profissional</h4>
+            <p>Site com identidade visual da Pizzaria Premium: elegante, mobile-first, feito para vender.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: COMPARATIVO -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Comparativo</span>
+    <h2>Site Próprio <span class="text-gold">vs</span> Plataformas de Delivery</h2>
+    <p class="subtitle">Por que ter seu próprio site é a melhor decisão para o seu negócio.</p>
+
+    <div class="comparison">
+      <div class="comparison__col comparison__col--competitor">
+        <div class="comparison__header">iFood / Rappi / Anota.ai</div>
+        <div class="comparison__row">
+          <span class="comparison__label">Taxa por pedido</span>
+          <span class="comparison__cross">12% a 27%</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Mensalidade fixa</span>
+          <span class="comparison__check">R$ 100–300/mês + comissão</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Controle da marca</span>
+          <span class="comparison__cross">✗ Limitado ao template</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Dados dos clientes</span>
+          <span class="comparison__cross">✗ Pertencem à plataforma</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Personalização visual</span>
+          <span class="comparison__cross">✗ Padrão genérico</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Programa de fidelidade</span>
+          <span class="comparison__cross">✗ Não incluso</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Painel administrativo</span>
+          <span class="comparison__check">✓ Básico</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">SEO / Google</span>
+          <span class="comparison__cross">✗ Página dentro do app</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Independência</span>
+          <span class="comparison__cross">✗ Preso à plataforma</span>
+        </div>
+      </div>
+
+      <div class="comparison__col comparison__col--ours">
+        <div class="comparison__header comparison__header--ours">✦ Site Pizzaria Premium</div>
+        <div class="comparison__row">
+          <span class="comparison__label">Taxa por pedido</span>
+          <span class="comparison__check">0% — Taxa ZERO</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Mensalidade fixa</span>
+          <span class="comparison__check">R$ 149–499/mês, sem surpresa</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Controle da marca</span>
+          <span class="comparison__check">✓ 100% sua identidade</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Dados dos clientes</span>
+          <span class="comparison__check">✓ São SEUS — exporte quando quiser</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Personalização visual</span>
+          <span class="comparison__check">✓ Completa, premium, sob medida</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Programa de fidelidade</span>
+          <span class="comparison__check">✓ Incluso no Premium+</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Painel administrativo</span>
+          <span class="comparison__check">✓ Completo com relatórios</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">SEO / Google</span>
+          <span class="comparison__check">✓ Site indexado, aparece nas buscas</span>
+        </div>
+        <div class="comparison__row">
+          <span class="comparison__label">Independência</span>
+          <span class="comparison__check">✓ Você é dono do seu canal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="value-banner mt-32">
+      <h3>💰 ROI em 3 meses</h3>
+      <p>Com o que você paga de comissão em <strong>2 meses</strong> no iFood, você paga o site próprio por <strong>1 ano inteiro</strong>. Depois, cada pedido é lucro líquido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: ROI E OPORTUNIDADE -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Oportunidade Financeira</span>
+    <h2>Quanto você <span class="text-gold">economiza</span> com site próprio?</h2>
+    <p class="subtitle">Simulação realista para uma pizzaria que fatura <strong>R$ 30.000/mês</strong> com 50% dos pedidos vindo de plataformas.</p>
+
+    <div class="roi-callout">
+      <div class="roi-box roi-box--negative">
+        <div class="roi-box__label">Custo Anual com iFood/Rappi (est.)</div>
+        <div class="roi-box__value">R$ 43.200</div>
+        <div class="roi-box__desc">Considerando 15% de comissão média sobre R$ 15.000/mês em pedidos via plataforma</div>
+      </div>
+      <div class="roi-box roi-box--positive">
+        <div class="roi-box__label">Economia Anual com Site Próprio</div>
+        <div class="roi-box__value">R$ 36.000</div>
+        <div class="roi-box__desc">R$ 43.200 – R$ 7.200 (custo anual do site Enterprise) = economia direta</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
+      <div class="card text-center">
+        <div class="value" style="font-size: 1.6rem;">100%</div>
+        <div class="value-label">do valor do pedido é seu</div>
+      </div>
+      <div class="card text-center">
+        <div class="value" style="font-size: 1.6rem;">5x</div>
+        <div class="value-label">mais barato que comissão de plataforma</div>
+      </div>
+      <div class="card text-center">
+        <div class="value" style="font-size: 1.6rem;">3 meses</div>
+        <div class="value-label">para o site se pagar sozinho</div>
+      </div>
+    </div>
+
+    <p class="text-center text-muted mt-32" style="font-size: 0.85rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <em>* Estimativa baseada em valores médios de mercado. Sua economia real depende do volume de pedidos atuais em plataformas terceiras.</em>
+    </p>
+  </div>
+</section>
+
+<!-- SLIDE 5: O QUE JÁ FOI CONSTRUÍDO -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Já em Funcionamento</span>
+    <h2>O Site <span class="text-gold">Pizzaria Premium</span> — Em Produção</h2>
+    <p class="subtitle">Site próprio, mobile-first, carrinho inteligente e checkout via WhatsApp em <strong>menos de 1 minuto</strong>. Acesse: <span class="text-gold">pizzaria-premium.vercel.app</span></p>
+
+    <div class="grid-3" style="margin-top: 16px;">
+      <div class="card text-center">
+        <div class="card__icon">📱</div>
+        <h3>Mobile-First</h3>
+        <p>Layout 100% responsivo, pensado para pedidos pelo celular. Botão fixo de WhatsApp e carrinho sempre visível.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">🛒</div>
+        <h3>Carrinho Inteligente</h3>
+        <p>Personalizador de pizza (meia a meia, borda recheada), cálculo automático de total, cross-sell de bebidas.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">⚡</div>
+        <h3>Checkout em 1 Minuto</h3>
+        <p>Sem cadastro obrigatório. Cliente escolhe, informa endereço e finaliza pelo WhatsApp com mensagem automática.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">🧑‍💼</div>
+        <h3>Painel Administrativo</h3>
+        <p>Gerencie cardápio, pedidos, zonas de entrega, cupons, Pix e Mercado Pago. Interface escura profissional.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">📊</div>
+        <h3>Relatórios de Venda</h3>
+        <p>Dashboard com métricas, gráficos de pizza mais vendidas, ranking de sabores e faturamento por período.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">🎯</div>
+        <h3>Impressão de Pedidos</h3>
+        <p>Sistema de parse de mensagens WhatsApp para impressão direta na cozinha e bancada. Otimiza o preparo.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 28px; text-align: center;">
+      <span style="display: inline-block; padding: 8px 20px; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.2); border-radius: 100px; font-size: 0.85rem; color: #27ae60;">
+        ✅ Site em produção — funcionalidades testadas e operando
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: FLUXO DO PEDIDO -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Experiência do Cliente</span>
+    <h2>Pedido em <span class="text-gold">Menos de 1 Minuto</span></h2>
+    <p class="subtitle">O cliente abre o site, escolhe e finaliza pelo WhatsApp sem criar conta. Veja o fluxo:</p>
+
+    <div class="timeline">
+      <div class="timeline__step">
+        <div class="timeline__num">1</div>
+        <div class="timeline__title">Escolhe a Pizza</div>
+        <div class="timeline__desc">Navega pelo cardápio visual com fotos, nomes e preços. Filtra por categoria.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">2</div>
+        <div class="timeline__title">Personaliza</div>
+        <div class="timeline__desc">Escolhe tamanho, meia a meia, borda recheada e adicionais.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">3</div>
+        <div class="timeline__title">Revisa o Carrinho</div>
+        <div class="timeline__desc">Vê todos os itens, quantidades, total. Adiciona bebida no cross-sell.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">4</div>
+        <div class="timeline__title">Informa Endereço</div>
+        <div class="timeline__desc">Nome, telefone, endereço, forma de pagamento. Sem cadastro.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">5</div>
+        <div class="timeline__title">Finaliza no WhatsApp</div>
+        <div class="timeline__desc">Mensagem automática gerada com todos os itens. Cliente só envia.</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mt-40" style="gap: 40px;">
+      <div>
+        <h3 style="font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">📱 Do clique ao pedido</h3>
+        <p style="font-size: 0.9rem; color: rgba(255,250,242,0.6); line-height: 1.7;">
+          O cliente abre o link do Instagram, escolhe a pizza, personaliza, informa o endereço e envia o pedido pelo WhatsApp em <strong>menos de 60 segundos</strong>. Sem download, sem cadastro, sem atrito.
+        </p>
+      </div>
+      <div>
+        <h3 style="font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">🧑‍💼 Do pedido à cozinha</h3>
+        <p style="font-size: 0.9rem; color: rgba(255,250,242,0.6); line-height: 1.7;">
+          O pedido chega no WhatsApp da pizzaria. Cole a mensagem no painel admin, clique em "Processar Pedido" e imprima o cupom da cozinha e da bancada em segundos.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: PAINEL ADMIN -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Gestão Completa</span>
+    <h2>Painel Administrativo <span class="text-gold">Premium</span></h2>
+    <p class="subtitle">Gerencie toda a operação da pizzaria sem depender de ninguém. Interface escura, rápida e profissional.</p>
+
+    <div class="grid-2" style="gap: 20px;">
+      <div class="card">
+        <div class="card__icon">🍕</div>
+        <h3>Gerenciar Cardápio</h3>
+        <p>Adicione, edite ou remova pizzas, bebidas e combos. Categorize, coloque fotos e preços. Tudo em tempo real.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">📍</div>
+        <h3>Zonas de Entrega</h3>
+        <p>Configure bairros atendidos, taxa de entrega por zona e prazo estimado. Cálculo automático de frete por CEP.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🖨️</div>
+        <h3>Impressão de Pedidos</h3>
+        <p>Interpretador de mensagens WhatsApp: cole o texto, veja o resumo e imprima cozinha + bancada com 1 clique.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <h3>Relatórios &amp; Dashboard</h3>
+        <p>Gráficos de pizza mais vendida, faturamento por dia, ranking de sabores, pedidos do dia com status.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">💳</div>
+        <h3>Pix e Mercado Pago</h3>
+        <p>Configure chave Pix para QR Code automático. Integração com Mercado Pago para cartão e Pix online.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">⭐</div>
+        <h3>Programa de Fidelidade</h3>
+        <p>Cupons automáticos por número de pedidos. Cliente acumula e ganha desconto. Aumenta recompra.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🎟️</div>
+        <h3>Cupons e Promoções</h3>
+        <p>Crie promoções destacadas no site e cupons de desconto. Controle de validade e uso.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔐</div>
+        <h3>Controle de Acesso</h3>
+        <p>Login com senha. Múltiplos operadores no plano Enterprise. Cada acesso registrado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: TIERS DE PREÇO -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Planos e Preços</span>
+    <h2>Escolha o plano ideal para sua <span class="text-gold">Pizzaria Premium</span></h2>
+    <p class="subtitle">Investimento único de setup + mensalidade. Sem taxa por pedido. Sem surpresas.</p>
+
+    <div class="grid-3" style="gap: 20px; align-items: start;">
+      <!-- Básico -->
+      <div class="tier">
+        <div class="tier__name">Básico</div>
+        <div class="tier__price">R$ 1.500</div>
+        <div class="tier__price-sub">setup único + R$ 149/mês</div>
+        <ul class="tier__list">
+          <li>Site responsivo (mobile-first)</li>
+          <li>Cardápio digital visual</li>
+          <li>Carrinho + checkout via WhatsApp</li>
+          <li>Painel admin (operador)</li>
+          <li>Zonas de entrega por bairro</li>
+          <li class="missing">Cálculo de frete por CEP</li>
+          <li class="missing">Cupons e promoções</li>
+          <li class="missing">PWA (instalável no celular)</li>
+          <li class="missing">Domínio próprio configurado</li>
+          <li class="missing">Relatórios de vendas</li>
+          <li class="missing">Múltiplos operadores</li>
+          <li>SLA de resposta: 48h</li>
+          <li>1h/mês de manutenção evolutiva</li>
+        </ul>
+        <div class="tier__cta">Começar Agora</div>
+      </div>
+
+      <!-- Premium (recomendado) -->
+      <div class="tier tier--recommended">
+        <div class="tier__badge">✦ Recomendado</div>
+        <div class="tier__name">Premium</div>
+        <div class="tier__price">R$ 2.800</div>
+        <div class="tier__price-sub">setup único + R$ 297/mês</div>
+        <ul class="tier__list">
+          <li>Site responsivo (mobile-first)</li>
+          <li>Cardápio digital visual</li>
+          <li>Carrinho + checkout via WhatsApp</li>
+          <li>Painel admin (operador)</li>
+          <li>Zonas de entrega por bairro</li>
+          <li>Cálculo de frete por CEP</li>
+          <li>Cupons e promoções</li>
+          <li>PWA (instalável no celular)</li>
+          <li>Domínio próprio configurado</li>
+          <li class="missing">Relatórios de vendas</li>
+          <li class="missing">Múltiplos operadores</li>
+          <li>SLA de resposta: 24h</li>
+          <li>3h/mês de manutenção evolutiva</li>
+        </ul>
+        <div class="tier__cta">Quero o Premium</div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="tier">
+        <div class="tier__name">Enterprise</div>
+        <div class="tier__price">R$ 4.500</div>
+        <div class="tier__price-sub">setup único + R$ 499/mês</div>
+        <ul class="tier__list">
+          <li>Site responsivo (mobile-first)</li>
+          <li>Cardápio digital visual</li>
+          <li>Carrinho + checkout via WhatsApp</li>
+          <li>Painel admin (operador)</li>
+          <li>Zonas de entrega por bairro</li>
+          <li>Cálculo de frete por CEP</li>
+          <li>Cupons e promoções</li>
+          <li>PWA (instalável no celular)</li>
+          <li>Domínio próprio configurado</li>
+          <li>Relatórios de vendas</li>
+          <li>Múltiplos operadores</li>
+          <li>SLA de resposta: 8h</li>
+          <li>6h/mês de manutenção evolutiva</li>
+        </ul>
+        <div class="tier__cta">Solução Completa</div>
+      </div>
+    </div>
+
+    <p class="text-center text-muted mt-32" style="font-size: 0.8rem;">
+      * Todos os planos incluem hospedagem, SSL, manutenção corretiva e suporte. <br>
+      * Pagamento do setup: 50% na assinatura + 50% na entrega em produção. <br>
+      * Mensalidade com reajuste anual pelo IPCA.
+    </p>
+  </div>
+</section>
+
+<!-- SLIDE 9: PRÓXIMOS PASSOS -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Cronograma</span>
+    <h2>Como funciona a <span class="text-gold">implantação</span></h2>
+    <p class="subtitle">Da assinatura ao site no ar em <strong>1 a 2 semanas</strong>.</p>
+
+    <div class="timeline" style="margin-bottom: 40px;">
+      <div class="timeline__step">
+        <div class="timeline__num">1</div>
+        <div class="timeline__title">Assinatura</div>
+        <div class="timeline__desc">Contrato + pagamento de 50% do setup. Definição do tier.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">2</div>
+        <div class="timeline__title">Conteúdo</div>
+        <div class="timeline__desc">Você envia cardápio, fotos, logo e dados da pizzaria.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">3</div>
+        <div class="timeline__title">Desenvolvimento</div>
+        <div class="timeline__desc">Montamos o site com cardápio, carrinho e painel admin.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">4</div>
+        <div class="timeline__title">Homologação</div>
+        <div class="timeline__desc">Você testa e aprova. Ajustes finos em até 7 dias.</div>
+      </div>
+      <div class="timeline__step">
+        <div class="timeline__num">5</div>
+        <div class="timeline__title">Produção</div>
+        <div class="timeline__desc">Site no ar com domínio próprio. Pagamento do saldo do setup.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card--gold">
+        <h3>📋 O que você precisa fornecer</h3>
+        <ul style="list-style: none; margin-top: 12px;">
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Cardápio com preços e descrições</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Fotos das pizzas (qualidade boa, se possível)</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Logo da pizzaria (ou criamos uma)</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Número do WhatsApp comercial</li>
+          <li style="padding: 8px 0; font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Chave Pix (se quiser QR Code automático)</li>
+        </ul>
+      </div>
+      <div class="card card--gold">
+        <h3>🎯 O que você recebe</h3>
+        <ul style="list-style: none; margin-top: 12px;">
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Site profissional no ar (URL própria)</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Painel admin completo</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Sistema de pedidos via WhatsApp</li>
+          <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,250,242,0.05); font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Suporte e manutenção contínuos</li>
+          <li style="padding: 8px 0; font-size: 0.88rem; color: rgba(255,250,242,0.6);">✓ Tranquilidade: taxa zero por pedido</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: SOBRE NÓS -->
+<section class="slide slide--default">
+  <div class="slide-content">
+    <span class="kicker">Quem somos</span>
+    <h2>Scheeren Company — <span class="text-gold">Tecnologia para Pizzarias</span></h2>
+    <p class="subtitle" style="max-width: 600px;">
+      Somos especialistas em criar soluções digitais para pizzarias independentes. 
+      Nosso foco é dar a você as mesmas ferramentas que grandes redes têm — 
+      sem taxa por pedido e sem perder sua identidade.
+    </p>
+
+    <div class="grid-3 mt-32">
+      <div class="card text-center">
+        <div class="card__icon">🏆</div>
+        <h3>+5 Clientes Atendidos</h3>
+        <p>Restaurantes e pizzarias que migraram de plataformas para site próprio.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">🔧</div>
+        <h3>Suporte Direto</h3>
+        <p>WhatsApp direto com o desenvolvedor. Sem chatbot, sem robot. Resposta em horas.</p>
+      </div>
+      <div class="card text-center">
+        <div class="card__icon">📈</div>
+        <h3>Foco em Conversão</h3>
+        <p>Cada decisão de design é pensada para aumentar pedidos. É site que vende.</p>
+      </div>
+    </div>
+
+    <div class="value-banner mt-32">
+      <h3>Não somos mais uma agência</h3>
+      <p>Somos desenvolvedores que entendem de pizzaria. Seu sucesso é nosso portfólio. Cada pedido processado no sistema é a prova de que o modelo funciona.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: FINAL -->
+<section class="slide slide--final">
+  <div class="slide-content">
+    <div class="divider"></div>
+    <h2>Vamos transformar a <span class="highlight">Pizzaria Premium</span><br>em referência digital em Teresina?</h2>
+    <p style="font-size: clamp(1rem, 1.5vw, 1.15rem); color: rgba(255,250,242,0.6); max-width: 600px; margin: 16px auto 32px; line-height: 1.6;">
+      Chega de pagar comissão para plataforma. Chega de site genérico.<br>
+      <strong>Taxa zero, marca própria, dados seus, vendas diretas.</strong>
+    </p>
+
+    <div style="font-family: var(--font-title); font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; color: var(--dourado);">
+      “A melhor pizza da cidade merece o melhor site da cidade.”
+    </div>
+
+    <div class="final-actions">
+      <a class="btn btn--primary" href="#" onclick="window.print(); return false;">
+        📄 Baixar PDF (Imprimir)
+      </a>
+    </div>
+
+    <p style="margin-top: 48px; font-size: 0.8rem; color: rgba(255,250,242,0.3);">
+      Pizzaria Premium Teresina · Proposta TAKA-21 · 2026<br>
+      Scheeren Company · Tecnologia para Pizzarias
+    </p>
+  </div>
+</section>
+
+<script>
+// Slide navigation
+const dots = document.querySelectorAll('.page-nav__dot');
+const slides = document.querySelectorAll('.slide');
+
+function activateSlide(index) {
+  dots.forEach(d => d.classList.remove('active'));
+  if (dots[index]) dots[index].classList.add('active');
+  slides[index].scrollIntoView({ behavior: 'smooth' });
+}
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    activateSlide(parseInt(dot.dataset.slide));
+  });
+});
+
+// Update active dot on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const index = Array.from(slides).indexOf(entry.target);
+      dots.forEach(d => d.classList.remove('active'));
+      if (dots[index]) dots[index].classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+
+slides.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

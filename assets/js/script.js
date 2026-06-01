@@ -2298,11 +2298,26 @@ function addSweetFromNudge(itemId) {
   }
 }
 
+function calcOrderDiscount(subtotal) {
+  var sel = document.getElementById('cart-coupon-select');
+  if (!sel || !sel.value) return 0;
+  var code = sel.value;
+  var promo = getActivePromoCoupons().find(function(c) { return c.code === code; });
+  if (promo) return calcCouponDiscount(promo, subtotal);
+  var acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+  if (acc) {
+    var loyalty = (acc.coupons || []).find(function(c) { return c.code === code && !c.used; });
+    if (loyalty) return calcCouponDiscount(loyalty, subtotal);
+  }
+  return 0;
+}
+
 function refreshPaymentDetailsScreen() {
   const payment = checkoutPayment.value;
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
-  const cartTotal = subtotal + deliveryFee;
+  const discount = calcOrderDiscount(subtotal);
+  const cartTotal = subtotal + deliveryFee - discount;
 
   // Atualiza resumo no DOM
   if (summarySubtotal) summarySubtotal.textContent = formatBRL(subtotal);
@@ -2474,6 +2489,7 @@ let pixTimerHandle = null;
 let timelineTimerHandle = null;
 let currentOrderId = null;
 let orderPollingHandle = null;
+let lastPolledStageIdx = -1;
 
 function parseEstimatedMinutes(str) {
   if (!str) return 45;
@@ -2673,6 +2689,7 @@ function showOrderReceivedPage(order) {
   }
   currentOrderId = order.id;
   renderTimelineOnPage(order);
+  lastPolledStageIdx = orderStageIndex(order);
   page.setAttribute('aria-hidden', 'false');
   page.style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -2710,8 +2727,7 @@ function orderStageIndex(order) {
   const manual = order.statusManual || order.status || 'received';
   const stages = ['received','preparing','ready','ontheway','delivered'];
   const idx = stages.indexOf(manual);
-  if (idx >= 0) return idx;
-  return computeAutoStageIndex(order);
+  return idx >= 0 ? idx : 0;
 }
 
 function updateStatusBadge(stageIdx) {
@@ -2743,15 +2759,15 @@ function startOrderStatusPolling(orderId) {
   orderPollingHandle = setInterval(() => {
     const fresh = getOrderById(orderId);
     if (!fresh) return;
-    const oldIdx = orderStageIndex(fresh);
+    const newIdx = orderStageIndex(fresh);
     const newEl = document.getElementById('pr-timeline');
     if (!newEl) return;
     renderTimelineOnPage(fresh);
-    const newIdx = orderStageIndex(fresh);
-    if (newIdx > oldIdx) {
+    if (lastPolledStageIdx >= 0 && newIdx > lastPolledStageIdx) {
       const statusLabels = ['','Preparando','Saiu para entrega','A caminho','Entregue'];
       showToast(`🔄 Pedido atualizado: ${statusLabels[newIdx] || 'status novo'}`, 4000);
     }
+    lastPolledStageIdx = newIdx;
   }, 10000);
 }
 
@@ -2773,7 +2789,8 @@ function finalizeOrder() {
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
-  const cartTotal = subtotal + deliveryFee;
+  const discount = calcOrderDiscount(subtotal);
+  const cartTotal = subtotal + deliveryFee - discount;
 
   let deliveryStr = '';
   let addressSnap = null;
@@ -2843,6 +2860,12 @@ function finalizeOrder() {
   if (_couponCode && _acc) {
     _couponObj = (_acc.coupons || []).find(c => c.code === _couponCode && !c.used) || null;
   }
+  // Also check promotional coupons
+  let _promoCouponObj = null;
+  if (_couponCode && !_couponObj) {
+    _promoCouponObj = getActivePromoCoupons().find(c => c.code === _couponCode) || null;
+  }
+  const _usedCoupon = _couponObj || _promoCouponObj;
 
   const order = {
     id: orderId,
@@ -2852,6 +2875,7 @@ function finalizeOrder() {
     items: itemsSnap,
     subtotal,
     deliveryFee,
+    discount,
     total: cartTotal,
     paymentMethod: payment,
     changeFor: changeVal || null,
@@ -2862,16 +2886,20 @@ function finalizeOrder() {
     status: 'received',
     statusManual: null,
     accountEmail: _acc ? _acc.email : null,
-    couponCode: _couponObj ? _couponObj.code : null,
-    couponName: _couponObj ? _couponObj.name : null,
+    couponCode: _usedCoupon ? _usedCoupon.code : null,
+    couponName: _usedCoupon ? _usedCoupon.name : null,
+    discount,
     paymentConfirmed: false
   };
   persistOrder(order);
 
   // Marca cupom como usado e adiciona linha na mensagem do WhatsApp
-  if (_couponObj) {
-    markCouponUsed(_couponObj.code);
-    messageLines.push(`\n🎟️ *Cupom de fidelidade:* ${_couponObj.code} — ${_couponObj.name}`);
+  if (_usedCoupon) {
+    if (_couponObj) markCouponUsed(_couponObj.code);
+    if (_promoCouponObj) markPromoCouponUsed(_promoCouponObj.code);
+    if (discount > 0) {
+      messageLines.push(`\n🎟️ *Cupom:* ${_usedCoupon.code} — -${formatBRL(discount)}`);
+    }
     lastOrderMessage = messageLines.join('\n');
   }
 
@@ -4830,4 +4858,280 @@ function renderSavedAddressesSelector() {
     el.addEventListener('click', closeNav);
   });
 })();
+
+/* ============================================================
+   Sistema de Notificações
+   ============================================================ */
+const NOTIFICATIONS_KEY = 'premium_pizzaria_notifications';
+const NOTIFICATIONS_READ_KEY = 'premium_pizzaria_notifications_read';
+
+function loadNotificacoes() {
+  try {
+    const raw = localStorage.getItem(NOTIFICATIONS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+function getReadNotificationIds() {
+  try {
+    const raw = localStorage.getItem(NOTIFICATIONS_READ_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+function saveReadNotificationIds(ids) {
+  try { localStorage.setItem(NOTIFICATIONS_READ_KEY, JSON.stringify(ids)); } catch (e) {}
+}
+
+function markNotificationRead(id) {
+  const ids = getReadNotificationIds();
+  if (!ids.includes(id)) {
+    ids.push(id);
+    saveReadNotificationIds(ids);
+    updateNotificationBadge();
+  }
+}
+
+function markAllNotificationsRead() {
+  const all = loadNotificacoes().filter(function(n) { return n.active !== false; });
+  const ids = all.map(function(n) { return n.id; });
+  saveReadNotificationIds(ids);
+  updateNotificationBadge();
+}
+
+function getActiveNotifications() {
+  const all = loadNotificacoes();
+  return all.filter(function(n) { return n.active !== false; });
+}
+
+function getUnreadCount() {
+  const active = getActiveNotifications();
+  const read = getReadNotificationIds();
+  return active.filter(function(n) { return !read.includes(n.id); }).length;
+}
+
+function updateNotificationBadge() {
+  var badge = document.getElementById('appbar-notification-badge');
+  if (!badge) return;
+  var count = getUnreadCount();
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+}
+
+function renderNotifications() {
+  var list = document.getElementById('notification-list');
+  var empty = document.getElementById('notification-empty');
+  if (!list) return;
+  var notifs = getActiveNotifications();
+  var readIds = getReadNotificationIds();
+  if (!notifs.length) {
+    list.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  list.style.display = '';
+  if (empty) empty.style.display = 'none';
+  var typeIcons = { promocao: '🎉', aviso: '📢', novidade: '✨' };
+  list.innerHTML =
+    '<div style="padding:8px 0;text-align:right;">' +
+    '<button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-weight:600;">Marcar todas como lidas</button>' +
+    '</div>' +
+    notifs.map(function(n) {
+      var icon = n.icon || typeIcons[n.type] || '📌';
+      var isRead = readIds.includes(n.id);
+      var dateStr = new Date(n.createdAt).toLocaleDateString('pt-BR');
+      return '<div class="notification-card' + (isRead ? '' : ' notification-card--unread') + '" data-id="' + n.id + '" onclick="markNotificationRead(\'' + n.id + '\')">' +
+        '<div class="notification-card__icon">' + icon + '</div>' +
+        '<div class="notification-card__body">' +
+        '<div class="notification-card__title">' + (n.title || '') + '</div>' +
+        '<div class="notification-card__msg">' + (n.message || '') + '</div>' +
+        '<div class="notification-card__date">' + dateStr + '</div>' +
+        '</div>' +
+        (isRead ? '' : '<div class="notification-card__dot"></div>') +
+        '</div>';
+    }).join('');
+}
+
+function openNotificationDrawer() {
+  var drawer = document.getElementById('notification-drawer');
+  var backdrop = document.getElementById('notification-drawer-backdrop');
+  if (!drawer) return;
+  renderNotifications();
+  drawer.setAttribute('aria-hidden', 'false');
+  drawer.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+  if (backdrop) backdrop.style.display = 'block';
+}
+
+function closeNotificationDrawer() {
+  var drawer = document.getElementById('notification-drawer');
+  var backdrop = document.getElementById('notification-drawer-backdrop');
+  if (!drawer) return;
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (backdrop) backdrop.style.display = 'none';
+}
+
+(function initNotificationUI() {
+  var btn = document.getElementById('appbar-notification-btn');
+  var closeBtn = document.getElementById('notification-close-btn');
+  var backdrop = document.getElementById('notification-drawer-backdrop');
+  var drawer = document.getElementById('notification-drawer');
+
+  if (btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openNotificationDrawer();
+    });
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeNotificationDrawer);
+  }
+  if (backdrop) {
+    backdrop.addEventListener('click', closeNotificationDrawer);
+  }
+  if (drawer) {
+    drawer.addEventListener('click', function(e) {
+      if (e.target === drawer || e.target.closest('.notification-card')) {
+        renderNotifications();
+        updateNotificationBadge();
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
+      closeNotificationDrawer();
+    }
+  });
+
+  updateNotificationBadge();
+})();
+
+/* ============================================================
+   Cupons Promocionais (não-fidelidade) no Checkout
+   ============================================================ */
+const PROMO_COUPONS_KEY = 'premium_pizzaria_promo_coupons';
+
+function loadPromoCoupons() {
+  try {
+    var raw = localStorage.getItem(PROMO_COUPONS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+function getActivePromoCoupons() {
+  var all = loadPromoCoupons();
+  var now = Date.now();
+  return all.filter(function(c) {
+    if (c.active === false) return false;
+    if (c.expires && new Date(c.expires + 'T23:59:59').getTime() < now) return false;
+    if (c.maxUses > 0 && c.usedCount >= c.maxUses) return false;
+    return true;
+  });
+}
+
+function calcCouponDiscount(coupon, subtotal) {
+  if (!coupon) return 0;
+  if (coupon.minOrder > 0 && subtotal < coupon.minOrder) return 0;
+  if (coupon.discountType === 'percent') {
+    return subtotal * (coupon.discountValue / 100);
+  }
+  return Math.min(coupon.discountValue, subtotal);
+}
+
+function getCouponLabel(coupon) {
+  if (!coupon) return '';
+  var discountLabel = coupon.discountType === 'percent'
+    ? coupon.discountValue + '% OFF'
+    : 'R$ ' + Number(coupon.discountValue).toFixed(2) + ' OFF';
+  return coupon.code + ' · ' + discountLabel + (coupon.name ? ' · ' + coupon.name : '');
+}
+
+function applyCouponDiscount() {
+  var sel = document.getElementById('cart-coupon-select');
+  var subtotal = cart.reduce(function(sum, item) { return sum + (item.price * item.quantity); }, 0);
+  var discountRow = document.getElementById('summary-discount-row');
+  var discountEl = document.getElementById('summary-discount');
+  if (!sel || !discountRow || !discountEl) return;
+
+  var selectedCode = sel.value;
+  if (!selectedCode) {
+    discountRow.style.display = 'none';
+    refreshPaymentDetailsScreen();
+    return;
+  }
+
+  // Try promo coupon first, then loyalty
+  var promo = getActivePromoCoupons().find(function(c) { return c.code === selectedCode; });
+  var acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+  var loyalty = acc ? (acc.coupons || []).find(function(c) { return c.code === selectedCode && !c.used; }) : null;
+  var coupon = promo || loyalty;
+
+  if (!coupon) {
+    discountRow.style.display = 'none';
+    refreshPaymentDetailsScreen();
+    return;
+  }
+
+  var discount = calcCouponDiscount(coupon, subtotal);
+  if (discount <= 0) {
+    discountRow.style.display = 'none';
+    refreshPaymentDetailsScreen();
+    return;
+  }
+
+  discountRow.style.display = 'flex';
+  discountEl.textContent = '-' + formatBRL(discount);
+  refreshPaymentDetailsScreen();
+}
+
+function refreshCheckoutCoupons() {
+  var group = document.getElementById('cart-coupon-group');
+  var sel = document.getElementById('cart-coupon-select');
+  if (!group || !sel) return;
+
+  // Collect all available coupons
+  var options = [];
+
+  // Promotional coupons
+  var promo = getActivePromoCoupons();
+  promo.forEach(function(c) {
+    options.push({ code: c.code, label: getCouponLabel(c) });
+  });
+
+  // Loyalty coupons (from account)
+  var acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+  if (acc) {
+    var loyalty = (acc.coupons || []).filter(function(c) { return !c.used; });
+    loyalty.forEach(function(c) {
+      options.push({ code: c.code, label: c.code + ' · ' + (c.name || 'Cupom fidelidade') });
+    });
+  }
+
+  if (!options.length) {
+    group.style.display = 'none';
+    return;
+  }
+  group.style.display = '';
+  sel.innerHTML = '<option value="">— Não usar cupom —</option>' +
+    options.map(function(o) { return '<option value="' + o.code + '">' + o.label + '</option>'; }).join('');
+  applyCouponDiscount();
+}
+
+function markPromoCouponUsed(code) {
+  var list = loadPromoCoupons();
+  var idx = list.findIndex(function(c) { return c.code === code; });
+  if (idx >= 0) {
+    list[idx].usedCount = (list[idx].usedCount || 0) + 1;
+    localStorage.setItem(PROMO_COUPONS_KEY, JSON.stringify(list));
+  }
+}
 
