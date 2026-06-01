@@ -60,6 +60,177 @@
     <link rel="preload" as="image" href="assets/img/logo-premium-2026.png" />
     <script src="assets/js/qrcode.min.js" defer></script>
     <script src="assets/js/script.js?v=premium-2026-8-payment" defer></script>
+
+    <!-- JSON-LD: Restaurant (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "@id": "https://pizzaria-premium.vercel.app/#restaurant",
+      "name": "Pizzaria Premium Teresina",
+      "alternateName": "Pizzaria Premium & Espetaria",
+      "description": "Pizzaria artesanal em Teresina-PI com sabores tradicionais, especiais piauienses (carne de sol, coalho, cajuína), combos família e entrega rápida pelo WhatsApp.",
+      "url": "https://pizzaria-premium.vercel.app/",
+      "image": "https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png",
+      "logo": "https://pizzaria-premium.vercel.app/assets/img/logo-premium-2026.png",
+      "telephone": "+55-86-99485-4771",
+      "priceRange": "$$",
+      "servesCuisine": ["Pizza", "Italian", "Brazilian"],
+      "acceptsReservations": false,
+      "currenciesAccepted": "BRL",
+      "paymentAccepted": "Pix, Cash, Credit Card, Debit Card",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Sen. Sigefredo Pacheco, 4727 - Verde Lar",
+        "addressLocality": "Teresina",
+        "addressRegion": "PI",
+        "postalCode": "64071-440",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -5.0617,
+        "longitude": -42.7775
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Teresina",
+        "containedInPlace": { "@type": "State", "name": "Piauí" }
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Monday",    "opens": "18:00", "closes": "23:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Tuesday",   "opens": "18:00", "closes": "23:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Wednesday", "opens": "18:00", "closes": "23:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Thursday",  "opens": "18:00", "closes": "23:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday",    "opens": "18:00", "closes": "23:15" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday",  "opens": "18:00", "closes": "23:15" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday",    "opens": "18:00", "closes": "23:00" }
+      ],
+      "hasMenu": "https://pizzaria-premium.vercel.app/#cardapio",
+      "menu": "https://pizzaria-premium.vercel.app/#cardapio",
+      "sameAs": ["https://wa.me/5586994854771"],
+      "potentialAction": {
+        "@type": "OrderAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://wa.me/5586994854771",
+          "inLanguage": "pt-BR",
+          "actionPlatform": [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        },
+        "deliveryMethod": ["http://purl.org/goodrelations/v1#DeliveryModeOwnFleet"]
+      }
+    }
+    </script>
+
+    <!-- JSON-LD: Menu (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Menu",
+      "@id": "https://pizzaria-premium.vercel.app/#menu",
+      "name": "Cardápio Pizzaria Premium Teresina",
+      "inLanguage": "pt-BR",
+      "hasMenuSection": [
+        {
+          "@type": "MenuSection",
+          "name": "Especiais Piauienses",
+          "description": "Sabores regionais do Piauí com ingredientes locais.",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "BR-O-BRÓ", "description": "Carne de sol em tirinhas e queijo coalho derretido.", "offers": { "@type": "Offer", "price": "42.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Coalho Premium", "description": "Queijo coalho grelhado, fio de mel piauiense e alho-poró.", "offers": { "@type": "Offer", "price": "41.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Calabresa Suprema", "description": "Calabresa selecionada, mussarela puxa-puxa, cebola e azeitona.", "offers": { "@type": "Offer", "price": "39.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Doce Banana Nevada", "description": "Banana caramelizada, canela e leite condensado.", "offers": { "@type": "Offer", "price": "36.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Sertão Doce", "description": "Cajuína reduzida, queijo branco e mel de abelha.", "offers": { "@type": "Offer", "price": "38.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Especiais",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Bacon Especial", "description": "Bacon crocante, mussarela e cobertura generosa.", "offers": { "@type": "Offer", "price": "41.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Doces",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Chocolate com Morango", "description": "Sobremesa irresistível para fechar o pedido.", "offers": { "@type": "Offer", "price": "36.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Bombom de Chocolate", "description": "Bombom caseiro com recheio cremoso.", "offers": { "@type": "Offer", "price": "5.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Combos",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Combo Premium", "description": "2 pizzas grandes + borda recheada + refrigerante 2L.", "offers": { "@type": "Offer", "price": "89.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Combo Casal", "description": "1 pizza grande + 1 refri lata + 1 pizza doce média.", "offers": { "@type": "Offer", "price": "69.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Combo Galera", "description": "3 pizzas grandes + borda recheada + refrigerante 2L.", "offers": { "@type": "Offer", "price": "119.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Combo Família", "description": "2 pizzas família + borda recheada + 2 guaraná 2L.", "offers": { "@type": "Offer", "price": "139.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Porções e Tira-Gosto",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Carne na Chapa 150g", "offers": { "@type": "Offer", "price": "15.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Filé com Fritas 500g", "offers": { "@type": "Offer", "price": "45.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Frango Frito 500g", "offers": { "@type": "Offer", "price": "35.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Acompanhamentos",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Farofa da Casa", "offers": { "@type": "Offer", "price": "5.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Maria Isabel", "description": "Arroz com carne de sol picadinha.", "offers": { "@type": "Offer", "price": "15.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Porção de Batata Frita 300g", "offers": { "@type": "Offer", "price": "16.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Porção de Batata Frita 400g", "offers": { "@type": "Offer", "price": "20.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Vinagrete Especial", "offers": { "@type": "Offer", "price": "5.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Cervejas",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Stella Artois Long Neck", "offers": { "@type": "Offer", "price": "9.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Skol Lata", "offers": { "@type": "Offer", "price": "7.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Budweiser Long Neck", "offers": { "@type": "Offer", "price": "9.00", "priceCurrency": "BRL" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Bebidas",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "Guaraná Antarctica 2L", "offers": { "@type": "Offer", "price": "12.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Coca-Cola 1L", "offers": { "@type": "Offer", "price": "9.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Coca-Cola 1.5L", "offers": { "@type": "Offer", "price": "11.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Fanta Laranja Retornável 2L", "offers": { "@type": "Offer", "price": "8.50", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Suco Natural de Maracujá 300ml", "offers": { "@type": "Offer", "price": "8.00", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Água Mineral com Gás 500ml", "offers": { "@type": "Offer", "price": "4.50", "priceCurrency": "BRL" } },
+            { "@type": "MenuItem", "name": "Água Mineral sem Gás 500ml", "offers": { "@type": "Offer", "price": "4.00", "priceCurrency": "BRL" } }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://pizzaria-premium.vercel.app/#website",
+      "url": "https://pizzaria-premium.vercel.app/",
+      "name": "Pizzaria Premium Teresina",
+      "inLanguage": "pt-BR",
+      "publisher": { "@id": "https://pizzaria-premium.vercel.app/#restaurant" }
+    }
+    </script>
+
+    <!-- TODO (TAKA-20): AggregateRating só quando houver fonte real (Google/iFood). Não inventar. -->
   </head>
   <body>
     <div class="promo-bar" role="region" aria-label="Promoção em destaque">
@@ -231,8 +402,23 @@
           <div class="menu-grid" id="menu-grid"></div>
         </section>
 
+        <section class="section section--promos" id="promocoes">
+          <div class="section-heading section-heading--centered">
+            <span class="kicker">Ofertas da semana</span>
+            <h2>Promoções ativas</h2>
+            <p>Aproveite enquanto está no ar — peça direto pelo WhatsApp.</p>
+          </div>
+          <div class="promo-grid" id="promo-grid"></div>
+        </section>
 
-
+        <section class="section section--reviews" id="avaliacoes">
+          <div class="section-heading section-heading--centered section-heading--light">
+            <span class="kicker">O que dizem nossos clientes</span>
+            <h2>Avaliações reais de quem já pediu</h2>
+          </div>
+          <div class="reviews-summary" id="reviews-summary"></div>
+          <div class="reviews-grid" id="reviews-grid"></div>
+        </section>
 
         <section class="section section--instagram">
           <div class="panel panel--gradient">

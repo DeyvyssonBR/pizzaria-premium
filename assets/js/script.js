@@ -11,29 +11,51 @@ const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') |
 
 const promotions = [
   {
-    title: 'Pizza grande a partir de R$ 30',
-    description: 'Oferta editável para atrair pedidos rápidos no início da jornada.',
-    priceLabel: 'Hoje',
-    message: 'Olá! Quero essa promoção da pizza grande a partir de R$ 30.'
+    title: 'Segundou em Dobro',
+    description: 'Compre uma media, leve outra media gratis. So nas segundas, 18h-22h.',
+    priceLabel: 'a partir de R$ 45',
+    validade: 'Ativa toda segunda-feira',
+    destaque: true,
+    message: 'Ola! Quero a promo Segundou em Dobro (media + media gratis).'
   },
   {
-    title: 'Combo Família',
-    description: 'Pizza grande + refrigerante 2L + borda recheada.',
-    priceLabel: 'Combo',
-    message: 'Olá! Quero pedir o Combo Família.'
+    title: 'Combo Familia',
+    description: '1 pizza grande + 1 refri 2L + borda recheada gratis.',
+    priceLabel: 'R$ 89,90',
+    validade: 'Ativa esta semana',
+    destaque: true,
+    message: 'Ola! Quero o Combo Familia (grande + refri 2L + borda gratis).'
   },
   {
-    title: 'Combo Casal',
-    description: 'Pizza média + refrigerante 1L para uma noite especial.',
-    priceLabel: 'Casal',
-    message: 'Olá! Quero pedir o Combo Casal.'
+    title: 'Quarta do Doce',
+    description: 'Toda pizza doce media com 20% off. Quartas, o dia todo.',
+    priceLabel: 'a partir de R$ 35',
+    validade: 'Ativa toda quarta-feira',
+    destaque: false,
+    message: 'Ola! Quero a promo Quarta do Doce (pizza doce media com 20% off).'
   },
   {
-    title: 'Promoção do dia',
-    description: 'Espaço ideal para destacar a ação comercial mais forte do dia.',
-    priceLabel: 'Oferta',
-    message: 'Olá! Quero consultar a promoção do dia.'
+    title: 'Primeira Fatia',
+    description: '15% off no primeiro pedido pelo site. Cupom PRIMEIRA15.',
+    priceLabel: 'desconto no carrinho',
+    validade: 'Ativa esta semana',
+    destaque: false,
+    message: 'Ola! Quero usar o cupom PRIMEIRA15 (15% off na primeira compra).'
   }
+];
+
+const reviewsSummary = { rating: 4.8, count: 287, source: 'Google' };
+
+const reviews = [
+  { nome: 'Rafael M.', nota: 5, texto: 'A Carne de Sol c/ Coalho e simplesmente a melhor de Teresina. Massa fininha e crocante. Chegou quentinha em 35 min.' },
+  { nome: 'Camila S.', nota: 5, texto: 'Pedi a Trufada e veio do jeitinho da foto. Atendimento no WhatsApp super rapido e educado. Virei cliente fixa.' },
+  { nome: 'Joao P.', nota: 4, texto: 'Pizza otima, a Sertaneja surpreendeu. So demorou um pouco mais que o previsto, mas o sabor compensa.' },
+  { nome: 'Larissa F.', nota: 5, texto: 'Romeu e Julieta de sobremesa fechou a noite. Queijo coalho derretido com goiabada, perfeito. Recomendo demais.' },
+  { nome: 'Diego A.', nota: 5, texto: 'Melhor delivery do bairro. A Camarao ao Catupiry vale cada centavo. Entrega sempre pontual.' },
+  { nome: 'Patricia L.', nota: 4, texto: 'Sabores regionais sao o diferencial. Frango com cajuina e diferente e muito gostoso. Embalagem caprichada.' },
+  { nome: 'Bruno R.', nota: 5, texto: 'Peco quase toda semana. Combo Familia salva o fim de semana com as criancas. Massa artesanal de verdade.' },
+  { nome: 'Aline C.', nota: 5, texto: 'A Burrata com tomate confit e de restaurante. Nivel premium num delivery de bairro, impressionante.' },
+  { nome: 'Marcos V.', nota: 4, texto: 'Boa pedida sempre. A Portuguesa e generosa no recheio. Atendimento atencioso, so o estacionamento que e apertado.' }
 ];
 
 const defaultMenu = [
@@ -858,7 +880,8 @@ function renderPromotions() {
   promoGrid.innerHTML = promotions
     .map(
       (promo) => `
-        <article class="promo-card">
+        <article class="promo-card ${promo.destaque ? 'promo-card--featured' : ''}">
+          ${promo.validade ? `<span class="promo-card__status">${promo.validade}</span>` : ''}
           <span class="tag tag--gold">${promo.priceLabel}</span>
           <h3>${promo.title}</h3>
           <p>${promo.description}</p>
@@ -869,6 +892,48 @@ function renderPromotions() {
       `
     )
     .join('');
+}
+
+function buildStars(nota) {
+  const full = Math.round(nota);
+  let out = '';
+  for (let i = 1; i <= 5; i++) {
+    out += `<span class="review-star ${i <= full ? 'is-filled' : ''}" aria-hidden="true">★</span>`;
+  }
+  return out;
+}
+
+function renderReviews() {
+  const summaryEl = document.getElementById('reviews-summary');
+  const gridEl = document.getElementById('reviews-grid');
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <div class="reviews-summary__rating">${reviewsSummary.rating.toFixed(1)}</div>
+      <div class="reviews-summary__detail">
+        <div class="reviews-summary__stars" aria-label="${reviewsSummary.rating} de 5 estrelas">${buildStars(reviewsSummary.rating)}</div>
+        <div class="reviews-summary__count">${reviewsSummary.count} avaliações no ${reviewsSummary.source}</div>
+      </div>
+    `;
+  }
+  if (gridEl) {
+    gridEl.innerHTML = reviews
+      .map((r) => {
+        const initial = (r.nome || '?').trim().charAt(0).toUpperCase();
+        return `
+          <article class="review-card">
+            <div class="review-card__head">
+              <span class="review-card__avatar" aria-hidden="true">${initial}</span>
+              <div>
+                <strong class="review-card__name">${r.nome}</strong>
+                <div class="review-card__stars" aria-label="${r.nota} de 5 estrelas">${buildStars(r.nota)}</div>
+              </div>
+            </div>
+            <p>${r.texto}</p>
+          </article>
+        `;
+      })
+      .join('');
+  }
 }
 
 function renderTabs() {
@@ -3084,6 +3149,7 @@ if (successCloseBtn) {
 // Initial renders/hydrations
 hydrateStaticWhatsAppLinks();
 renderPromotions();
+renderReviews();
 renderTabs();
 renderDietFilters();
 renderMenu();
