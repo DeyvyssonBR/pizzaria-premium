@@ -1764,6 +1764,58 @@ try {
   console.error('Erro ao ler o carrinho do localStorage:', e);
 }
 
+// Demo seed: na primeira visita popula o carrinho com itens variados pra
+// o site abrir parecendo uma pizzaria ja operando. Roda so uma vez (flag).
+function buildDemoCartItem(menuId, sizeId) {
+  const base = menu.find((m) => m.id === menuId);
+  const size = pizzaSizes.find((s) => s.id === sizeId) || pizzaSizes[0];
+  if (!base) return null;
+  const noBorder = borderOptions.find((b) => b.id === 'sem-borda') || { id: 'sem-borda', label: 'Sem borda', price: 0 };
+  const noDrink = drinkOptions.find((d) => d.id === 'sem-bebida') || { id: 'sem-bebida', label: 'Não quero bebida', price: 0 };
+  const noSachet = sachetOptions.find((s) => s.id === 'sem-sache') || { id: 'sem-sache', label: 'Não quero sachê', price: 0 };
+  const price = base.price + (size ? size.extra : 0);
+  return {
+    id: 'pizza_demo_' + menuId + '_' + sizeId,
+    itemId: menuId,
+    type: 'pizza',
+    name: `${size.label} ${base.name}`,
+    price,
+    quantity: 1,
+    image: base.image,
+    details: {
+      size,
+      mode: 'inteira',
+      firstFlavor: base,
+      secondFlavor: null,
+      border: noBorder,
+      extras: [],
+      drink: noDrink,
+      sachet: noSachet,
+      notes: '',
+      optionsSummary: [`Tamanho: ${size.label}`, 'Formato: Inteira', `Borda: ${noBorder.label}`]
+    }
+  };
+}
+
+function seedDemoCart() {
+  if (localStorage.getItem('premium_pizzaria_demo_seeded') === '1') return;
+  // 3 classicas + 1 doce + 1 regional, tamanhos misturados
+  const seeds = [
+    ['cla-margherita', 'media'],
+    ['cla-calabresa', 'grande'],
+    ['cla-pepperoni', 'pequena'],
+    ['doc-romeu-julieta', 'media'],
+    ['reg-carne-sol-coalho', 'grande']
+  ];
+  const items = seeds.map(([id, sz]) => buildDemoCartItem(id, sz)).filter(Boolean);
+  if (items.length && cart.length === 0) {
+    cart = items;
+    localStorage.setItem('premium_pizzaria_cart', JSON.stringify(cart));
+  }
+  localStorage.setItem('premium_pizzaria_demo_seeded', '1');
+}
+seedDemoCart();
+
 function confirmPizzaSelection() {
   if (!pizzaSelection.firstFlavorId) {
     window.alert('Selecione pelo menos um sabor.');
