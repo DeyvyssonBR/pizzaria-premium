@@ -8,3 +8,6 @@ scripts/.cache/
 CHANGELOG_LOCAL.md
 docs-local/
 *.local.md
+
+# opencode config (local API keys)
+opencode.json
