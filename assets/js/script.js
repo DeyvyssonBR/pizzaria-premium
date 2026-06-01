@@ -11,6 +11,18 @@ const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') |
 
 const PROMOS_KEY = 'premium_pizzaria_promos';
 
+function renderPromoBar() {
+  const bar = document.getElementById('promo-bar-content');
+  if (!bar) return;
+  const promos = loadPromos().filter(p => p.active !== false && p.destaque);
+  if (!promos.length) {
+    bar.innerHTML = `🔥 <a href="#promocoes">Ver promoções</a>`;
+    return;
+  }
+  const texts = promos.slice(0, 2).map(p => `<strong>${p.title.toUpperCase()}:</strong> ${p.description.replace(/\.$/, '')}`).join(' · ');
+  bar.innerHTML = `🔥 ${texts} · <a href="#promocoes">Ver promoções</a>`;
+}
+
 function loadPromos() {
   try {
     const raw = localStorage.getItem(PROMOS_KEY);
@@ -25,20 +37,6 @@ function loadPromos() {
   localStorage.setItem(PROMOS_KEY, JSON.stringify(defaults));
   return defaults;
 }
-
-const reviewsSummary = { rating: 4.8, count: 287, source: 'Google' };
-
-const reviews = [
-  { nome: 'Rafael M.', nota: 5, texto: 'A Carne de Sol c/ Coalho e simplesmente a melhor de Teresina. Massa fininha e crocante. Chegou quentinha em 35 min.' },
-  { nome: 'Camila S.', nota: 5, texto: 'Pedi a Trufada e veio do jeitinho da foto. Atendimento no WhatsApp super rapido e educado. Virei cliente fixa.' },
-  { nome: 'Joao P.', nota: 4, texto: 'Pizza otima, a Sertaneja surpreendeu. So demorou um pouco mais que o previsto, mas o sabor compensa.' },
-  { nome: 'Larissa F.', nota: 5, texto: 'Romeu e Julieta de sobremesa fechou a noite. Queijo coalho derretido com goiabada, perfeito. Recomendo demais.' },
-  { nome: 'Diego A.', nota: 5, texto: 'Melhor delivery do bairro. A Camarao ao Catupiry vale cada centavo. Entrega sempre pontual.' },
-  { nome: 'Patricia L.', nota: 4, texto: 'Sabores regionais sao o diferencial. Frango com cajuina e diferente e muito gostoso. Embalagem caprichada.' },
-  { nome: 'Bruno R.', nota: 5, texto: 'Peco quase toda semana. Combo Familia salva o fim de semana com as criancas. Massa artesanal de verdade.' },
-  { nome: 'Aline C.', nota: 5, texto: 'A Burrata com tomate confit e de restaurante. Nivel premium num delivery de bairro, impressionante.' },
-  { nome: 'Marcos V.', nota: 4, texto: 'Boa pedida sempre. A Portuguesa e generosa no recheio. Atendimento atencioso, so o estacionamento que e apertado.' }
-];
 
 const defaultMenu = [
   {
@@ -795,15 +793,6 @@ let pizzaSelection = {
 const promoGrid = document.getElementById('promo-grid');
 const menuTabs = document.getElementById('menu-tabs');
 const menuGrid = document.getElementById('menu-grid');
-const dietFiltersEl = document.getElementById('diet-filters');
-
-const dietFilters = [
-  { id: 'isVegetarian', label: 'Vegetariana', icon: '🥗', badgeShort: 'VEG' },
-  { id: 'isVegan', label: 'Vegana', icon: '🌱', badgeShort: 'VG' },
-  { id: 'isGlutenFree', label: 'Sem glúten', icon: '🌾', badgeShort: 'SG' },
-  { id: 'isLactoseFree', label: 'Sem lactose', icon: '🥛', badgeShort: 'SL' }
-];
-const activeDietFilters = new Set();
 const pizzaModal = document.getElementById('pizza-modal');
 const pizzaChoiceMode = document.getElementById('pizza-choice-mode');
 const pizzaChoiceFlavors = document.getElementById('pizza-choice-flavors');
@@ -875,48 +864,6 @@ function renderPromotions() {
       `
     )
     .join('');
-}
-
-function buildStars(nota) {
-  const full = Math.round(nota);
-  let out = '';
-  for (let i = 1; i <= 5; i++) {
-    out += `<span class="review-star ${i <= full ? 'is-filled' : ''}" aria-hidden="true">★</span>`;
-  }
-  return out;
-}
-
-function renderReviews() {
-  const summaryEl = document.getElementById('reviews-summary');
-  const gridEl = document.getElementById('reviews-grid');
-  if (summaryEl) {
-    summaryEl.innerHTML = `
-      <div class="reviews-summary__rating">${reviewsSummary.rating.toFixed(1)}</div>
-      <div class="reviews-summary__detail">
-        <div class="reviews-summary__stars" aria-label="${reviewsSummary.rating} de 5 estrelas">${buildStars(reviewsSummary.rating)}</div>
-        <div class="reviews-summary__count">${reviewsSummary.count} avaliações no ${reviewsSummary.source}</div>
-      </div>
-    `;
-  }
-  if (gridEl) {
-    gridEl.innerHTML = reviews
-      .map((r) => {
-        const initial = (r.nome || '?').trim().charAt(0).toUpperCase();
-        return `
-          <article class="review-card">
-            <div class="review-card__head">
-              <span class="review-card__avatar" aria-hidden="true">${initial}</span>
-              <div>
-                <strong class="review-card__name">${r.nome}</strong>
-                <div class="review-card__stars" aria-label="${r.nota} de 5 estrelas">${buildStars(r.nota)}</div>
-              </div>
-            </div>
-            <p>${r.texto}</p>
-          </article>
-        `;
-      })
-      .join('');
-  }
 }
 
 function renderTabs() {
@@ -1010,43 +957,9 @@ function hydrateCategoryTriggers() {
 }
 
 function getVisibleMenuItems() {
-  const byCategory = activeCategory === 'todos'
+  return activeCategory === 'todos'
     ? menu.slice()
     : menu.filter((item) => item.category === activeCategory);
-  if (activeDietFilters.size === 0) return byCategory;
-  return byCategory.filter((item) => {
-    for (const tag of activeDietFilters) {
-      if (!item[tag]) return false;
-    }
-    return true;
-  });
-}
-
-function getItemDietTags(item) {
-  return dietFilters.filter((f) => item[f.id]);
-}
-
-function renderDietFilters() {
-  if (!dietFiltersEl) return;
-  dietFiltersEl.innerHTML = dietFilters
-    .map((f) => `
-      <button type="button" class="diet-chip ${activeDietFilters.has(f.id) ? 'is-active' : ''}" data-diet-filter="${f.id}" aria-pressed="${activeDietFilters.has(f.id) ? 'true' : 'false'}">
-        <span class="diet-chip__icon" aria-hidden="true">${f.icon}</span>
-        <span class="diet-chip__label">${f.label}</span>
-      </button>
-    `).join('');
-  dietFiltersEl.querySelectorAll('[data-diet-filter]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.dietFilter;
-      if (activeDietFilters.has(id)) {
-        activeDietFilters.delete(id);
-      } else {
-        activeDietFilters.add(id);
-      }
-      renderDietFilters();
-      renderMenu();
-    });
-  });
 }
 
 function renderMenu() {
@@ -1056,13 +969,6 @@ function renderMenu() {
       const requestMessage = isPizza
         ? `Olá! Quero pedir a pizza ${item.name}.`
         : `Olá! Quero pedir ${item.name}.`;
-
-      const tags = getItemDietTags(item);
-      const tagsHtml = tags.length
-        ? `<div class="menu-card__diet" aria-label="Restrições alimentares">${tags
-            .map((t) => `<span class="diet-tag" title="${t.label}" aria-label="${t.label}"><span aria-hidden="true">${t.icon}</span><span class="diet-tag__short">${t.badgeShort}</span></span>`)
-            .join('')}</div>`
-        : '';
 
       return `
         <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
@@ -1074,7 +980,6 @@ function renderMenu() {
               <strong class="menu-card__price">${isPizza ? `A partir de ${formatBRL(item.price)}` : formatBRL(item.price)}</strong>
             </div>
             <p>${item.description}</p>
-            ${tagsHtml}
             ${isPizza
               ? '<span class="menu-card__hint">Toque para montar seu pedido</span>'
               : `<div class="menu-card__actions"><button class="button button--add-to-cart" type="button" data-add-item="${item.id}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span class="button-text">Pedir</span></button></div>`}
@@ -2568,6 +2473,7 @@ let pixExpiresAt = 0;
 let pixTimerHandle = null;
 let timelineTimerHandle = null;
 let currentOrderId = null;
+let orderPollingHandle = null;
 
 function parseEstimatedMinutes(str) {
   if (!str) return 45;
@@ -2743,6 +2649,119 @@ function renderOrderTimeline(order) {
   el.innerHTML = html;
 }
 
+// ---------- Full‑screen "Pedido Recebido" page + order polling ----------
+function showOrderReceivedPage(order) {
+  const page = document.getElementById('pedido-recebido-page');
+  if (!page) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('pr-order-id', order.id);
+  const d = new Date(order.createdAt);
+  set('pr-time', `Recebido às ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`);
+  set('pr-total', formatBRL(order.total));
+  set('pr-customer-name', order.customerName || '—');
+  set('pr-customer-phone', order.customerPhone || '—');
+  set('pr-payment-method', formatPaymentLabel(order.paymentMethod, order.changeFor));
+  const iconEl = document.getElementById('pr-payment-icon');
+  if (iconEl) iconEl.textContent = paymentIconFor(order.paymentMethod);
+  if (order.deliveryType === 'delivery') {
+    set('pr-delivery-icon', '🛵');
+    const addr = order.address ? `${order.address.street} · ${order.address.neighborhood}` : 'Entrega';
+    set('pr-delivery-info', `Entrega · ${addr} · ~${order.estimatedMinutes}min`);
+  } else {
+    set('pr-delivery-icon', '🛍️');
+    set('pr-delivery-info', `Retirada no balcão · pronto em ~${order.estimatedMinutes}min`);
+  }
+  currentOrderId = order.id;
+  renderTimelineOnPage(order);
+  page.setAttribute('aria-hidden', 'false');
+  page.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  startOrderStatusPolling(order.id);
+}
+
+function renderTimelineOnPage(order) {
+  const el = document.getElementById('pr-timeline');
+  if (!el) return;
+  const stages = buildTimelineStages(order);
+  const stageIdx = orderStageIndex(order);
+  const start = order.createdAt;
+  const eta = order.estimatedMinutes || 45;
+  el.innerHTML = stages.map((s, i) => {
+    const stageTime = new Date(start + (eta * 60000 * (s.pct / 100)));
+    const hh = stageTime.getHours().toString().padStart(2,'0');
+    const mm = stageTime.getMinutes().toString().padStart(2,'0');
+    let cls = 'timeline-stage';
+    if (i < stageIdx) cls += ' is-done';
+    else if (i === stageIdx) cls += ' is-current';
+    else cls += ' is-pending';
+    return `
+      <div class="${cls}">
+        <div class="timeline-stage__dot"><span>${s.icon}</span></div>
+        <div class="timeline-stage__body">
+          <strong>${s.label}</strong>
+          <span>${i === 0 ? `às ${hh}:${mm}` : `~${hh}:${mm}`}</span>
+        </div>
+      </div>`;
+  }).join('');
+  updateStatusBadge(stageIdx);
+}
+
+function orderStageIndex(order) {
+  const manual = order.statusManual || order.status || 'received';
+  const stages = ['received','preparing','ready','ontheway','delivered'];
+  const idx = stages.indexOf(manual);
+  if (idx >= 0) return idx;
+  return computeAutoStageIndex(order);
+}
+
+function updateStatusBadge(stageIdx) {
+  const badge = document.getElementById('pr-status-badge');
+  const label = document.getElementById('pr-status-label');
+  if (!badge || !label) return;
+  const labels = ['Pedido recebido','Preparando seu pedido','Saiu para entrega','A caminho','Entregue! 🎉'];
+  if (stageIdx >= 4) {
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'flex';
+  label.textContent = labels[stageIdx] || 'Aguardando atualizações...';
+}
+
+function closeOrderReceivedPage() {
+  stopOrderStatusPolling();
+  const page = document.getElementById('pedido-recebido-page');
+  if (page) {
+    page.setAttribute('aria-hidden', 'true');
+    page.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  currentOrderId = null;
+}
+
+function startOrderStatusPolling(orderId) {
+  stopOrderStatusPolling();
+  orderPollingHandle = setInterval(() => {
+    const fresh = getOrderById(orderId);
+    if (!fresh) return;
+    const oldIdx = orderStageIndex(fresh);
+    const newEl = document.getElementById('pr-timeline');
+    if (!newEl) return;
+    renderTimelineOnPage(fresh);
+    const newIdx = orderStageIndex(fresh);
+    if (newIdx > oldIdx) {
+      const statusLabels = ['','Preparando','Saiu para entrega','A caminho','Entregue'];
+      showToast(`🔄 Pedido atualizado: ${statusLabels[newIdx] || 'status novo'}`, 4000);
+    }
+  }, 10000);
+}
+
+function stopOrderStatusPolling() {
+  if (orderPollingHandle) {
+    clearInterval(orderPollingHandle);
+    orderPollingHandle = null;
+  }
+}
+
 function finalizeOrder() {
   const name = checkoutName.value.trim();
   const phone = checkoutPhone.value.trim();
@@ -2876,11 +2895,15 @@ function finalizeOrder() {
   // Open WhatsApp
   window.open(buildWhatsAppUrl(fullMessage), '_blank', 'noopener,noreferrer');
 
-  // Render receipt + show success step
+  // Render receipt + show success step (inside cart drawer)
   renderReceipt(order);
   navigateCartStep('cart-step-success');
 
-  // Exibe upsell de criação de conta apenas para guest
+  // Fecha o drawer e mostra a tela cheia "Pedido Recebido"
+  closeCartDrawer();
+  showOrderReceivedPage(order);
+
+  // Exibe upsell de criação de conta apenas para guest (no drawer)
   showAccountUpsell(order);
 
   // Track guest order
@@ -3249,10 +3272,9 @@ if (upsellSkipBtn) upsellSkipBtn.addEventListener('click', dismissAccountUpsell)
 
 // Initial renders/hydrations
 hydrateStaticWhatsAppLinks();
+renderPromoBar();
 renderPromotions();
-renderReviews();
 renderTabs();
-renderDietFilters();
 renderMenu();
 renderCombosCarousel();
 hydrateCategoryTriggers();
@@ -4605,6 +4627,7 @@ function renderSavedAddressesSelector() {
   const BANNER = document.getElementById('pwa-install-banner');
   const INSTALL_BTN = document.getElementById('pwa-install-btn');
   const CLOSE_BTN = document.getElementById('pwa-install-close');
+  const MOBILE_INSTALL_BTN = document.getElementById('mobile-nav-install');
   const LS_KEY = 'premium_pizzaria_pwa_dismissed';
   const LS_INSTALLED_KEY = 'premium_pizzaria_pwa_installed';
   const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -4662,24 +4685,34 @@ function renderSavedAddressesSelector() {
     e.preventDefault();
     deferredPrompt = e;
     showBanner();
+    if (MOBILE_INSTALL_BTN) MOBILE_INSTALL_BTN.style.display = 'flex';
   });
 
-  if (INSTALL_BTN) {
-    INSTALL_BTN.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const result = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        if (result.outcome === 'accepted') {
-          localStorage.setItem(LS_INSTALLED_KEY, 'true');
-          dismissBanner();
-        }
-      } else if (iOS) {
-        // iOS Safari: não suporta beforeinstallprompt, então redirecionamos
-        // para um guia rápido ou apenas fechamos após instruir
+  async function triggerInstall() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      if (result.outcome === 'accepted') {
+        localStorage.setItem(LS_INSTALLED_KEY, 'true');
         dismissBanner();
-        // Poderia mostrar um modal de instruções, mas por ora apenas descarta
+        if (MOBILE_INSTALL_BTN) MOBILE_INSTALL_BTN.style.display = 'none';
       }
+    } else if (iOS) {
+      dismissBanner();
+    }
+  }
+
+  if (INSTALL_BTN) {
+    INSTALL_BTN.addEventListener('click', triggerInstall);
+  }
+
+  if (MOBILE_INSTALL_BTN) {
+    MOBILE_INSTALL_BTN.addEventListener('click', () => {
+      // Fecha o drawer e dispara o install
+      const nav = document.getElementById('mobile-nav');
+      if (nav) nav.classList.remove('is-open');
+      triggerInstall();
     });
   }
 
@@ -4691,6 +4724,7 @@ function renderSavedAddressesSelector() {
   window.addEventListener('appinstalled', () => {
     localStorage.setItem(LS_INSTALLED_KEY, 'true');
     dismissBanner();
+    if (MOBILE_INSTALL_BTN) MOBILE_INSTALL_BTN.style.display = 'none';
     deferredPrompt = null;
   });
 
@@ -4713,5 +4747,44 @@ function renderSavedAddressesSelector() {
 
   // Re-mostrar após comprar/completar pedido (se ainda não instalou e não dispensou)
   // Isso é acionado via evento customizado ou podemos apenas deixar o timer original.
+})();
+
+/* ============================================================
+   Mobile Navigation Drawer
+   ============================================================ */
+(function initMobileNav() {
+  const HAMBURGER = document.querySelector('.store-appbar__button');
+  const NAV = document.getElementById('mobile-nav');
+  const CLOSE = document.getElementById('mobile-nav-close');
+  const BACKDROP = document.getElementById('mobile-nav-backdrop');
+
+  if (!HAMBURGER || !NAV) return;
+
+  function openNav() {
+    NAV.setAttribute('aria-hidden', 'false');
+    NAV.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeNav() {
+    NAV.classList.remove('is-open');
+    NAV.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  HAMBURGER.addEventListener('click', openNav);
+
+  if (CLOSE) CLOSE.addEventListener('click', closeNav);
+  if (BACKDROP) BACKDROP.addEventListener('click', closeNav);
+
+  // Fecha ao pressionar Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && NAV.classList.contains('is-open')) closeNav();
+  });
+
+  // Fecha ao clicar em links internos com data-nav-close
+  NAV.querySelectorAll('[data-nav-close]').forEach((el) => {
+    el.addEventListener('click', closeNav);
+  });
 })();
 

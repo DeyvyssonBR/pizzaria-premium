@@ -927,6 +927,208 @@
       box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
     }
 
+    /* ===== Kanban Board ===== */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+      min-height: 400px;
+    }
+    @media (max-width: 1200px) {
+      .kanban-board {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+    @media (max-width: 768px) {
+      .kanban-board {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .kanban-board {
+        grid-template-columns: 1fr;
+      }
+    }
+    .kanban-column {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+      transition: border-color 0.2s ease;
+    }
+    .kanban-column.is-drag-over {
+      border-color: var(--gold);
+      background: rgba(220, 170, 100, 0.04);
+    }
+    .kanban-column__header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .kanban-column__icon {
+      font-size: 1.1rem;
+    }
+    .kanban-column__title {
+      flex: 1;
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .kanban-column__count {
+      background: var(--surface-accent);
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 10px;
+      border-radius: 999px;
+      min-width: 24px;
+      text-align: center;
+    }
+    .kanban-column__body {
+      flex: 1;
+      padding: 10px 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 80px;
+      overflow-y: auto;
+    }
+    .kanban-card {
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+      user-select: none;
+      position: relative;
+    }
+    .kanban-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .kanban-card.is-dragging {
+      opacity: 0.5;
+      transform: scale(0.97);
+    }
+    .kanban-card:active {
+      cursor: grabbing;
+    }
+    .kanban-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .kanban-card__id {
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--gold);
+    }
+    .kanban-card__time {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .kanban-card__customer {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+    .kanban-card__phone {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .kanban-card__items {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .kanban-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .kanban-card__total {
+      font-weight: 800;
+      color: var(--gold);
+      font-size: 0.85rem;
+    }
+    .kanban-card__type {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+    }
+    .kanban-card__wa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #25d366;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: transform 0.15s ease;
+      margin-top: 6px;
+      margin-left: auto;
+    }
+    .kanban-card__wa:hover {
+      transform: translateY(-1px);
+    }
+    .kanban-card__delivered {
+      text-align: center;
+      padding: 4px;
+      font-size: 0.72rem;
+      color: var(--success);
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .kanban-column__empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 10px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-align: center;
+      flex: 1;
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 8px;
+      gap: 4px;
+    }
+    .kanban-column__empty i {
+      font-size: 1.2rem;
+      opacity: 0.5;
+    }
+
     .parsed-order-box {
       background: transparent;
       border: none;
@@ -1641,6 +1843,9 @@
         <div class="nav-item" onclick="switchTab('tab-combos', this)">
           <i class="fa-solid fa-tags"></i> Gerenciar Combos
         </div>
+        <div class="nav-item" onclick="switchTab('tab-promos', this)">
+          <i class="fa-solid fa-bullhorn"></i> Promoções Ativas
+        </div>
         <div class="nav-item" onclick="switchTab('tab-pedidos', this)">
           <i class="fa-solid fa-print"></i> Impressão de Pedidos
         </div>
@@ -1652,6 +1857,12 @@
         </div>
         <div class="nav-item" onclick="switchTab('tab-zones', this)">
           <i class="fa-solid fa-map-location-dot"></i> Zonas de Entrega
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-coupons', this)">
+          <i class="fa-solid fa-ticket"></i> Cupons Promocionais
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-notifications', this)">
+          <i class="fa-solid fa-bell"></i> Notificações
         </div>
         <div class="nav-item" onclick="switchTab('tab-dashboard', this)">
           <i class="fa-solid fa-chart-line"></i> Painel de Vendas
@@ -1732,6 +1943,69 @@
           </div>
         </div>
 
+        <!-- Tab: Promoções Ativas -->
+        <div class="tab-content" id="tab-promos">
+          <div class="section-title">
+            <span>Promoções Ativas</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openPromoForm(null)">
+              <i class="fa-solid fa-plus"></i> Nova Promoção
+            </button>
+          </div>
+          <div class="section-subtitle">Gerencie as promoções exibidas na página inicial — descontos, combos, ofertas relâmpago.</div>
+
+          <div id="promos-admin-list">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Promo Form Modal -->
+          <div class="modal" id="promo-form-modal">
+            <div class="modal-content" style="max-width: 540px;">
+              <div class="modal-header">
+                <h3 id="promo-form-title">Nova Promoção</h3>
+                <button class="btn-close-modal" onclick="closePromoForm()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="promo-form-id">
+
+                <div class="form-group">
+                  <label for="promo-title">Título da Promoção</label>
+                  <input type="text" id="promo-title" placeholder="Ex: Segundou em Dobro" maxlength="60">
+                </div>
+                <div class="form-group">
+                  <label for="promo-desc">Descrição</label>
+                  <textarea id="promo-desc" rows="3" placeholder="Ex: Compre uma média, leve outra média grátis. Só nas segundas."></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="promo-price-label">Etiqueta de Preço</label>
+                  <input type="text" id="promo-price-label" placeholder="Ex: a partir de R$ 45" maxlength="40">
+                </div>
+                <div class="form-group">
+                  <label for="promo-message">Mensagem WhatsApp (ao clicar em \"Quero essa promoção\")</label>
+                  <textarea id="promo-message" rows="2" placeholder="Ex: Olá! Quero a promo Segundou em Dobro."></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="promo-validade">Validade / Período</label>
+                  <input type="text" id="promo-validade" placeholder="Ex: Ativa toda segunda-feira" maxlength="50">
+                </div>
+                <div class="form-group" style="display:flex; gap:20px; flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="promo-destaque">
+                    <span>Destacar (card em destaque)</span>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="promo-active" checked>
+                    <span>Ativa</span>
+                  </label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn-logout" onclick="closePromoForm()">Cancelar</button>
+                <button class="btn" style="width:auto; padding: 10px 24px;" onclick="savePromoAdmin()"><i class="fa-solid fa-save"></i> Salvar Promoção</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tab 3.5: Pedidos e Impressão -->
         <div class="tab-content" id="tab-pedidos">
           <div class="section-title">
@@ -1759,6 +2033,13 @@
               <div>
                 <div class="print-stat__label">Última Impressão</div>
                 <div class="print-stat__value" id="print-stat-last">—</div>
+              </div>
+            </div>
+            <div class="print-stat" style="cursor:pointer;" onclick="toggleAutoPrint()" title="Imprimir automaticamente ao processar pedido">
+              <div class="print-stat__icon" id="auto-print-icon" style="transition:0.2s;"><i class="fa-solid fa-print"></i></div>
+              <div>
+                <div class="print-stat__label">Impressão Automática</div>
+                <div class="print-stat__value" id="auto-print-status">Desligado</div>
               </div>
             </div>
           </div>
@@ -1851,7 +2132,7 @@
           </div>
         </div>
 
-        <!-- Tab: Pedidos do Dia (controle interno) -->
+        <!-- Tab: Pedidos do Dia (Kanban) -->
         <div class="tab-content" id="tab-orders-day">
           <div class="section-title">
             <span>Pedidos do Dia</span>
@@ -1859,10 +2140,10 @@
               <i class="fa-solid fa-rotate-right"></i> Atualizar
             </button>
           </div>
-          <div class="section-subtitle">Lista dos pedidos finalizados pelos clientes neste navegador (controle manual de status).</div>
+          <div class="section-subtitle">Arraste os pedidos entre as colunas para atualizar o status manualmente.</div>
 
           <div class="orders-day-banner">
-            💡 <strong>Aviso:</strong> O cliente vê uma estimativa de status baseada no tempo configurado em <em>"Prazo Estimado"</em>. Para avisar mudanças importantes (saiu, atrasou, pronto p/ retirar), clique no botão WhatsApp da linha do pedido.
+            💡 <strong>Aviso:</strong> O cliente vê uma estimativa de status baseada no tempo configurado em <em>"Prazo Estimado"</em>. Para avisar mudanças importantes (saiu, atrasou, pronto p/ retirar), clique no botão WhatsApp do cartão.
           </div>
 
           <div class="orders-day-stats">
@@ -1886,22 +2167,188 @@
             <span>Quando um cliente finalizar o pedido pelo site, ele aparece aqui.</span>
           </div>
 
-          <div class="orders-day-table-wrap">
-            <table class="orders-day-table" id="orders-day-table" style="display: none;">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Hora</th>
-                  <th>Cliente</th>
-                  <th>Itens</th>
-                  <th>Total</th>
-                  <th>Tipo</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="orders-day-tbody"></tbody>
-            </table>
+          <div id="kanban-board" class="kanban-board" style="display:none;">
+            <div class="kanban-column" data-stage="received">
+              <div class="kanban-column__header">
+                <span class="kanban-column__icon">📥</span>
+                <span class="kanban-column__title">Recebido</span>
+                <span class="kanban-column__count" id="kanban-count-received">0</span>
+              </div>
+              <div class="kanban-column__body" id="kanban-col-received" ondrop="onKanbanDrop(event)" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)"></div>
+            </div>
+            <div class="kanban-column" data-stage="preparing">
+              <div class="kanban-column__header">
+                <span class="kanban-column__icon">🍕</span>
+                <span class="kanban-column__title">Em preparo</span>
+                <span class="kanban-column__count" id="kanban-count-preparing">0</span>
+              </div>
+              <div class="kanban-column__body" id="kanban-col-preparing" ondrop="onKanbanDrop(event)" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)"></div>
+            </div>
+            <div class="kanban-column" data-stage="ready">
+              <div class="kanban-column__header">
+                <span class="kanban-column__icon">✅</span>
+                <span class="kanban-column__title">Pronto / Saiu</span>
+                <span class="kanban-column__count" id="kanban-count-ready">0</span>
+              </div>
+              <div class="kanban-column__body" id="kanban-col-ready" ondrop="onKanbanDrop(event)" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)"></div>
+            </div>
+            <div class="kanban-column" data-stage="ontheway">
+              <div class="kanban-column__header">
+                <span class="kanban-column__icon">🛵</span>
+                <span class="kanban-column__title">A caminho</span>
+                <span class="kanban-column__count" id="kanban-count-ontheway">0</span>
+              </div>
+              <div class="kanban-column__body" id="kanban-col-ontheway" ondrop="onKanbanDrop(event)" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)"></div>
+            </div>
+            <div class="kanban-column" data-stage="delivered">
+              <div class="kanban-column__header">
+                <span class="kanban-column__icon">🎉</span>
+                <span class="kanban-column__title">Entregue</span>
+                <span class="kanban-column__count" id="kanban-count-delivered">0</span>
+              </div>
+              <div class="kanban-column__body" id="kanban-col-delivered" ondrop="onKanbanDrop(event)" ondragover="onKanbanDragOver(event)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Cupons Promocionais -->
+        <div class="tab-content" id="tab-coupons">
+          <div class="section-title">
+            <span>Cupons Promocionais</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openCouponForm(null)">
+              <i class="fa-solid fa-plus"></i> Novo Cupom
+            </button>
+          </div>
+          <div class="section-subtitle">Crie cupons de desconto para seus clientes. Eles aparecerão no checkout da loja.</div>
+
+          <div class="info-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:0.85rem;color:var(--text-muted);">
+            <i class="fa-solid fa-circle-info" style="color:var(--gold);margin-right:6px;"></i>
+            Os cupons cadastrados aqui são diferentes dos cupons de fidelidade (gerados por resgate de prêmios). 
+            Estes são cupons promocionais que você cria manualmente para campanhas.
+          </div>
+
+          <div id="coupons-admin-list"></div>
+
+          <!-- Coupon Form Modal -->
+          <div class="modal" id="coupon-form-modal">
+            <div class="modal-content" style="max-width: 540px;">
+              <div class="modal-header">
+                <h3 id="coupon-form-title">Novo Cupom</h3>
+                <button class="btn-close-modal" onclick="closeCouponForm()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="coupon-form-id">
+
+                <div class="form-group">
+                  <label for="coupon-code">Código do Cupom</label>
+                  <div style="display:flex;gap:8px;">
+                    <input type="text" id="coupon-code" placeholder="Ex: PROMO10" maxlength="20" style="text-transform:uppercase;flex:1;">
+                    <button class="btn" style="width:auto;padding:10px 14px;font-size:0.8rem;" onclick="generateCouponCode()" type="button"><i class="fa-solid fa-rotate"></i> Gerar</button>
+                  </div>
+                  <span style="font-size:0.75rem;color:var(--text-muted);">Sem espaços ou acentos. Será convertido para maiúsculas.</span>
+                </div>
+                <div class="form-group">
+                  <label for="coupon-name">Nome / Descrição</label>
+                  <input type="text" id="coupon-name" placeholder="Ex: 10% OFF em pizzas grandes" maxlength="80">
+                </div>
+                <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label for="coupon-discount-type">Tipo</label>
+                    <select id="coupon-discount-type" onchange="toggleCouponDiscountValueLabel()">
+                      <option value="percent">% Percentual</option>
+                      <option value="fixed">R$ Fixo</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="coupon-discount-value">Valor</label>
+                    <input type="number" id="coupon-discount-value" min="0" step="any" value="10">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="coupon-min-order">Valor mínimo do pedido (R$) <span style="font-weight:400;color:var(--text-muted);">— opcional</span></label>
+                  <input type="number" id="coupon-min-order" min="0" step="0.5" value="0" placeholder="0 = sem mínimo">
+                </div>
+                <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label for="coupon-expires">Validade</label>
+                    <input type="date" id="coupon-expires">
+                  </div>
+                  <div>
+                    <label for="coupon-max-uses">Usos máximos <span style="font-weight:400;color:var(--text-muted);">— 0 = ilimitado</span></label>
+                    <input type="number" id="coupon-max-uses" min="0" value="0">
+                  </div>
+                </div>
+                <div class="form-group" style="display:flex;gap:20px;flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="coupon-active" checked>
+                    <span>Ativo</span>
+                  </label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn-logout" onclick="closeCouponForm()">Cancelar</button>
+                <button class="btn" style="width:auto;padding:10px 24px;" onclick="saveCouponAdmin()"><i class="fa-solid fa-save"></i> Salvar Cupom</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Notificações -->
+        <div class="tab-content" id="tab-notifications">
+          <div class="section-title">
+            <span>Notificações para Clientes</span>
+            <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.88rem;" onclick="openNotificationForm(null)">
+              <i class="fa-solid fa-plus"></i> Nova Notificação
+            </button>
+          </div>
+          <div class="section-subtitle">Crie avisos e promoções que aparecem no site para os clientes.</div>
+
+          <div id="notifications-admin-list"></div>
+
+          <!-- Notification Form Modal -->
+          <div class="modal" id="notification-form-modal">
+            <div class="modal-content" style="max-width: 540px;">
+              <div class="modal-header">
+                <h3 id="notification-form-title">Nova Notificação</h3>
+                <button class="btn-close-modal" onclick="closeNotificationForm()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="notification-form-id">
+
+                <div class="form-group">
+                  <label for="notification-title">Título</label>
+                  <input type="text" id="notification-title" placeholder="Ex: Promoção de Sexta" maxlength="60">
+                </div>
+                <div class="form-group">
+                  <label for="notification-message">Mensagem</label>
+                  <textarea id="notification-message" rows="3" placeholder="Ex: Toda pizza grande com 20% OFF nesta sexta!"></textarea>
+                </div>
+                <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label for="notification-type">Tipo</label>
+                    <select id="notification-type">
+                      <option value="promocao">🎉 Promoção</option>
+                      <option value="aviso">📢 Aviso</option>
+                      <option value="novidade">✨ Novidade</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="notification-icon">Ícone (emoji)</label>
+                    <input type="text" id="notification-icon" placeholder="🎉" maxlength="3" style="width:80px;">
+                  </div>
+                </div>
+                <div class="form-group" style="display:flex;gap:20px;flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="notification-active" checked>
+                    <span>Ativa (aparece no site)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn-logout" onclick="closeNotificationForm()">Cancelar</button>
+                <button class="btn" style="width:auto;padding:10px 24px;" onclick="saveNotificationAdmin()"><i class="fa-solid fa-save"></i> Salvar Notificação</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2353,26 +2800,7 @@
           <label for="modal-image">Link da Imagem (URL ou caminho relativo)</label>
           <input type="text" id="modal-image" placeholder="URL da foto Unsplash ou link local">
         </div>
-        <div class="form-group">
-          <label>Restrições alimentares</label>
-          <div class="diet-checkboxes" style="display:flex; flex-wrap:wrap; gap:10px 16px; padding:6px 2px;">
-            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
-              <input type="checkbox" id="modal-veg"> 🥗 Vegetariana
-            </label>
-            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
-              <input type="checkbox" id="modal-vegan"> 🌱 Vegana
-            </label>
-            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
-              <input type="checkbox" id="modal-gluten-free"> 🌾 Sem glúten
-            </label>
-            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
-              <input type="checkbox" id="modal-lactose-free"> 🥛 Sem lactose
-            </label>
-          </div>
-          <small style="display:block; margin-top:4px; color:var(--text-muted, #6b6b6b); font-size:0.78rem;">
-            Marque apenas o que aplicar a este item. As tags viram ícones no card e habilitam o filtro do cardápio.
-          </small>
-        </div>
+
       </div>
       <div class="modal-footer">
         <button class="btn-logout" onclick="closeItemModal()">Cancelar</button>
@@ -2482,13 +2910,28 @@
       }
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && exModal && exModal.style.display === 'flex') closeExampleOrder();
+        if (e.key === 'Escape') {
+          const promoModal = document.getElementById('promo-form-modal');
+          if (promoModal && promoModal.style.display === 'flex') closePromoForm();
+        }
       });
+
+      const promoModal = document.getElementById('promo-form-modal');
+      if (promoModal) {
+        promoModal.addEventListener('click', (e) => { if (e.target === promoModal) closePromoForm(); });
+      }
 
       // Init sound toggle
       const sw = document.getElementById('sound-toggle');
       const st = document.getElementById('sound-toggle-track');
       if (sw) sw.classList.toggle('is-on', soundEnabled);
       if (st) st.classList.toggle('is-on', soundEnabled);
+
+      // Init auto-print UI
+      updateAutoPrintUI();
+
+      // Track order count for sound detection
+      lastOrderCount = savedOrders.length;
     });
 
     function togglePassword(btn) {
@@ -2544,12 +2987,18 @@
       });
       document.getElementById(tabId).classList.add('active');
       element.classList.add('active');
-      if (tabId === 'tab-loyalty') {
+      if (tabId === 'tab-promos') {
+        renderPromosAdminList();
+      } else if (tabId === 'tab-loyalty') {
         loadLoyaltyCfgIntoForm();
         renderPrizesAdminList();
       } else if (tabId === 'tab-zones') {
         loadDeliveryCfgIntoForm();
         renderZonesAdminList();
+      } else if (tabId === 'tab-coupons') {
+        renderCouponsAdminList();
+      } else if (tabId === 'tab-notifications') {
+        renderNotificationsAdminList();
       } else if (tabId === 'tab-dashboard') {
         refreshDashboard();
       }
@@ -3257,9 +3706,11 @@
             <span class="p-bold" style="font-size: 14px;">${localStorage.getItem('premium_pizzaria_estimated_time') || '40 a 60 min'}</span>
           </div>
           <div class="p-double-divider"></div>
-          <div class="p-center" style="font-size: 10px; margin-top: 12px;">
-            Obrigado pela preferência!<br>
-            Siga no Instagram: @pizzariapremiumteresina
+          <div class="p-center p-bold" style="font-size: 10px; margin-top: 10px;">
+            PIZZARIA PREMIUM TERESINA
+          </div>
+          <div class="p-center" style="font-size: 10px; margin-top: 8px; letter-spacing: 2px;">
+            - - - CORTE AQUI - - -
           </div>
         `;
       }
@@ -3276,6 +3727,8 @@
     let customDateFrom = null;
     let customDateTo = null;
     let soundEnabled = sessionStorage.getItem('dash_sound_enabled') === 'true';
+    let autoPrintEnabled = localStorage.getItem('premium_pizzaria_auto_print') === 'true';
+    let lastOrderCount = 0;
 
     function saveOrderToDashboard(parsed, rawText) {
       const orderIdMatch = rawText.match(/PEDIDO\s*#(\d+)/i) || rawText.match(/pedido\s*#(\d+)/i) || rawText.match(/#(\d+)/);
@@ -3299,14 +3752,35 @@
         status: existingIndex !== -1 ? savedOrders[existingIndex].status : 'pendente'
       };
 
+      let isNew = false;
       if (existingIndex !== -1) {
         savedOrders[existingIndex] = orderData;
       } else {
         savedOrders.unshift(orderData);
+        isNew = true;
       }
 
       localStorage.setItem('premium_pizzaria_saved_orders', JSON.stringify(savedOrders));
       refreshDashboard();
+
+      // Auto-print + bell on new order
+      if (isNew) {
+        playBellSound();
+        if (autoPrintEnabled) {
+          setTimeout(() => {
+            const tempOrder = parsedOrder;
+            parsedOrder = parsed;
+            printReceipt('kitchen');
+            parsedOrder = tempOrder;
+            setTimeout(() => {
+              parsedOrder = parsed;
+              printReceipt('counter');
+              parsedOrder = tempOrder;
+            }, 1500);
+            showParseStatus('success', 'Pedido processado e enviado para impressão automática!');
+          }, 500);
+        }
+      }
     }
 
     function getDateRange() {
@@ -3449,20 +3923,11 @@
         if (ordersCard) ordersCard.style.display = 'block';
       }
 
-      // Sound notification for new orders (if enabled)
-      if (soundEnabled && totalOrders > 0) {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.frequency.value = 800;
-          gain.gain.value = 0.1;
-          osc.start();
-          osc.stop(ctx.currentTime + 0.15);
-        } catch (e) {}
+      // Track order count changes for new-order detection outside dashboard render
+      if (totalOrders > lastOrderCount) {
+        // Sound is now played in saveOrderToDashboard on new orders
       }
+      lastOrderCount = totalOrders;
     }
 
     function renderWeeklyChart() {
@@ -3638,6 +4103,7 @@
             <td class="dash-cell-total">${fmt(order.total)}</td>
             <td style="font-size:0.72rem;color:var(--text-muted);">${order.payment || '—'}</td>
             <td><span class="dash-status-badge ${st.cls}">${st.label}</span></td>
+            <td><button class="btn-ghost" style="padding:4px 8px;font-size:0.7rem;" onclick="reprintSavedOrder('${order.id}')" title="Reimprimir"><i class="fa-solid fa-receipt"></i></button></td>
           </tr>
         `;
       }).join('');
@@ -3761,9 +4227,54 @@
       if (track) track.classList.toggle('is-on', soundEnabled);
     }
 
+    function toggleAutoPrint() {
+      autoPrintEnabled = !autoPrintEnabled;
+      localStorage.setItem('premium_pizzaria_auto_print', autoPrintEnabled);
+      updateAutoPrintUI();
+    }
+
+    function updateAutoPrintUI() {
+      const icon = document.getElementById('auto-print-icon');
+      const status = document.getElementById('auto-print-status');
+      if (icon) {
+        icon.style.background = autoPrintEnabled ? 'var(--gold)' : 'var(--surface-accent)';
+        icon.style.color = autoPrintEnabled ? '#1a0f08' : 'var(--gold)';
+      }
+      if (status) {
+        status.textContent = autoPrintEnabled ? 'Ligado' : 'Desligado';
+        status.style.color = autoPrintEnabled ? 'var(--success)' : 'var(--text-muted)';
+      }
+    }
+
+    function playBellSound() {
+      if (!soundEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const notes = [
+          { freq: 523.25, time: 0, dur: 0.12 },
+          { freq: 659.25, time: 0.12, dur: 0.12 },
+          { freq: 783.99, time: 0.24, dur: 0.2 },
+        ];
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = n.freq;
+          gain.gain.setValueAtTime(0.12, now + n.time);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + n.time + n.dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + n.time);
+          osc.stop(now + n.time + n.dur);
+        });
+      } catch (e) {}
+    }
+
 
 
     // === Pedidos do Dia (controle interno do atendente) ===
+    // === Pedidos do Dia (Kanban) ===
     const ORDERS_KEY = 'premium_pizzaria_orders';
     const ORDER_STAGES = [
       { value: 'received',  label: '📥 Recebido' },
@@ -3819,24 +4330,65 @@
       const clean = String(phone || '').replace(/\D/g, '');
       return `https://wa.me/${clean}?text=${encodeURIComponent(text)}`;
     }
+
+    // === Kanban Drag & Drop ===
+    let _kanbanDragId = null;
+
+    function onKanbanDragStart(ev, orderId) {
+      _kanbanDragId = orderId;
+      ev.dataTransfer.setData('text/plain', orderId);
+      ev.dataTransfer.effectAllowed = 'move';
+      ev.target.classList.add('is-dragging');
+    }
+
+    function onKanbanDragEnd(ev) {
+      _kanbanDragId = null;
+      ev.target.classList.remove('is-dragging');
+      document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('is-drag-over'));
+    }
+
+    function onKanbanDragOver(ev) {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'move';
+      const col = ev.currentTarget.closest('.kanban-column');
+      if (col) col.classList.add('is-drag-over');
+    }
+
+    function onKanbanDragLeave(ev) {
+      const col = ev.currentTarget.closest('.kanban-column');
+      if (col) col.classList.remove('is-drag-over');
+    }
+
+    function onKanbanDrop(ev) {
+      ev.preventDefault();
+      const column = ev.currentTarget.closest('.kanban-column');
+      if (!column) return;
+      const newStage = column.dataset.stage;
+      const orderId = ev.dataTransfer.getData('text/plain') || _kanbanDragId;
+      if (!orderId || !newStage) return;
+      document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('is-drag-over'));
+      updateOrderStatus(orderId, newStage);
+    }
+
     function updateOrderStatus(orderId, newStatus) {
       const all = loadClientOrders();
       const idx = all.findIndex(o => o.id === orderId);
       if (idx === -1) return;
+      if (all[idx].statusManual === newStatus) return;
       all[idx].statusManual = newStatus;
       saveClientOrders(all);
       refreshOrdersDay(true);
     }
+
     function refreshOrdersDay(skipFlash) {
       const all = loadClientOrders();
       const today = all.filter(o => isSameLocalDay(o.createdAt));
-      const tbody = document.getElementById('orders-day-tbody');
-      const table = document.getElementById('orders-day-table');
+      const board = document.getElementById('kanban-board');
       const empty = document.getElementById('orders-day-empty');
       const countEl = document.getElementById('orders-day-count');
       const totalEl = document.getElementById('orders-day-total');
       const activeEl = document.getElementById('orders-day-active');
-      if (!tbody) return;
+      if (!board) return;
       const totalSum = today.reduce((s, o) => s + (Number(o.total) || 0), 0);
       const activeCount = today.filter(o => (o.statusManual || 'received') !== 'delivered').length;
       countEl.textContent = today.length;
@@ -3844,46 +4396,67 @@
       activeEl.textContent = activeCount;
       if (!today.length) {
         empty.style.display = 'flex';
-        table.style.display = 'none';
-        tbody.innerHTML = '';
+        board.style.display = 'none';
         return;
       }
       empty.style.display = 'none';
-      table.style.display = 'table';
-      tbody.innerHTML = today.map(o => {
-        const status = o.statusManual || 'received';
-        const optionsHtml = ORDER_STAGES.map(s =>
-          `<option value="${s.value}"${s.value === status ? ' selected' : ''}>${s.label}</option>`
-        ).join('');
-        const tipo = o.deliveryType === 'delivery' ? '🛵 Entrega' : '🛍️ Retirada';
-        const waText = whatsappTemplateFor(o, status);
-        const waHref = buildWaUrl(o.customerPhone, waText);
-        return `
-          <tr data-order="${escapeHtml(o.id)}">
-            <td><strong>${escapeHtml(o.id)}</strong></td>
-            <td>${formatHourMin(o.createdAt)}</td>
-            <td>${escapeHtml(o.customerName || '—')}<br><span class="orders-day-table__sub">${escapeHtml(o.customerPhone || '')}</span></td>
-            <td class="orders-day-table__items">${escapeHtml(summarizeItems(o.items))}</td>
-            <td><strong>${formatCurrency(Number(o.total) || 0)}</strong></td>
-            <td>${tipo}</td>
-            <td>
-              <select class="orders-day-table__status" onchange="updateOrderStatus('${escapeHtml(o.id)}', this.value)">${optionsHtml}</select>
-            </td>
-            <td>
-              <a class="orders-day-table__wa" href="${waHref}" target="_blank" rel="noopener noreferrer" title="Mandar WhatsApp do estágio atual">
-                <i class="fa-brands fa-whatsapp"></i>
-              </a>
-            </td>
-          </tr>`;
-      }).join('');
-      if (!skipFlash) {
-        // pisca verde brevemente após troca de status
-        document.querySelectorAll('#orders-day-tbody tr').forEach(tr => tr.classList.add('is-fresh'));
-        setTimeout(() => document.querySelectorAll('#orders-day-tbody tr').forEach(tr => tr.classList.remove('is-fresh')), 800);
-      }
+      board.style.display = 'grid';
+
+      // Group orders by stage
+      const groups = {};
+      ORDER_STAGES.forEach(s => { groups[s.value] = []; });
+      today.forEach(o => {
+        const stage = o.statusManual || 'received';
+        if (groups[stage]) groups[stage].push(o);
+        else groups['received'].push(o);
+      });
+
+      // Render each column
+      ORDER_STAGES.forEach(s => {
+        const colBody = document.getElementById(`kanban-col-${s.value}`);
+        const countEl = document.getElementById(`kanban-count-${s.value}`);
+        if (!colBody) return;
+        const orders = groups[s.value] || [];
+        if (countEl) countEl.textContent = orders.length;
+        if (!orders.length) {
+          colBody.innerHTML = `<div class="kanban-column__empty"><i class="fa-regular fa-circle"></i><span>Vazio</span></div>`;
+          return;
+        }
+        colBody.innerHTML = orders.map(o => {
+          const tipo = o.deliveryType === 'delivery' ? '🛵 Entrega' : '🛍️ Retirada';
+          const waText = whatsappTemplateFor(o, s.value);
+          const waHref = buildWaUrl(o.customerPhone, waText);
+          const isDelivered = s.value === 'delivered';
+          return `
+            <div class="kanban-card" draggable="true"
+                 ondragstart="onKanbanDragStart(event, '${escapeHtml(o.id)}')"
+                 ondragend="onKanbanDragEnd(event)"
+                 data-order-id="${escapeHtml(o.id)}">
+              <div class="kanban-card__header">
+                <span class="kanban-card__id">${escapeHtml(o.id)}</span>
+                <span class="kanban-card__time">${formatHourMin(o.createdAt)}</span>
+              </div>
+              <div class="kanban-card__customer">${escapeHtml(o.customerName || '—')}</div>
+              <div class="kanban-card__phone">${escapeHtml(o.customerPhone || '')}</div>
+              <div class="kanban-card__items">${escapeHtml(summarizeItems(o.items))}</div>
+              <div class="kanban-card__footer">
+                <span class="kanban-card__total">${formatCurrency(Number(o.total) || 0)}</span>
+                <span class="kanban-card__type">${tipo}</span>
+              </div>
+              ${isDelivered
+                ? `<div class="kanban-card__delivered">✅ Finalizado</div>`
+                : `<a class="kanban-card__wa" href="${waHref}" target="_blank" rel="noopener noreferrer" title="Avisar cliente via WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`
+              }
+            </div>`;
+        }).join('');
+      });
     }
     window.refreshOrdersDay = refreshOrdersDay;
     window.updateOrderStatus = updateOrderStatus;
+    window.onKanbanDragStart = onKanbanDragStart;
+    window.onKanbanDragEnd = onKanbanDragEnd;
+    window.onKanbanDragOver = onKanbanDragOver;
+    window.onKanbanDrop = onKanbanDrop;
 
     // Refresca quando a aba Pedidos do Dia é aberta
     (function hookOrdersDayTab() {
@@ -3898,6 +4471,160 @@
     window.addEventListener('storage', (e) => {
       if (e.key === ORDERS_KEY) refreshOrdersDay(true);
     });
+
+
+
+    // ============================================================
+    // Admin: Promoções Ativas
+    // ============================================================
+    const PROMOS_KEY = 'premium_pizzaria_promos';
+
+    function loadPromos() {
+      try {
+        const raw = localStorage.getItem(PROMOS_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const defaults = [
+        { id: 'promo-segundou', title: 'Segundou em Dobro', description: 'Compre uma média, leve outra média grátis. Só nas segundas, 18h-22h.', priceLabel: 'a partir de R$ 45', message: 'Ola! Quero a promo Segundou em Dobro (media + media gratis).', validade: 'Ativa toda segunda-feira', destaque: true, active: true },
+        { id: 'promo-combo-familia', title: 'Combo Família', description: '1 pizza grande + 1 refri 2L + borda recheada grátis.', priceLabel: 'R$ 89,90', message: 'Ola! Quero o Combo Familia (grande + refri 2L + borda gratis).', validade: 'Ativa esta semana', destaque: true, active: true },
+        { id: 'promo-quarta-doce', title: 'Quarta do Doce', description: 'Toda pizza doce média com 20% off. Quartas, o dia todo.', priceLabel: 'a partir de R$ 35', message: 'Ola! Quero a promo Quarta do Doce (pizza doce media com 20% off).', validade: 'Ativa toda quarta-feira', destaque: false, active: true },
+        { id: 'promo-primeira-fatia', title: 'Primeira Fatia', description: '15% off no primeiro pedido pelo site. Cupom PRIMEIRA15.', priceLabel: 'desconto no carrinho', message: 'Ola! Quero usar o cupom PRIMEIRA15 (15% off na primeira compra).', validade: 'Ativa esta semana', destaque: false, active: true }
+      ];
+      localStorage.setItem(PROMOS_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    function savePromos(list) { localStorage.setItem(PROMOS_KEY, JSON.stringify(list)); }
+
+    let _editingPromoId = null;
+
+    function renderPromosAdminList() {
+      const list = document.getElementById('promos-admin-list');
+      if (!list) return;
+      const promos = loadPromos().filter(p => p.active !== false);
+      const inactive = loadPromos().filter(p => p.active === false);
+      if (!promos.length && !inactive.length) {
+        list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);"><i class="fa-solid fa-bullhorn" style="font-size:2rem;opacity:0.3;margin-bottom:12px;display:block;"></i>Nenhuma promoção cadastrada.<br><span style="font-size:0.85rem;">Clique em "Nova Promoção" para criar a primeira.</span></div>';
+        return;
+      }
+      const renderCard = (p) => `
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:var(--surface);${p.destaque ? 'border-left:4px solid var(--gold);' : ''}">
+          <div style="width:46px;height:46px;border-radius:12px;background:${p.destaque ? 'var(--gold-grad)' : 'var(--surface-accent)'};display:flex;align-items:center;justify-content:center;color:${p.destaque ? '#1a0f08' : 'var(--text-muted)'};font-size:1.2rem;flex-shrink:0;">
+            <i class="fa-solid fa-bullhorn"></i>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              ${escapeHtml(p.title)}
+              ${p.destaque ? '<span style="font-size:0.68rem;background:var(--gold-grad);color:#1a0f08;padding:2px 8px;border-radius:999px;font-weight:800;">Destaque</span>' : ''}
+              ${!p.active ? '<span style="font-size:0.68rem;background:var(--surface-accent);color:var(--text-muted);padding:2px 8px;border-radius:999px;">Inativa</span>' : ''}
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">${escapeHtml(p.description || '')}</div>
+            <div style="font-size:0.82rem;color:var(--gold);font-weight:600;margin-top:2px;">${escapeHtml(p.priceLabel || '')} · ${escapeHtml(p.validade || '')}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button class="btn-circle" onclick="openPromoForm('${escapeHtml(p.id)}')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>
+            <button class="btn-circle btn-delete" onclick="deletePromo('${escapeHtml(p.id)}')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+      let html = promos.map(renderCard).join('');
+      if (inactive.length) {
+        html += '<div style="margin-top:18px;padding:12px;border:1px dashed var(--border);border-radius:12px;background:var(--surface-accent);">';
+        html += '<div style="font-size:0.78rem;color:var(--text-muted);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📦 Inativas</div>';
+        html += inactive.map(renderCard).join('');
+        html += '</div>';
+      }
+      list.innerHTML = html;
+    }
+
+    function openPromoForm(id) {
+      const modal = document.getElementById('promo-form-modal');
+      if (!modal) return;
+      _editingPromoId = id || null;
+      const titleEl = document.getElementById('promo-form-title');
+      const idEl = document.getElementById('promo-form-id');
+      const nameEl = document.getElementById('promo-title');
+      const descEl = document.getElementById('promo-desc');
+      const priceEl = document.getElementById('promo-price-label');
+      const msgEl = document.getElementById('promo-message');
+      const valEl = document.getElementById('promo-validade');
+      const destEl = document.getElementById('promo-destaque');
+      const actEl = document.getElementById('promo-active');
+      if (id) {
+        const promo = loadPromos().find(p => p.id === id);
+        if (promo) {
+          if (titleEl) titleEl.textContent = 'Editar Promoção';
+          if (idEl) idEl.value = promo.id;
+          if (nameEl) nameEl.value = promo.title || '';
+          if (descEl) descEl.value = promo.description || '';
+          if (priceEl) priceEl.value = promo.priceLabel || '';
+          if (msgEl) msgEl.value = promo.message || '';
+          if (valEl) valEl.value = promo.validade || '';
+          if (destEl) destEl.checked = promo.destaque === true;
+          if (actEl) actEl.checked = promo.active !== false;
+        }
+      } else {
+        if (titleEl) titleEl.textContent = 'Nova Promoção';
+        if (idEl) idEl.value = '';
+        if (nameEl) nameEl.value = '';
+        if (descEl) descEl.value = '';
+        if (priceEl) priceEl.value = '';
+        if (msgEl) msgEl.value = '';
+        if (valEl) valEl.value = '';
+        if (destEl) destEl.checked = false;
+        if (actEl) actEl.checked = true;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closePromoForm() {
+      const modal = document.getElementById('promo-form-modal');
+      if (modal) modal.style.display = 'none';
+      _editingPromoId = null;
+    }
+
+    function savePromoAdmin() {
+      const title = (document.getElementById('promo-title') || {}).value || '';
+      const description = (document.getElementById('promo-desc') || {}).value || '';
+      const priceLabel = (document.getElementById('promo-price-label') || {}).value || '';
+      const message = (document.getElementById('promo-message') || {}).value || '';
+      const validade = (document.getElementById('promo-validade') || {}).value || '';
+      const destaque = !!(document.getElementById('promo-destaque') || {}).checked;
+      const active = !!(document.getElementById('promo-active') || {}).checked;
+
+      if (!title.trim()) { adminToast('Informe o título da promoção.'); return; }
+      if (!message.trim()) { adminToast('Informe a mensagem do WhatsApp.'); return; }
+
+      const list = loadPromos();
+      if (_editingPromoId) {
+        const idx = list.findIndex(p => p.id === _editingPromoId);
+        if (idx >= 0) {
+          list[idx] = Object.assign({}, list[idx], { title: title.trim(), description: description.trim(), priceLabel: priceLabel.trim(), message: message.trim(), validade: validade.trim(), destaque, active });
+        }
+      } else {
+        list.push({
+          id: 'promo-' + Date.now().toString(36),
+          title: title.trim(),
+          description: description.trim(),
+          priceLabel: priceLabel.trim(),
+          message: message.trim(),
+          validade: validade.trim(),
+          destaque,
+          active
+        });
+      }
+      savePromos(list);
+      closePromoForm();
+      renderPromosAdminList();
+      adminToast('Promoção salva.');
+    }
+
+    function deletePromo(id) {
+      if (!confirm('Excluir esta promoção? Ela deixará de aparecer no site.')) return;
+      const list = loadPromos().filter(p => p.id !== id);
+      savePromos(list);
+      renderPromosAdminList();
+      adminToast('Promoção excluída.');
+    }
 
     // ============================================================
     // Admin: Fidelidade + Zonas de Entrega
@@ -4530,6 +5257,324 @@
       } catch (err) {
         preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">Erro: ' + err.message + '</div>';
       }
+    }
+
+    // ============================================================
+    // Admin: Cupons Promocionais
+    // ============================================================
+    const COUPONS_KEY = 'premium_pizzaria_promo_coupons';
+
+    function loadCoupons() {
+      try {
+        const raw = localStorage.getItem(COUPONS_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      var defaults = [
+        { id: 'cp-welcome', code: 'BEMVINDO10', name: '10% OFF na primeira compra', discountType: 'percent', discountValue: 10, minOrder: 0, expires: '', maxUses: 0, usedCount: 0, active: true, createdAt: Date.now() },
+        { id: 'cp-fretegratis', code: 'FRETEGRATIS', name: 'Frete grátis (R$ 15 de desconto)', discountType: 'fixed', discountValue: 15, minOrder: 50, expires: '', maxUses: 50, usedCount: 0, active: true, createdAt: Date.now() }
+      ];
+      localStorage.setItem(COUPONS_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    function saveCoupons(list) { localStorage.setItem(COUPONS_KEY, JSON.stringify(list)); }
+
+    var _editingCouponId = null;
+
+    function renderCouponsAdminList() {
+      var list = document.getElementById('coupons-admin-list');
+      if (!list) return;
+      var all = loadCoupons();
+      var active = all.filter(function(c) { return c.active !== false; });
+      var inactive = all.filter(function(c) { return c.active === false; });
+      if (!all.length) {
+        list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);"><i class="fa-solid fa-ticket" style="font-size:2rem;opacity:0.3;margin-bottom:12px;display:block;"></i>Nenhum cupom cadastrado.<br><span style="font-size:0.85rem;">Clique em "Novo Cupom" para criar o primeiro.</span></div>';
+        return;
+      }
+      var now = Date.now();
+      var renderCard = function(c) {
+        var isExpired = c.expires && new Date(c.expires + 'T23:59:59').getTime() < now;
+        var isExhausted = c.maxUses > 0 && c.usedCount >= c.maxUses;
+        var statusBadge = !c.active ? '<span style="font-size:0.68rem;background:var(--surface-accent);color:var(--text-muted);padding:2px 8px;border-radius:999px;">Inativo</span>'
+          : isExpired ? '<span style="font-size:0.68rem;background:#5a1a0a;color:#ff8a4a;padding:2px 8px;border-radius:999px;">Expirado</span>'
+          : isExhausted ? '<span style="font-size:0.68rem;background:#5a1a0a;color:#ff8a4a;padding:2px 8px;border-radius:999px;">Esgotado</span>'
+          : '<span style="font-size:0.68rem;background:rgba(39,174,96,0.2);color:#27ae60;padding:2px 8px;border-radius:999px;">Ativo</span>';
+        var discountLabel = c.discountType === 'percent' ? c.discountValue + '% OFF' : 'R$ ' + Number(c.discountValue).toFixed(2) + ' OFF';
+        var usageInfo = c.maxUses > 0 ? c.usedCount + '/' + c.maxUses + ' usos' : c.usedCount + ' usos';
+        var minOrderInfo = c.minOrder > 0 ? ' · Mín: R$ ' + Number(c.minOrder).toFixed(2) : '';
+        var expiresInfo = c.expires ? ' · Válido até ' + new Date(c.expires + 'T23:59:59').toLocaleDateString('pt-BR') : ' · Sem expiração';
+        return '<div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:var(--surface);border-left:4px solid ' + (c.active && !isExpired && !isExhausted ? '#27ae60' : 'var(--border)') + ';">' +
+          '<div style="width:46px;height:46px;border-radius:12px;background:' + (c.active && !isExpired && !isExhausted ? 'rgba(39,174,96,0.15)' : 'var(--surface-accent)') + ';display:flex;align-items:center;justify-content:center;color:' + (c.active && !isExpired && !isExhausted ? '#27ae60' : 'var(--text-muted)') + ';font-size:1.2rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="font-family:monospace;font-size:1rem;letter-spacing:0.5px;">' + escapeHtml(c.code) + '</span>' + statusBadge + '</div>' +
+          '<div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">' + escapeHtml(c.name || '') + ' · <strong style="color:var(--gold);">' + discountLabel + '</strong></div>' +
+          '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">' + usageInfo + minOrderInfo + expiresInfo + '</div></div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0;">' +
+          '<button class="btn-circle" onclick="openCouponForm(\'' + escapeHtml(c.id) + '\')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>' +
+          '<button class="btn-circle btn-delete" onclick="deleteCoupon(\'' + escapeHtml(c.id) + '\')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button></div></div>';
+      };
+      var html = active.map(renderCard).join('');
+      if (inactive.length) {
+        html += '<div style="margin-top:18px;padding:12px;border:1px dashed var(--border);border-radius:12px;background:var(--surface-accent);">';
+        html += '<div style="font-size:0.78rem;color:var(--text-muted);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📦 Inativos / Expirados</div>';
+        html += inactive.map(renderCard).join('');
+        html += '</div>';
+      }
+      list.innerHTML = html;
+    }
+
+    function generateCouponCode() {
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      var code = '';
+      for (var i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      var el = document.getElementById('coupon-code');
+      if (el) el.value = code;
+    }
+
+    function toggleCouponDiscountValueLabel() {
+      var type = document.getElementById('coupon-discount-type');
+      var val = document.getElementById('coupon-discount-value');
+      if (type && val) val.placeholder = type.value === 'percent' ? '10' : '15.00';
+    }
+
+    function openCouponForm(id) {
+      var modal = document.getElementById('coupon-form-modal');
+      if (!modal) return;
+      _editingCouponId = id || null;
+      var titleEl = document.getElementById('coupon-form-title');
+      var idEl = document.getElementById('coupon-form-id');
+      var codeEl = document.getElementById('coupon-code');
+      var nameEl = document.getElementById('coupon-name');
+      var typeEl = document.getElementById('coupon-discount-type');
+      var valEl = document.getElementById('coupon-discount-value');
+      var minEl = document.getElementById('coupon-min-order');
+      var expEl = document.getElementById('coupon-expires');
+      var maxEl = document.getElementById('coupon-max-uses');
+      var actEl = document.getElementById('coupon-active');
+      if (id) {
+        var c = loadCoupons().find(function(c) { return c.id === id; });
+        if (c) {
+          if (titleEl) titleEl.textContent = 'Editar Cupom';
+          if (idEl) idEl.value = c.id;
+          if (codeEl) codeEl.value = c.code || '';
+          if (nameEl) nameEl.value = c.name || '';
+          if (typeEl) typeEl.value = c.discountType || 'percent';
+          if (valEl) valEl.value = c.discountValue || 0;
+          if (minEl) minEl.value = c.minOrder || 0;
+          if (expEl) expEl.value = c.expires || '';
+          if (maxEl) maxEl.value = c.maxUses || 0;
+          if (actEl) actEl.checked = c.active !== false;
+        }
+      } else {
+        if (titleEl) titleEl.textContent = 'Novo Cupom';
+        if (idEl) idEl.value = '';
+        if (codeEl) codeEl.value = '';
+        if (nameEl) nameEl.value = '';
+        if (typeEl) typeEl.value = 'percent';
+        if (valEl) valEl.value = 10;
+        if (minEl) minEl.value = 0;
+        if (expEl) expEl.value = '';
+        if (maxEl) maxEl.value = 0;
+        if (actEl) actEl.checked = true;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeCouponForm() {
+      var modal = document.getElementById('coupon-form-modal');
+      if (modal) modal.style.display = 'none';
+      _editingCouponId = null;
+    }
+
+    function saveCouponAdmin() {
+      var code = (document.getElementById('coupon-code') || {}).value || '';
+      var name = (document.getElementById('coupon-name') || {}).value || '';
+      var discountType = (document.getElementById('coupon-discount-type') || {}).value || 'percent';
+      var discountValue = parseFloat((document.getElementById('coupon-discount-value') || {}).value) || 0;
+      var minOrder = parseFloat((document.getElementById('coupon-min-order') || {}).value) || 0;
+      var expires = (document.getElementById('coupon-expires') || {}).value || '';
+      var maxUses = parseInt((document.getElementById('coupon-max-uses') || {}).value, 10) || 0;
+      var active = !!(document.getElementById('coupon-active') || {}).checked;
+
+      if (!code.trim()) { adminToast('Informe o código do cupom.'); return; }
+      var cleanCode = code.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+      if (!cleanCode) { adminToast('Código inválido. Use apenas letras, números, _ e -.'); return; }
+      if (discountValue <= 0) { adminToast('O valor do desconto deve ser maior que zero.'); return; }
+      if (discountType === 'percent' && discountValue > 100) { adminToast('Desconto percentual não pode ultrapassar 100%.'); return; }
+
+      var list = loadCoupons();
+      if (_editingCouponId) {
+        var idx = list.findIndex(function(c) { return c.id === _editingCouponId; });
+        if (idx >= 0) {
+          var existing = list[idx];
+          if (existing.code !== cleanCode && list.some(function(c) { return c.code === cleanCode && c.id !== _editingCouponId; })) {
+            adminToast('Já existe outro cupom com este código.'); return;
+          }
+          list[idx] = Object.assign({}, existing, { code: cleanCode, name: name.trim(), discountType: discountType, discountValue: discountValue, minOrder: minOrder, expires: expires, maxUses: maxUses, active: active });
+        }
+      } else {
+        if (list.some(function(c) { return c.code === cleanCode; })) { adminToast('Já existe um cupom com este código.'); return; }
+        list.push({
+          id: 'cp-' + Date.now().toString(36),
+          code: cleanCode,
+          name: name.trim(),
+          discountType: discountType,
+          discountValue: discountValue,
+          minOrder: minOrder,
+          expires: expires,
+          maxUses: maxUses,
+          usedCount: 0,
+          active: active,
+          createdAt: Date.now()
+        });
+      }
+      saveCoupons(list);
+      closeCouponForm();
+      renderCouponsAdminList();
+      adminToast('Cupom salvo.');
+    }
+
+    function deleteCoupon(id) {
+      if (!confirm('Excluir este cupom? Clientes não poderão mais usá-lo.')) return;
+      var list = loadCoupons().filter(function(c) { return c.id !== id; });
+      saveCoupons(list);
+      renderCouponsAdminList();
+      adminToast('Cupom excluído.');
+    }
+
+    // ============================================================
+    // Admin: Notificações para Clientes
+    // ============================================================
+    const NOTIFICATIONS_KEY = 'premium_pizzaria_notifications';
+
+    function loadNotificacoes() {
+      try {
+        var raw = localStorage.getItem(NOTIFICATIONS_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      var defaults = [
+        { id: 'notif-welcome', title: 'Bem-vindo à Pizzaria Premium!', message: 'Faça seu primeiro pedido e ganhe 10% de desconto. Use o cupom BEMVINDO10.', type: 'promocao', icon: '🎉', active: true, createdAt: Date.now() },
+        { id: 'notif-horario', title: 'Horário de funcionamento', message: 'Funcionamos de segunda a domingo, das 18h às 23:30.', type: 'aviso', icon: '🕐', active: true, createdAt: Date.now() }
+      ];
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    function saveNotificacoes(list) { localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(list)); }
+
+    var _editingNotificationId = null;
+
+    function renderNotificationsAdminList() {
+      var list = document.getElementById('notifications-admin-list');
+      if (!list) return;
+      var all = loadNotificacoes();
+      var active = all.filter(function(n) { return n.active !== false; });
+      var inactive = all.filter(function(n) { return n.active === false; });
+      if (!all.length) {
+        list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);"><i class="fa-solid fa-bell" style="font-size:2rem;opacity:0.3;margin-bottom:12px;display:block;"></i>Nenhuma notificação cadastrada.<br><span style="font-size:0.85rem;">Clique em "Nova Notificação" para criar a primeira.</span></div>';
+        return;
+      }
+      var renderCard = function(n) {
+        var typeIcons = { promocao: '🎉', aviso: '📢', novidade: '✨' };
+        var typeIcon = n.icon || typeIcons[n.type] || '📌';
+        var dateStr = new Date(n.createdAt).toLocaleDateString('pt-BR');
+        return '<div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:var(--surface);border-left:4px solid ' + (n.active ? 'var(--gold)' : 'var(--border)') + ';">' +
+          '<div style="width:46px;height:46px;border-radius:12px;background:' + (n.active ? 'var(--gold-grad)' : 'var(--surface-accent)') + ';display:flex;align-items:center;justify-content:center;color:' + (n.active ? '#1a0f08' : 'var(--text-muted)') + ';font-size:1.3rem;flex-shrink:0;">' + typeIcon + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' + escapeHtml(n.title) + (!n.active ? '<span style="font-size:0.68rem;background:var(--surface-accent);color:var(--text-muted);padding:2px 8px;border-radius:999px;">Inativa</span>' : '') + '</div>' +
+          '<div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">' + escapeHtml(n.message || '') + '</div>' +
+          '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">Criada em ' + dateStr + ' · ' + (n.type === 'promocao' ? '🎉 Promoção' : n.type === 'aviso' ? '📢 Aviso' : '✨ Novidade') + '</div></div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0;">' +
+          '<button class="btn-circle" onclick="openNotificationForm(\'' + escapeHtml(n.id) + '\')" aria-label="Editar"><i class="fa-solid fa-pencil"></i></button>' +
+          '<button class="btn-circle btn-delete" onclick="deleteNotification(\'' + escapeHtml(n.id) + '\')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button></div></div>';
+      };
+      var html = active.map(renderCard).join('');
+      if (inactive.length) {
+        html += '<div style="margin-top:18px;padding:12px;border:1px dashed var(--border);border-radius:12px;background:var(--surface-accent);">';
+        html += '<div style="font-size:0.78rem;color:var(--text-muted);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📦 Inativas</div>';
+        html += inactive.map(renderCard).join('');
+        html += '</div>';
+      }
+      list.innerHTML = html;
+    }
+
+    function openNotificationForm(id) {
+      var modal = document.getElementById('notification-form-modal');
+      if (!modal) return;
+      _editingNotificationId = id || null;
+      var titleEl = document.getElementById('notification-form-title');
+      var idEl = document.getElementById('notification-form-id');
+      var titEl = document.getElementById('notification-title');
+      var msgEl = document.getElementById('notification-message');
+      var typeEl = document.getElementById('notification-type');
+      var iconEl = document.getElementById('notification-icon');
+      var actEl = document.getElementById('notification-active');
+      if (id) {
+        var n = loadNotificacoes().find(function(n) { return n.id === id; });
+        if (n) {
+          if (titleEl) titleEl.textContent = 'Editar Notificação';
+          if (idEl) idEl.value = n.id;
+          if (titEl) titEl.value = n.title || '';
+          if (msgEl) msgEl.value = n.message || '';
+          if (typeEl) typeEl.value = n.type || 'aviso';
+          if (iconEl) iconEl.value = n.icon || '';
+          if (actEl) actEl.checked = n.active !== false;
+        }
+      } else {
+        if (titleEl) titleEl.textContent = 'Nova Notificação';
+        if (idEl) idEl.value = '';
+        if (titEl) titEl.value = '';
+        if (msgEl) msgEl.value = '';
+        if (typeEl) typeEl.value = 'promocao';
+        if (iconEl) iconEl.value = '';
+        if (actEl) actEl.checked = true;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeNotificationForm() {
+      var modal = document.getElementById('notification-form-modal');
+      if (modal) modal.style.display = 'none';
+      _editingNotificationId = null;
+    }
+
+    function saveNotificationAdmin() {
+      var title = (document.getElementById('notification-title') || {}).value || '';
+      var message = (document.getElementById('notification-message') || {}).value || '';
+      var type = (document.getElementById('notification-type') || {}).value || 'aviso';
+      var icon = (document.getElementById('notification-icon') || {}).value || '';
+      var active = !!(document.getElementById('notification-active') || {}).checked;
+
+      if (!title.trim()) { adminToast('Informe o título da notificação.'); return; }
+      if (!message.trim()) { adminToast('Informe a mensagem da notificação.'); return; }
+
+      var list = loadNotificacoes();
+      if (_editingNotificationId) {
+        var idx = list.findIndex(function(n) { return n.id === _editingNotificationId; });
+        if (idx >= 0) {
+          list[idx] = Object.assign({}, list[idx], { title: title.trim(), message: message.trim(), type: type, icon: icon.trim(), active: active });
+        }
+      } else {
+        list.push({
+          id: 'notif-' + Date.now().toString(36),
+          title: title.trim(),
+          message: message.trim(),
+          type: type,
+          icon: icon.trim(),
+          active: active,
+          createdAt: Date.now()
+        });
+      }
+      saveNotificacoes(list);
+      closeNotificationForm();
+      renderNotificationsAdminList();
+      adminToast('Notificação salva.');
+    }
+
+    function deleteNotification(id) {
+      if (!confirm('Excluir esta notificação? Ela deixará de aparecer no site.')) return;
+      var list = loadNotificacoes().filter(function(n) { return n.id !== id; });
+      saveNotificacoes(list);
+      renderNotificationsAdminList();
+      adminToast('Notificação excluída.');
     }
 
     // Registra o Service Worker do PWA no Admin
