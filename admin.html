@@ -1798,6 +1798,216 @@
       padding: 8px 16px !important;
       font-size: 0.82rem !important;
     }
+
+    /* === Customer Detail Modal === */
+    .customer-detail__header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .customer-detail__avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--red-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .customer-detail__info h2 {
+      margin: 0 0 4px;
+      font-size: 1.2rem;
+    }
+    .customer-detail__info p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .customer-detail__section {
+      margin-bottom: 24px;
+    }
+    .customer-detail__section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .customer-detail__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .customer-detail__field {
+      font-size: 0.85rem;
+    }
+    .customer-detail__field-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .customer-detail__field-value {
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .customer-detail__order-card {
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+    .customer-detail__order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .customer-detail__order-id {
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .customer-detail__order-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .customer-detail__order-items {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .customer-detail__order-total {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .customer-detail__order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .customer-detail__empty {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 20px;
+    }
+    .customer-detail__coupon {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.82rem;
+    }
+    .customer-detail__coupon-used {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+    .customer-detail__coupon-badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .customer-detail__coupon-badge.is-valid {
+      background: rgba(39, 174, 96, 0.15);
+      color: #27ae60;
+    }
+    .customer-detail__coupon-badge.is-used {
+      background: rgba(231, 76, 60, 0.12);
+      color: #e74c3c;
+    }
+    .customer-detail__address-card {
+      background: var(--surface-accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+    .customer-detail__address-label {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+    }
+    .customer-detail__points-history {
+      font-size: 0.82rem;
+    }
+    .customer-detail__points-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .customer-detail__actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .btn-action {
+      padding: 6px 12px;
+      font-size: 0.72rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: var(--surface-accent);
+      color: var(--text);
+      border-color: var(--gold-dark);
+    }
+    .btn-action.is-danger:hover {
+      background: rgba(231, 76, 60, 0.12);
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+    /* Edit customer form */
+    .edit-customer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .edit-customer-grid .form-group {
+      margin-bottom: 0;
+    }
+    .edit-customer-full {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 768px) {
+      .customer-detail__grid {
+        grid-template-columns: 1fr;
+      }
+      .edit-customer-grid {
+        grid-template-columns: 1fr;
+      }
+      .customer-detail__actions {
+        flex-wrap: wrap;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2378,6 +2588,57 @@
               <div class="dash-empty__icon"><i class="fa-solid fa-users"></i></div>
               <div class="dash-empty__title">Nenhum cliente</div>
               <div class="dash-empty__desc">Quando clientes se cadastrarem no site, aparecerão aqui.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Detail Modal -->
+        <div class="modal" id="customer-detail-modal">
+          <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header">
+              <h3><i class="fa-solid fa-user"></i> Detalhes do Cliente</h3>
+              <button class="btn-close-modal" onclick="closeCustomerDetail()">&times;</button>
+            </div>
+            <div class="modal-body" id="customer-detail-body">
+              <!-- populated by JS -->
+            </div>
+            <div class="modal-footer">
+              <button class="btn-logout" onclick="closeCustomerDetail()">Fechar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Edit Modal -->
+        <div class="modal" id="customer-edit-modal">
+          <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+              <h3><i class="fa-solid fa-pen"></i> Editar Cliente</h3>
+              <button class="btn-close-modal" onclick="closeCustomerEdit()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="edit-customer-email">
+              <div class="edit-customer-grid">
+                <div class="form-group">
+                  <label for="edit-customer-name">Nome</label>
+                  <input type="text" id="edit-customer-name" placeholder="Nome do cliente">
+                </div>
+                <div class="form-group">
+                  <label for="edit-customer-phone">WhatsApp</label>
+                  <input type="text" id="edit-customer-phone" placeholder="(86) 99999-0000">
+                </div>
+                <div class="form-group edit-customer-full">
+                  <label for="edit-customer-email-display">E-mail</label>
+                  <input type="text" id="edit-customer-email-display" disabled style="opacity:0.6;">
+                </div>
+                <div class="form-group">
+                  <label for="edit-customer-points">Pontos</label>
+                  <input type="number" id="edit-customer-points" min="0" step="1">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-logout" onclick="closeCustomerEdit()">Cancelar</button>
+              <button class="btn" style="width:auto;padding:10px 24px;" onclick="saveCustomerEditAdmin()"><i class="fa-solid fa-save"></i> Salvar</button>
             </div>
           </div>
         </div>
@@ -3030,6 +3291,8 @@
         renderCouponsAdminList();
       } else if (tabId === 'tab-notifications') {
         renderNotificationsAdminList();
+      } else if (tabId === 'tab-customers') {
+        renderCustomersAdminList();
       } else if (tabId === 'tab-dashboard') {
         refreshDashboard();
       }
@@ -5637,17 +5900,36 @@
         container.innerHTML = '<div class="dash-empty"><div class="dash-empty__icon"><i class="fa-solid fa-users"></i></div><div class="dash-empty__title">' + (query ? 'Nenhum cliente encontrado' : 'Nenhum cliente') + '</div><div class="dash-empty__desc">' + (query ? 'Tente outro termo de busca.' : 'Quando clientes se cadastrarem no site, aparecerão aqui.') + '</div></div>';
         return;
       }
+      var orders = [];
+      try { orders = JSON.parse(localStorage.getItem('premium_pizzaria_orders') || '[]'); } catch (e) {}
       accounts.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
       var html = '<div class="dash-table-wrap"><table class="dash-table"><thead><tr>' +
-        '<th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Pontos</th><th>Cupons</th><th>Desde</th></tr></thead><tbody>';
+        '<th>Nome</th><th>WhatsApp</th><th>Pedidos</th><th>Total Gasto</th><th>Pontos</th><th>Último Pedido</th><th>Desde</th><th>Ações</th></tr></thead><tbody>';
       accounts.forEach(function(a) {
         var dateStr = a.createdAt ? new Date(a.createdAt).toLocaleDateString('pt-BR') : '—';
         var name = escapeHtml(a.name || '—');
-        var email = escapeHtml(a.email || '—');
+        var email = escapeHtml(a.email || '');
         var phone = escapeHtml(formatPhone(a.phone || ''));
         var points = a.points || 0;
-        var couponCount = (a.coupons || []).filter(function(c) { return !c.used; }).length;
-        html += '<tr><td class="dash-cell-name">' + name + '</td><td>' + email + '</td><td class="dash-cell-phone">' + phone + '</td><td>' + points + '</td><td>' + couponCount + '</td><td>' + dateStr + '</td></tr>';
+        var accountOrders = orders.filter(function(o) { return o.accountEmail === a.email; });
+        var orderCount = accountOrders.length;
+        var totalSpent = accountOrders.reduce(function(sum, o) { return sum + (o.total || 0); }, 0);
+        var lastOrder = accountOrders.length ? accountOrders.sort(function(x, y) { return (y.createdAt || 0) - (x.createdAt || 0); })[0] : null;
+        var lastOrderDate = lastOrder ? new Date(lastOrder.createdAt).toLocaleDateString('pt-BR') : '—';
+        html += '<tr>' +
+          '<td class="dash-cell-name">' + name + '</td>' +
+          '<td class="dash-cell-phone">' + phone + '</td>' +
+          '<td>' + orderCount + '</td>' +
+          '<td class="dash-cell-total">' + (totalSpent ? 'R$ ' + totalSpent.toFixed(2) : '—') + '</td>' +
+          '<td>' + points + '</td>' +
+          '<td style="font-size:0.76rem;color:var(--text-muted);">' + lastOrderDate + '</td>' +
+          '<td style="font-size:0.76rem;">' + dateStr + '</td>' +
+          '<td><div style="display:flex;gap:4px;">' +
+            '<button class="btn-action" onclick="renderCustomerDetail(\'' + a.email.replace(/'/g, "\\'") + '\')" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button>' +
+            '<button class="btn-action" onclick="editCustomerAdmin(\'' + a.email.replace(/'/g, "\\'") + '\')" title="Editar"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="btn-action is-danger" onclick="deleteCustomerAdmin(\'' + a.email.replace(/'/g, "\\'") + '\')" title="Excluir"><i class="fa-solid fa-trash"></i></button>' +
+          '</div></td>' +
+        '</tr>';
       });
       html += '</tbody></table></div>';
       html += '<div style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);">Total: ' + accounts.length + ' cliente' + (accounts.length !== 1 ? 's' : '') + '</div>';
@@ -5666,18 +5948,249 @@
       var accounts = [];
       try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
       if (!accounts.length) { adminToast('Nenhum cliente para exportar.'); return; }
-      var csv = 'Nome,E-mail,WhatsApp,Pontos,Cupons Ativos,Desde\n';
+      var orders = [];
+      try { orders = JSON.parse(localStorage.getItem('premium_pizzaria_orders') || '[]'); } catch (e) {}
+      var csv = 'Nome,E-mail,WhatsApp,Pontos,Cupons Ativos,Total Gasto,Quantidade Pedidos,Último Pedido,Desde\n';
       accounts.forEach(function(a) {
         var name = (a.name || '').replace(/,/g, ' ');
         var email = (a.email || '').replace(/,/g, ' ');
         var phone = (a.phone || '').replace(/,/g, ' ');
         var points = a.points || 0;
         var coupons = (a.coupons || []).filter(function(c) { return !c.used; }).length;
+        var accountOrders = orders.filter(function(o) { return o.accountEmail === a.email; });
+        var totalSpent = accountOrders.reduce(function(sum, o) { return sum + (o.total || 0); }, 0);
+        var lastOrder = accountOrders.length ? accountOrders.sort(function(x, y) { return (y.createdAt || 0) - (x.createdAt || 0); })[0] : null;
+        var lastOrderDate = lastOrder ? new Date(lastOrder.createdAt).toLocaleDateString('pt-BR') : '';
         var since = a.createdAt ? new Date(a.createdAt).toLocaleDateString('pt-BR') : '';
-        csv += name + ',' + email + ',' + phone + ',' + points + ',' + coupons + ',' + since + '\n';
+        csv += name + ',' + email + ',' + phone + ',' + points + ',' + coupons + ',' + totalSpent.toFixed(2) + ',' + accountOrders.length + ',' + lastOrderDate + ',' + since + '\n';
       });
-      console.log('Clientes CSV:\n' + csv);
-      adminToast(accounts.length + ' clientes exportados (veja no console).');
+      var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'clientes-' + new Date().toISOString().slice(0,10) + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      adminToast(accounts.length + ' clientes exportados.');
+    }
+
+    // ============================================================
+    // Customer Detail View
+    // ============================================================
+    function renderCustomerDetail(email) {
+      var modal = document.getElementById('customer-detail-modal');
+      var body = document.getElementById('customer-detail-body');
+      if (!modal || !body) return;
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      var account = accounts.find(function(a) { return a.email === email; });
+      if (!account) { adminToast('Cliente não encontrado.'); return; }
+
+      var orders = [];
+      try { orders = JSON.parse(localStorage.getItem('premium_pizzaria_orders') || '[]'); } catch (e) {}
+      var accountOrders = orders.filter(function(o) { return o.accountEmail === email; })
+        .sort(function(x, y) { return (y.createdAt || 0) - (x.createdAt || 0); });
+
+      var initial = (account.name || '?').charAt(0).toUpperCase();
+      var name = escapeHtml(account.name || '—');
+      var emailHtml = escapeHtml(account.email || '—');
+      var phone = escapeHtml(formatPhone(account.phone || ''));
+      var points = account.points || 0;
+      var since = account.createdAt ? new Date(account.createdAt).toLocaleDateString('pt-BR') : '—';
+      var lastLogin = account.lastLoginAt ? new Date(account.lastLoginAt).toLocaleDateString('pt-BR') + ' ' + new Date(account.lastLoginAt).toLocaleTimeString('pt-BR') : '—';
+      var orderCount = accountOrders.length;
+      var totalSpent = accountOrders.reduce(function(s, o) { return s + (o.total || 0); }, 0);
+
+      // Header
+      var html = '<div class="customer-detail__header">' +
+        '<div class="customer-detail__avatar">' + initial + '</div>' +
+        '<div class="customer-detail__info">' +
+          '<h2>' + name + '</h2>' +
+          '<p>' + emailHtml + ' · ' + phone + '</p>' +
+        '</div>' +
+      '</div>';
+
+      // Action buttons
+      html += '<div class="customer-detail__actions">' +
+        '<button class="btn-action" onclick="editCustomerAdmin(\'' + email.replace(/'/g, "\\'") + '\')"><i class="fa-solid fa-pen"></i> Editar</button>' +
+        '<button class="btn-action is-danger" onclick="deleteCustomerAdmin(\'' + email.replace(/'/g, "\\'") + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>' +
+      '</div>';
+
+      // Profile info
+      html += '<div class="customer-detail__section">' +
+        '<div class="customer-detail__section-title">Perfil</div>' +
+        '<div class="customer-detail__grid">' +
+          '<div class="customer-detail__field"><div class="customer-detail__field-label">Cliente desde</div><div class="customer-detail__field-value">' + since + '</div></div>' +
+          '<div class="customer-detail__field"><div class="customer-detail__field-label">Último login</div><div class="customer-detail__field-value">' + lastLogin + '</div></div>' +
+          '<div class="customer-detail__field"><div class="customer-detail__field-label">Pontos</div><div class="customer-detail__field-value">' + points + ' ⭐</div></div>' +
+          '<div class="customer-detail__field"><div class="customer-detail__field-label">Total gasto</div><div class="customer-detail__field-value">R$ ' + totalSpent.toFixed(2) + '</div></div>' +
+        '</div>' +
+      '</div>';
+
+      // Addresses
+      var addresses = account.addresses || [];
+      html += '<div class="customer-detail__section">' +
+        '<div class="customer-detail__section-title">Endereços (' + addresses.length + ')</div>';
+      if (addresses.length) {
+        addresses.forEach(function(addr) {
+          var label = escapeHtml(addr.label || 'Endereço');
+          var street = escapeHtml(addr.street || '');
+          var num = escapeHtml(addr.number || '');
+          var neighborhood = escapeHtml(addr.neighborhood || '');
+          var city = escapeHtml(addr.city || '');
+          var uf = escapeHtml(addr.uf || '');
+          var cep = addr.cep || '';
+          var isDefault = addr.isDefault;
+          html += '<div class="customer-detail__address-card">' +
+            '<div class="customer-detail__address-label">' + label + (isDefault ? ' <span style="font-weight:400;color:var(--text-muted);font-size:0.65rem;">(Padrão)</span>' : '') + '</div>' +
+            '<div>' + street + (num ? ', ' + num : '') + '</div>' +
+            '<div>' + neighborhood + (city ? ' - ' + city : '') + (uf ? '/' + uf : '') + '</div>' +
+            '<div style="font-size:0.72rem;color:var(--text-muted);">CEP: ' + (cep ? cep.replace(/^(\d{5})(\d{3})$/, '$1-$2') : '—') + '</div>' +
+          '</div>';
+        });
+      } else {
+        html += '<div class="customer-detail__empty">Nenhum endereço salvo.</div>';
+      }
+      html += '</div>';
+
+      // Order history
+      html += '<div class="customer-detail__section">' +
+        '<div class="customer-detail__section-title">Histórico de Pedidos (' + orderCount + ')</div>';
+      if (accountOrders.length) {
+        accountOrders.slice(0, 10).forEach(function(o) {
+          var oDate = o.createdAt ? new Date(o.createdAt).toLocaleDateString('pt-BR') + ' ' + new Date(o.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—';
+          var oTotal = 'R$ ' + (o.total || 0).toFixed(2);
+          var itemsNames = (o.items || []).map(function(i) { return (i.quantity || 1) + 'x ' + (i.name || 'Item'); }).join(', ');
+          var status = o.status || 'received';
+          var statusLabels = { received: 'Recebido', preparing: 'Preparando', ready: 'Pronto', delivered: 'Entregue', cancelled: 'Cancelado' };
+          var statusLabel = statusLabels[status] || status;
+          html += '<div class="customer-detail__order-card">' +
+            '<div class="customer-detail__order-card-header">' +
+              '<span class="customer-detail__order-id">' + escapeHtml(o.id) + '</span>' +
+              '<span class="customer-detail__order-date">' + oDate + '</span>' +
+            '</div>' +
+            '<div class="customer-detail__order-items">' + escapeHtml(itemsNames) + '</div>' +
+            '<div class="customer-detail__order-footer">' +
+              '<span class="customer-detail__order-total">' + oTotal + '</span>' +
+              '<span class="dash-status-badge is-' + status + '">' + statusLabel + '</span>' +
+            '</div>' +
+          '</div>';
+        });
+        if (accountOrders.length > 10) {
+          html += '<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);padding:8px;">Mostrando 10 de ' + accountOrders.length + ' pedidos</div>';
+        }
+      } else {
+        html += '<div class="customer-detail__empty">Nenhum pedido realizado.</div>';
+      }
+      html += '</div>';
+
+      // Coupons
+      var coupons = account.coupons || [];
+      var validCoupons = coupons.filter(function(c) { return !c.used; });
+      var usedCoupons = coupons.filter(function(c) { return c.used; });
+      html += '<div class="customer-detail__section">' +
+        '<div class="customer-detail__section-title">Cupons (' + coupons.length + ')</div>';
+      if (coupons.length) {
+        validCoupons.forEach(function(c) {
+          html += '<div class="customer-detail__coupon">' +
+            '<span>' + escapeHtml(c.name || 'Cupom') + ' <code>' + escapeHtml(c.code) + '</code></span>' +
+            '<span class="customer-detail__coupon-badge is-valid">Ativo</span>' +
+          '</div>';
+        });
+        usedCoupons.forEach(function(c) {
+          html += '<div class="customer-detail__coupon customer-detail__coupon-used">' +
+            '<span>' + escapeHtml(c.name || 'Cupom') + ' <code>' + escapeHtml(c.code) + '</code></span>' +
+            '<span class="customer-detail__coupon-badge is-used">Usado</span>' +
+          '</div>';
+        });
+      } else {
+        html += '<div class="customer-detail__empty">Nenhum cupom.</div>';
+      }
+      html += '</div>';
+
+      // Points history
+      var pointsHistory = account.pointsHistory || [];
+      html += '<div class="customer-detail__section">' +
+        '<div class="customer-detail__section-title">Histórico de Pontos (' + pointsHistory.length + ')</div>';
+      if (pointsHistory.length) {
+        html += '<div class="customer-detail__points-history">';
+        pointsHistory.slice().reverse().forEach(function(ph) {
+          var phDate = ph.date ? new Date(ph.date).toLocaleDateString('pt-BR') : '—';
+          var phPoints = (ph.earned || 0) > 0 ? '+' + ph.earned : (ph.spent || 0);
+          var phDesc = escapeHtml(ph.reason || '');
+          html += '<div class="customer-detail__points-row">' +
+            '<span>' + phDate + ' - ' + phDesc + '</span>' +
+            '<span style="font-weight:700;color:' + ((ph.earned || 0) > 0 ? '#27ae60' : '#e74c3c') + ';">' + ((ph.earned || 0) > 0 ? '+' : '') + phPoints + '</span>' +
+          '</div>';
+        });
+        html += '</div>';
+      } else {
+        html += '<div class="customer-detail__empty">Nenhum movimento de pontos.</div>';
+      }
+      html += '</div>';
+
+      body.innerHTML = html;
+      modal.style.display = 'flex';
+    }
+
+    function closeCustomerDetail() {
+      document.getElementById('customer-detail-modal').style.display = 'none';
+    }
+
+    // ============================================================
+    // Customer Edit
+    // ============================================================
+    function editCustomerAdmin(email) {
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      var account = accounts.find(function(a) { return a.email === email; });
+      if (!account) { adminToast('Cliente não encontrado.'); return; }
+      document.getElementById('edit-customer-email').value = account.email;
+      document.getElementById('edit-customer-name').value = account.name || '';
+      document.getElementById('edit-customer-phone').value = account.phone || '';
+      document.getElementById('edit-customer-email-display').value = account.email || '';
+      document.getElementById('edit-customer-points').value = account.points || 0;
+      document.getElementById('customer-edit-modal').style.display = 'flex';
+    }
+
+    function closeCustomerEdit() {
+      document.getElementById('customer-edit-modal').style.display = 'none';
+    }
+
+    function saveCustomerEditAdmin() {
+      var email = document.getElementById('edit-customer-email').value;
+      var name = document.getElementById('edit-customer-name').value.trim();
+      var phone = document.getElementById('edit-customer-phone').value.trim();
+      var points = parseInt(document.getElementById('edit-customer-points').value, 10) || 0;
+      if (!name || name.length < 2) { adminToast('Nome deve ter pelo menos 2 caracteres.'); return; }
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      var idx = accounts.findIndex(function(a) { return a.email === email; });
+      if (idx === -1) { adminToast('Cliente não encontrado.'); return; }
+      accounts[idx].name = name;
+      accounts[idx].phone = phone;
+      accounts[idx].points = points;
+      try { localStorage.setItem('premium_pizzaria_accounts', JSON.stringify(accounts)); } catch (e) {}
+      closeCustomerEdit();
+      renderCustomersAdminList();
+      adminToast('Cliente atualizado.');
+    }
+
+    // ============================================================
+    // Customer Delete
+    // ============================================================
+    function deleteCustomerAdmin(email) {
+      if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) return;
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      var idx = accounts.findIndex(function(a) { return a.email === email; });
+      if (idx === -1) { adminToast('Cliente não encontrado.'); return; }
+      accounts.splice(idx, 1);
+      try { localStorage.setItem('premium_pizzaria_accounts', JSON.stringify(accounts)); } catch (e) {}
+      closeCustomerDetail();
+      renderCustomersAdminList();
+      adminToast('Cliente excluído.');
     }
 
     // Registra o Service Worker do PWA no Admin
