@@ -51,6 +51,8 @@ O site é uma **Single Page Application (SPA)** de alta conversão, construída 
 
 ## 🚀 Deploy (Vercel)
 
+> **⚠️ ATENÇÃO:** O deploy Vercel foi configurado mas **nunca foi finalizado** — o projeto precisa ser importado no painel Vercel (ação manual do dono do repositório, ver abaixo). Enquanto isso, o site continua no **GitHub Pages** em `https://deyvyssonbr.github.io/pizzaria-premium/`.
+
 O projeto é publicado continuamente na **Vercel** a partir do branch `main` deste repositório. Por que Vercel e não GitHub Pages:
 
 - HTTPS automático no subdomínio gratuito (ex.: `pizzaria-premium.vercel.app`).
@@ -58,16 +60,24 @@ O projeto é publicado continuamente na **Vercel** a partir do branch `main` des
 - Variável de ambiente `MP_ACCESS_TOKEN` fica protegida no servidor, nunca exposta ao cliente.
 - Deploy a cada push em `main`.
 
-### Configuração inicial (já feita)
+### Configuração inicial (ação manual — ~5 min)
 
-1. Importar o repo `deyvyssonbr/pizzaria-premium` na Vercel.
-2. Framework preset: **Other** (sem build step — é SPA estática).
-3. Output directory: raiz do repositório (default).
-4. Adicionar variável de ambiente em **Settings → Environment Variables**:
-   - `MP_ACCESS_TOKEN` = token do Mercado Pago (ambiente Production).
-5. Branch de produção: `main`.
+O `vercel.json` e a função `/api/create-preference.js` já estão commitados no `main`. Falta apenas importar o projeto:
 
-O arquivo `vercel.json` controla cache de assets (`/assets/*` por 1 ano, `sw.js` e `manifest.json` sem cache) e headers de segurança.
+1. Acessar [vercel.com/new](https://vercel.com/new) → "Import Git Repository" → autorizar GitHub → escolher `deyvyssonbr/pizzaria-premium`.
+2. **Framework Preset:** `Other`
+3. **Root Directory:** `./` (default)
+4. **Build Command:** deixar vazio
+5. **Output Directory:** deixar vazio
+6. Em **Environment Variables**, adicionar:
+   - `MP_ACCESS_TOKEN` = token de produção do Mercado Pago (nunca comitar)
+7. Clicar **Deploy** (~1 minuto)
+8. Em **Settings → Domains**, configurar alias para `pizzaria-premium.vercel.app`
+
+O arquivo `vercel.json` controla:
+- **SPA rewrites**: todas as rotas caem em `index.html` (cliente-side routing)
+- **Cache de assets**: `/assets/*` por 1 ano (immutable), `sw.js` e `manifest.json` sem cache
+- **Headers de segurança**: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`
 
 ### Trocar para o domínio próprio (quando aprovado)
 
