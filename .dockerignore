@@ -1,0 +1,16 @@
+node_modules/
+scripts/.cache/
+.git/
+.gitignore
+.DS_Store
+*.log
+.overclock-app/
+opencode.json
+CHANGELOG_LOCAL.md
+docs-local/
+*.local.md
+proposals/
+README.md
+audit-screenshots/
+node_modules
+npm-debug.log*
