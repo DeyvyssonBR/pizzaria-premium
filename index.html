@@ -1319,6 +1319,23 @@
       </div>
     </div>
 
+    <!-- Welcome Coupon Popup -->
+    <div class="welcome-coupon-overlay" id="welcome-coupon-overlay" aria-hidden="true">
+      <div class="welcome-coupon-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-coupon-title">
+        <button class="welcome-coupon-modal__close" type="button" id="welcome-coupon-close" aria-label="Fechar">&times;</button>
+        <span class="welcome-coupon-modal__icon">🎉</span>
+        <h2 id="welcome-coupon-title">Deseja um cupom de 10% OFF?</h2>
+        <p>No seu primeiro pedido, você ganha <strong>10% de desconto</strong>! É automático — use o cupom no checkout.</p>
+        <div id="welcome-coupon-code-area" style="display:none;">
+          <div class="coupon-code-label">Seu cupom</div>
+          <div class="coupon-code-display">BEMVINDO10</div>
+          <p style="font-size:0.82rem;margin-top:16px;">Copie o código e use no checkout. Válido para primeira compra.</p>
+        </div>
+        <button class="btn-coupon-accept" type="button" id="welcome-coupon-accept">QUERO MEU CUPOM</button>
+        <button class="btn-coupon-dismiss" type="button" id="welcome-coupon-dismiss">Agora não</button>
+      </div>
+    </div>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

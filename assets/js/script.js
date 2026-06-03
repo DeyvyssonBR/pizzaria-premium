@@ -5006,6 +5006,155 @@ function closeNotificationDrawer() {
 })();
 
 /* ============================================================
+   Welcome Coupon Popup
+   ============================================================ */
+function seedWelcomeCoupon() {
+  var list = loadPromoCoupons();
+  var exists = list.some(function(c) { return c.code === 'BEMVINDO10'; });
+  if (!exists) {
+    list.push({
+      id: 'cp-welcome',
+      code: 'BEMVINDO10',
+      name: '10% OFF na primeira compra',
+      discountType: 'percent',
+      discountValue: 10,
+      minOrder: 0,
+      expires: '',
+      maxUses: 0,
+      usedCount: 0,
+      active: true,
+      createdAt: Date.now()
+    });
+    localStorage.setItem(PROMO_COUPONS_KEY, JSON.stringify(list));
+  }
+}
+
+function initWelcomeCouponPopup() {
+  var overlay = document.getElementById('welcome-coupon-overlay');
+  var acceptBtn = document.getElementById('welcome-coupon-accept');
+  var dismissBtn = document.getElementById('welcome-coupon-dismiss');
+  var closeBtn = document.getElementById('welcome-coupon-close');
+  var codeArea = document.getElementById('welcome-coupon-code-area');
+  if (!overlay) return;
+
+  var key = 'premium_pizzaria_welcome_coupon_shown';
+  var shown = localStorage.getItem(key);
+  if (shown) return;
+
+  // Garante que o cupom BEMVINDO10 existe no sistema
+  seedWelcomeCoupon();
+
+  function showPopup() {
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePopup() {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    localStorage.setItem(key, Date.now().toString());
+  }
+
+  function copyCouponCode() {
+    var code = 'BEMVINDO10';
+    navigator.clipboard.writeText(code).then(function() {
+      if (typeof showToast === 'function') showToast('Cupom ' + code + ' copiado! 🎉');
+    }).catch(function() {
+      // Fallback: seleciona o texto
+      var el = document.querySelector('.coupon-code-display');
+      if (el) {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    });
+  }
+
+  function acceptCoupon() {
+    var acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+    if (acc && typeof updateCurrentAccount === 'function') {
+      var existing = (acc.coupons || []).find(function(c) { return c.code === 'BEMVINDO10' && !c.used; });
+      if (!existing) {
+        var coupon = {
+          code: 'BEMVINDO10',
+          name: '10% OFF na primeira compra',
+          discountType: 'percent',
+          discountValue: 10,
+          earnedAt: Date.now(),
+          used: false
+        };
+        updateCurrentAccount({ coupons: [...(acc.coupons || []), coupon] });
+      }
+      closePopup();
+      if (typeof showToast === 'function') showToast('Cupom BEMVINDO10 adicionado! 🎉');
+    } else {
+      if (acceptBtn) acceptBtn.style.display = 'none';
+      if (codeArea) codeArea.style.display = 'block';
+      copyCouponCode();
+      if (dismissBtn) dismissBtn.textContent = 'Fechar';
+    }
+  }
+
+  // Torna o código clicável para copiar
+  var codeDisplay = document.querySelector('.coupon-code-display');
+  if (codeDisplay) {
+    codeDisplay.style.cursor = 'pointer';
+    codeDisplay.title = 'Clique para copiar';
+    codeDisplay.addEventListener('click', copyCouponCode);
+  }
+
+  if (acceptBtn) acceptBtn.addEventListener('click', acceptCoupon);
+  if (dismissBtn) dismissBtn.addEventListener('click', closePopup);
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closePopup();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) closePopup();
+  });
+
+  // Delay de 3s para não atrapalhar a navegação inicial
+  setTimeout(showPopup, 3000);
+}
+
+/* ============================================================
+   Seasonal Notifications Auto-trigger
+   ============================================================ */
+function seedSeasonalNotifications() {
+  var days = [
+    { dow: 1, icon: '🔥', title: 'Segundou em Dobro', msg: 'Compre uma média, leve outra média grátis! Só nas segundas, 18h-22h.' },
+    { dow: 2, icon: '🍕', title: 'Terça do Sabor', msg: 'Terça-feira é dia de experimentar um sabor novo!' },
+    { dow: 3, icon: '🍫', title: 'Quarta do Doce', msg: 'Toda pizza doce média com 20% OFF. Quartas, o dia todo!' },
+    { dow: 4, icon: '🍕', title: 'Quinta do Clássico', msg: 'Pizzas tradicionais com preço especial às quintas!' },
+    { dow: 5, icon: '🎉', title: 'Sextou! 🎉', msg: 'Sextou! Que tal uma pizza + coquinha para celebrar? Promoções especiais de sexta!' },
+    { dow: 6, icon: '🎊', title: 'Sábado Especial', msg: 'Sábado é dia de pizza! Aproveite nossas ofertas de fim de semana.' },
+    { dow: 0, icon: '😌', title: 'Domingo em Família', msg: 'Domingo mais gostoso com pizza em casa. Peça já a sua!' }
+  ];
+  var today = new Date().getDay();
+  var seasonal = days.find(function(d) { return d.dow === today; });
+  if (!seasonal) return;
+  var notifs = loadNotificacoes();
+  var seasonalId = 'seasonal-' + today;
+  var exists = notifs.some(function(n) { return n.id === seasonalId; });
+  if (exists) return;
+  notifs.push({
+    id: seasonalId,
+    title: seasonal.title,
+    message: seasonal.msg,
+    type: 'promocao',
+    icon: seasonal.icon,
+    active: true,
+    createdAt: Date.now()
+  });
+  try { localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifs)); } catch (e) {}
+  updateNotificationBadge();
+}
+
+/* ============================================================
    Cupons Promocionais (não-fidelidade) no Checkout
    ============================================================ */
 const PROMO_COUPONS_KEY = 'premium_pizzaria_promo_coupons';
@@ -5125,4 +5274,8 @@ function markPromoCouponUsed(code) {
     localStorage.setItem(PROMO_COUPONS_KEY, JSON.stringify(list));
   }
 }
+
+// Boot: init functions on defer-loaded script
+seedSeasonalNotifications();
+initWelcomeCouponPopup();
 

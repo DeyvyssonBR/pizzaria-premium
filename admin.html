@@ -1864,6 +1864,9 @@
         <div class="nav-item" onclick="switchTab('tab-notifications', this)">
           <i class="fa-solid fa-bell"></i> Notificações
         </div>
+        <div class="nav-item" onclick="switchTab('tab-customers', this)">
+          <i class="fa-solid fa-users"></i> Clientes
+        </div>
         <div class="nav-item" onclick="switchTab('tab-dashboard', this)">
           <i class="fa-solid fa-chart-line"></i> Painel de Vendas
         </div>
@@ -2348,6 +2351,33 @@
                 <button class="btn-logout" onclick="closeNotificationForm()">Cancelar</button>
                 <button class="btn" style="width:auto;padding:10px 24px;" onclick="saveNotificationAdmin()"><i class="fa-solid fa-save"></i> Salvar Notificação</button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Clientes -->
+        <div class="tab-content" id="tab-customers">
+          <div class="section-title">
+            <span>Clientes Cadastrados</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-ghost" style="width:auto;padding:10px 16px;font-size:0.82rem;" onclick="exportCustomersAdmin()"><i class="fa-solid fa-download"></i> Exportar</button>
+              <button class="btn-ghost" style="width:auto;padding:10px 16px;font-size:0.82rem;" onclick="renderCustomersAdminList()"><i class="fa-solid fa-rotate-right"></i> Atualizar</button>
+            </div>
+          </div>
+          <div class="section-subtitle">Visualize todos os clientes registrados no sistema.</div>
+
+          <div class="grid-toolbar">
+            <div class="grid-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-customers" placeholder="Buscar por nome ou e-mail..." oninput="renderCustomersAdminList()">
+            </div>
+          </div>
+
+          <div id="customers-admin-content">
+            <div class="dash-empty">
+              <div class="dash-empty__icon"><i class="fa-solid fa-users"></i></div>
+              <div class="dash-empty__title">Nenhum cliente</div>
+              <div class="dash-empty__desc">Quando clientes se cadastrarem no site, aparecerão aqui.</div>
             </div>
           </div>
         </div>
@@ -5586,6 +5616,68 @@
       saveNotificacoes(list);
       renderNotificationsAdminList();
       adminToast('Notificação excluída.');
+    }
+
+    // ============================================================
+    // Admin: Clientes (Base de Clientes)
+    // ============================================================
+    function renderCustomersAdminList() {
+      var container = document.getElementById('customers-admin-content');
+      if (!container) return;
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      var searchEl = document.getElementById('search-customers');
+      var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+      if (query) {
+        accounts = accounts.filter(function(a) {
+          return (a.name || '').toLowerCase().includes(query) || (a.email || '').toLowerCase().includes(query);
+        });
+      }
+      if (!accounts.length) {
+        container.innerHTML = '<div class="dash-empty"><div class="dash-empty__icon"><i class="fa-solid fa-users"></i></div><div class="dash-empty__title">' + (query ? 'Nenhum cliente encontrado' : 'Nenhum cliente') + '</div><div class="dash-empty__desc">' + (query ? 'Tente outro termo de busca.' : 'Quando clientes se cadastrarem no site, aparecerão aqui.') + '</div></div>';
+        return;
+      }
+      accounts.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+      var html = '<div class="dash-table-wrap"><table class="dash-table"><thead><tr>' +
+        '<th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Pontos</th><th>Cupons</th><th>Desde</th></tr></thead><tbody>';
+      accounts.forEach(function(a) {
+        var dateStr = a.createdAt ? new Date(a.createdAt).toLocaleDateString('pt-BR') : '—';
+        var name = escapeHtml(a.name || '—');
+        var email = escapeHtml(a.email || '—');
+        var phone = escapeHtml(formatPhone(a.phone || ''));
+        var points = a.points || 0;
+        var couponCount = (a.coupons || []).filter(function(c) { return !c.used; }).length;
+        html += '<tr><td class="dash-cell-name">' + name + '</td><td>' + email + '</td><td class="dash-cell-phone">' + phone + '</td><td>' + points + '</td><td>' + couponCount + '</td><td>' + dateStr + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      html += '<div style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);">Total: ' + accounts.length + ' cliente' + (accounts.length !== 1 ? 's' : '') + '</div>';
+      container.innerHTML = html;
+    }
+
+    function formatPhone(val) {
+      if (!val) return '';
+      var d = val.replace(/\D/g, '');
+      if (d.length === 11) return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+      if (d.length === 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+      return val;
+    }
+
+    function exportCustomersAdmin() {
+      var accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem('premium_pizzaria_accounts') || '[]'); } catch (e) {}
+      if (!accounts.length) { adminToast('Nenhum cliente para exportar.'); return; }
+      var csv = 'Nome,E-mail,WhatsApp,Pontos,Cupons Ativos,Desde\n';
+      accounts.forEach(function(a) {
+        var name = (a.name || '').replace(/,/g, ' ');
+        var email = (a.email || '').replace(/,/g, ' ');
+        var phone = (a.phone || '').replace(/,/g, ' ');
+        var points = a.points || 0;
+        var coupons = (a.coupons || []).filter(function(c) { return !c.used; }).length;
+        var since = a.createdAt ? new Date(a.createdAt).toLocaleDateString('pt-BR') : '';
+        csv += name + ',' + email + ',' + phone + ',' + points + ',' + coupons + ',' + since + '\n';
+      });
+      console.log('Clientes CSV:\n' + csv);
+      adminToast(accounts.length + ' clientes exportados (veja no console).');
     }
 
     // Registra o Service Worker do PWA no Admin

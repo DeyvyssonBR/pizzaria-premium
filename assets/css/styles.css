@@ -6714,3 +6714,129 @@ body.has-cart-items .pwa-install-banner {
   background: #ff8c00;
   box-shadow: 0 2px 6px rgba(255, 140, 0, 0.6), 0 0 0 2px #5a0a18;
 }
+
+/* Welcome Coupon Popup */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalSlide {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.welcome-coupon-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+.welcome-coupon-overlay.is-open {
+  display: flex;
+}
+.welcome-coupon-modal {
+  background: linear-gradient(145deg, #1c1512, #0d0b0a);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  max-width: 420px;
+  width: 100%;
+  padding: 40px 32px 32px;
+  text-align: center;
+  animation: modalSlide 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+}
+.welcome-coupon-modal__icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  display: block;
+}
+.welcome-coupon-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.welcome-coupon-modal__close:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+.welcome-coupon-modal h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+.welcome-coupon-modal p {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+.welcome-coupon-modal .coupon-code-display {
+  display: inline-block;
+  background: rgba(248, 170, 7, 0.12);
+  border: 2px dashed var(--gold);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+.welcome-coupon-modal .coupon-code-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.welcome-coupon-modal .btn-coupon-accept {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold), #d68a00);
+  border: none;
+  border-radius: 14px;
+  color: #0d0b0a;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(248, 170, 7, 0.3);
+}
+.welcome-coupon-modal .btn-coupon-accept:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(248, 170, 7, 0.4);
+}
+.welcome-coupon-modal .btn-coupon-dismiss {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.88rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+.welcome-coupon-modal .btn-coupon-dismiss:hover {
+  color: var(--text);
+}
