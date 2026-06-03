@@ -2707,23 +2707,26 @@
 
             <!-- API integration configs -->
             <div id="mp-api-fields" style="display: none;">
-              <div class="form-group">
-                <label for="cfg-mp-token">Token de Acesso de Produção / Homologação (Access Token)</label>
-                <input type="password" id="cfg-mp-token" placeholder="Ex: APP_USR-1234567890123456-...">
-                <span style="font-size:0.75rem; color:var(--text-muted);">Seu Access Token obtido no painel do desenvolvedor (começa com APP_USR- ou TEST-).</span>
-              </div>
-              <div class="form-group">
-                <label for="cfg-mp-public-key">Chave Pública (Public Key)</label>
-                <input type="text" id="cfg-mp-public-key" placeholder="Ex: APP_USR-xxxxxx-xxxx-xxxx-...">
-              </div>
-              <div class="payment-note-box" style="margin-top: 15px; background: rgba(201, 8, 20, 0.12); border: 1px solid rgba(201, 8, 20, 0.45); padding: 15px; border-radius: 12px; color: #ff8a8a;">
+              <div class="payment-note-box" style="background: rgba(46, 125, 50, 0.10); border: 1px solid rgba(46, 125, 50, 0.30); padding: 15px; border-radius: 12px;">
                 <p style="font-size: 0.82rem; line-height: 1.5; margin: 0;">
-                  🚨 <strong>RISCO DE SEGURANÇA:</strong> Este token concede acesso completo à sua conta do Mercado Pago. <strong>NUNCA</strong> preencha com um Access Token de produção sem ter uma função serverless ativa em <code>/api/create-preference</code> (Vercel / Cloudflare). O sistema NÃO faz mais chamadas diretas a partir do navegador — sem backend, o pagamento usa o <strong>Link Manual</strong> configurado acima. Veja <code>MERCADOPAGO_SKILL.md</code> para configurar com segurança. Para testes, use tokens com prefixo <code>TEST-</code>.
+                  ✅ A integração via API Oficial usa a função serverless em <code>/api/create-preference</code> (Vercel).<br>
+                  O Access Token é lido da variável de ambiente <code>MP_ACCESS_TOKEN</code> — <strong>nunca exposto no navegador</strong>.<br><br>
+                  ⚙️ Configure o token no painel da Vercel: Project Settings → Environment Variables → <code>MP_ACCESS_TOKEN</code>.<br>
+                  Veja <code>MERCADOPAGO_SKILL.md</code> para instruções completas.
                 </p>
               </div>
             </div>
 
             <button class="btn" style="margin-top: 15px;" onclick="saveConfigStore()"><i class="fa-solid fa-save"></i> Salvar Configurações</button>
+
+            <div style="margin-top: 18px; padding: 16px; background: rgba(90,10,24,0.08); border-radius: 12px; border: 1px solid rgba(90,10,24,0.15);">
+              <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 10px;">Testar Integração Mercado Pago</div>
+              <p style="font-size: 0.78rem; color: #666; margin-bottom: 12px;">Gere um link de pagamento de teste para verificar se a API do Mercado Pago está funcionando corretamente.</p>
+              <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+                <button class="btn btn-sm" onclick="testMpPreference()" style="flex-shrink:0;"><i class="fa-solid fa-link"></i> Gerar Link de Teste (R$ 1,00)</button>
+                <div id="mp-test-preview" style="min-width: 200px;"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3184,11 +3187,7 @@
       document.getElementById('cfg-pix-name').value = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
       document.getElementById('cfg-pix-city').value = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
       document.getElementById('cfg-mp-link').value = localStorage.getItem('premium_pizzaria_mp_link') || '';
-
-      // Novas configurações
       document.getElementById('cfg-mp-integration-type').value = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'link';
-      document.getElementById('cfg-mp-token').value = localStorage.getItem('premium_pizzaria_mp_token') || '';
-      document.getElementById('cfg-mp-public-key').value = localStorage.getItem('premium_pizzaria_mp_public_key') || '';
       document.getElementById('cfg-delivery-fee').value = localStorage.getItem('premium_pizzaria_delivery_fee') || '0';
       document.getElementById('cfg-estimated-time').value = localStorage.getItem('premium_pizzaria_estimated_time') || '40 a 60 min';
 
@@ -3504,8 +3503,6 @@
       const mpLink = document.getElementById('cfg-mp-link').value.trim();
 
       const mpIntegrationType = document.getElementById('cfg-mp-integration-type').value;
-      const mpToken = document.getElementById('cfg-mp-token').value.trim();
-      const mpPublicKey = document.getElementById('cfg-mp-public-key').value.trim();
       const deliveryFee = document.getElementById('cfg-delivery-fee').value.trim();
       const estimatedTime = document.getElementById('cfg-estimated-time').value.trim();
 
@@ -3516,8 +3513,6 @@
       localStorage.setItem('premium_pizzaria_mp_link', mpLink);
 
       localStorage.setItem('premium_pizzaria_mp_integration_type', mpIntegrationType);
-      localStorage.setItem('premium_pizzaria_mp_token', mpToken);
-      localStorage.setItem('premium_pizzaria_mp_public_key', mpPublicKey);
       localStorage.setItem('premium_pizzaria_delivery_fee', deliveryFee);
       localStorage.setItem('premium_pizzaria_estimated_time', estimatedTime);
 
@@ -5560,6 +5555,43 @@
         preview.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #ddd; max-width:300px;"><div style="font-size:0.75rem; font-weight:700; margin-bottom:8px; color:#2e7d32;">PIX Copia e Cola (teste):</div><textarea readonly style="width:100%; height:80px; font-size:0.7rem; border:1px solid #ccc; border-radius:6px; padding:6px; resize:none;">' + payload + '</textarea><div style="font-size:0.7rem; color:#999; margin-top:6px;">Cole este codigo no app do banco para testar. Valor: R$ 1,00</div></div>';
       } catch (err) {
         preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">Erro: ' + err.message + '</div>';
+      }
+    }
+
+    async function testMpPreference() {
+      const preview = document.getElementById('mp-test-preview');
+      preview.innerHTML = '<div style="font-size:0.82rem; color:#666;">Gerando link de pagamento...</div>';
+
+      try {
+        const res = await fetch('/api/create-preference', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{
+              title: 'Produto Teste - Pizzaria Premium',
+              quantity: 1,
+              unit_price: 1.00,
+              currency_id: 'BRL'
+            }],
+            total: 1.00
+          })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error('API retornou ' + res.status + ': ' + errText);
+        }
+
+        const data = await res.json();
+        if (!data.init_point) throw new Error('Resposta sem init_point');
+
+        preview.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #ddd; max-width:400px;">' +
+          '<div style="font-size:0.75rem; font-weight:700; margin-bottom:8px; color:#2e7d32;">Link de pagamento gerado com sucesso!</div>' +
+          '<a href="' + data.init_point + '" target="_blank" rel="noopener" style="display:block; word-break:break-all; font-size:0.78rem; color:#1565c0; margin-bottom:8px;">' + data.init_point + '</a>' +
+          '<button class="btn btn-sm" onclick="this.previousElementSibling.select(); document.execCommand(\'copy\'); this.textContent=\'Copiado!\'" style="font-size:0.7rem;">Copiar link</button>' +
+          '</div>';
+      } catch (err) {
+        preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">Erro: ' + err.message.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
       }
     }
 

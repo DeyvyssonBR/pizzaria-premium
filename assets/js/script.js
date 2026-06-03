@@ -3,8 +3,6 @@ const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '55869948547
 const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
-const MP_TOKEN = localStorage.getItem('premium_pizzaria_mp_token') || 'TEST-8866353739323709-052309-3b6abc8412c2c17facb6d86657c88790-327822767';
-const MP_PUBLIC_KEY = localStorage.getItem('premium_pizzaria_mp_public_key') || '';
 const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
 const DELIVERY_FEE = parseFloat(localStorage.getItem('premium_pizzaria_delivery_fee') || '0');
 const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') || '40-60 min';
@@ -2892,7 +2890,7 @@ function finalizeOrder() {
     couponCode: _usedCoupon ? _usedCoupon.code : null,
     couponName: _usedCoupon ? _usedCoupon.name : null,
     discount,
-    paymentConfirmed: false
+    paymentConfirmed: payment === 'mercadopago' ? checkMpPaymentConfirmed() : false
   };
   persistOrder(order);
 
@@ -3060,6 +3058,17 @@ function regeneratePixCode(total) {
   if (ta) ta.value = code;
   renderPixQRCode(code);
   startPixTimer();
+}
+
+function checkMpPaymentConfirmed() {
+  try {
+    const paid = sessionStorage.getItem('premium_pizzaria_mp_paid') === 'true';
+    if (paid) {
+      sessionStorage.removeItem('premium_pizzaria_mp_paid');
+      return true;
+    }
+  } catch (e) { /* ignora */ }
+  return false;
 }
 
 function showPaymentToast(icon, text, kind = 'success', durationMs = 4000) {
@@ -3363,6 +3372,13 @@ if (paymentStatus) {
   // Limpa o parâmetro da URL sem recarregar a página
   const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
   window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+
+  // Se pagamento foi aprovado, guarda flag em sessionStorage para confirmar o pedido
+  if (paymentStatus === 'success') {
+    try {
+      sessionStorage.setItem('premium_pizzaria_mp_paid', 'true');
+    } catch (e) { /* ignora */ }
+  }
 
   setTimeout(() => showPaymentResult(paymentStatus), 600);
 }

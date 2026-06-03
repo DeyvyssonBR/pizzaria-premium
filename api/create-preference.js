@@ -8,13 +8,24 @@
 // Caso contrário, pode usar require('node-fetch') ou similar.
 
 module.exports = async (req, res) => {
-  // Configurações de CORS para permitir requisições do seu site
+  // Configurações de CORS para permitir requisições apenas de origens conhecidas
+  const ALLOWED_ORIGINS = [
+    'https://deyvyssonbr.github.io',
+    'https://pizzaria-premium.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5173'
+  ];
+  const origin = req.headers.origin || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : 'https://deyvyssonbr.github.io';
+
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'Content-Type'
   );
 
   // Trata requisição de preflight CORS
