@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v16-owner-self-service';
+const CACHE_NAME = 'pizzaria-premium-v16-admin-auth';
 const ASSETS = [
   './',
   './index.html',

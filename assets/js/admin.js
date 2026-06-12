@@ -602,9 +602,14 @@
     bindMessagesTab();
     refreshAll();
 
-    // Open onboarding on first login if not done yet
+    // Open onboarding on first login if not done yet.
+    // v16 (TAA-13): respect the inactivity window — if the dashboard was
+    // shown because of a stale flag, don't pop the wizard.
     try {
-      if (sessionStorage.getItem('admin_logged') === 'true' && !isOnboardingDone()) {
+      const flag = sessionStorage.getItem('admin_logged') === 'true';
+      const last = Number(sessionStorage.getItem('pp_admin_last_activity') || 0);
+      const fresh = last && (Date.now() - last) < (15 * 60 * 1000);
+      if (flag && fresh && !isOnboardingDone()) {
         // small delay so the dashboard has a moment to render behind the overlay
         setTimeout(openOnboarding, 400);
       }

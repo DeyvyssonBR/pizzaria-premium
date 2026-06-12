@@ -3541,9 +3541,15 @@
 
     // Default values if we don't have menu in localStorage (will read from script.js anyway)
     window.addEventListener('DOMContentLoaded', () => {
-      // Check login state
-      if (sessionStorage.getItem('admin_logged') === 'true') {
+      // v16 (TAA-13): revalidate session against the inactivity window
+      // before showing the dashboard. The flag alone is no longer enough.
+      if (typeof ppAdminLegacySessionAlive === 'function' && ppAdminLegacySessionAlive()) {
+        if (typeof ppAdminBindActivity === 'function') ppAdminBindActivity();
         showDashboard();
+      } else if (sessionStorage.getItem('admin_logged') === 'true') {
+        // Stale flag with no recent activity -> force re-login.
+        sessionStorage.removeItem('admin_logged');
+        sessionStorage.removeItem('pp_admin_last_activity');
       }
       
       // Load configurations
@@ -3610,14 +3616,12 @@
       }
     }
 
-    function tryLogin() {
-      // v16 (TAA-13): legacy entrypoint kept only as a fallback for the migration
-      // window. The real path is submitAdminAuth() which derives
-      // sha256(pepper + ':' + entered) and compares constant-time.
-      submitAdminAuth();
-    }
-
     // ---------- Admin auth rewrite (TAA-13) ----------
+    //
+    // Replaces the literal 'pass === "admin" || pass === "admin123"' gate
+    // that used to live in this file. See the briefing in TAA-13 for the
+    // threat model. submitAdminAuth() (defined further down) is the only
+    // entry point called by the form below.
     //
     // Two modes:
     //   * Local mode (default): pepper + verifier live in localStorage. No
