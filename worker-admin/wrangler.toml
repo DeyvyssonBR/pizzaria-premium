@@ -1,0 +1,38 @@
+name = "pizzaria-premium-admin"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+# Cloudflare Worker — admin auth (TAA-13)
+# Endpoints:
+#   POST /api/admin/setup   (bootstrap, requires ADMIN_BOOTSTRAP_KEY)
+#   POST /api/admin/login   (PBKDF2 verify, sets httpOnly cookie)
+#   POST /api/admin/logout  (clears session)
+#   GET  /api/admin/me      (validates session cookie)
+#
+# Variáveis de ambiente (dashboard Cloudflare → Workers → Settings → Variables):
+#   ADMIN_BOOTSTRAP_KEY  opcional; só necessário para o setup inicial
+#   ALLOWED_ORIGINS      CSV de origins permitidas no CORS
+#   PBKDF2_ITERATIONS    opcional, default 100_000
+#
+# Bindings KV (Workers → KV → Create namespace):
+#   PP_ADMIN_USERS  obrigatório
+#
+# Secrets (NUNCA comitar):
+#   wrangler secret put ADMIN_BOOTSTRAP_KEY
+#
+# Deploy:
+#   cd worker-admin
+#   npm install
+#   wrangler kv:namespace create PP_ADMIN_USERS
+#   wrangler secret put ADMIN_BOOTSTRAP_KEY
+#   npm run deploy
+
+[vars]
+ALLOWED_ORIGINS = "https://deyvyssonbr.github.io,https://pizzaria-premium.vercel.app"
+
+# Substitua o id pelo que `wrangler kv:namespace create PP_ADMIN_USERS` devolveu
+# (rode de novo com `--preview` para o environment preview).
+# [[kv_namespaces]]
+# binding = "PP_ADMIN_USERS"
+# id = "REPLACE_WITH_REAL_ID"
+# preview_id = "REPLACE_WITH_PREVIEW_ID"
