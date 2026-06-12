@@ -11,3 +11,7 @@ docs-local/
 
 # opencode config (local API keys)
 opencode.json
+
+# Cloudflare Worker — bundle local usado por tests/mp-worker.test.cjs
+worker/dist-test.cjs
+worker-admin/dist-test.cjs

@@ -1,0 +1,39 @@
+name = "pizzaria-premium-mp"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+# Cloudflare Worker que hospeda:
+#  - POST /api/mp/create-pix  → cria pagamento Pix server-side (token em secret)
+#  - POST /api/mp/webhook     → recebe notificações IPN/MP, valida assinatura
+#  - GET  /api/mp/payment-status?ref=...  → consulta KV pro front polling
+#
+# Variáveis de ambiente (configurar no dashboard Cloudflare → Workers → Settings → Variables):
+#   MP_ACCESS_TOKEN     obrigatório   Access Token de produção (APP_USR-...)
+#   MP_ENV              opcional      "sandbox" para forçar credenciais de teste; default = production
+#   MP_WEBHOOK_SECRET   obrigatório   Segredo do Webhook (configurado no painel MP)
+#   ALLOWED_ORIGINS     opcional      CSV de origins permitidas no CORS (default = o que está no código)
+#
+# Bindings KV (Workers → KV → Create namespace):
+#   MP_TX               obrigatório   Namespace para armazenar status dos pagamentos
+#
+# Secrets (NUNCA comitar):
+#   wrangler secret put MP_ACCESS_TOKEN
+#   wrangler secret put MP_WEBHOOK_SECRET
+#
+# Deploy:
+#   cd worker
+#   npm install
+#   wrangler kv:namespace create MP_TX
+#   wrangler secret put MP_ACCESS_TOKEN
+#   wrangler secret put MP_WEBHOOK_SECRET
+#   npm run deploy
+
+[vars]
+ALLOWED_ORIGINS = "https://deyvyssonbr.github.io,https://pizzaria-premium.vercel.app"
+
+# Substitua o id pelo que `wrangler kv:namespace create MP_TX` devolveu
+# (rode de novo com `--preview` para o environment preview).
+# [[kv_namespaces]]
+# binding = "MP_TX"
+# id = "REPLACE_WITH_REAL_ID"
+# preview_id = "REPLACE_WITH_PREVIEW_ID"
