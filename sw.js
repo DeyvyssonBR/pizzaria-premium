@@ -1,10 +1,11 @@
-const CACHE_NAME = 'pizzaria-premium-v11-distance-checkout';
+const CACHE_NAME = 'pizzaria-premium-v16-owner-self-service';
 const ASSETS = [
   './',
   './index.html',
   './admin.html',
   './assets/css/styles.css',
   './assets/js/script.js',
+  './assets/js/admin.js',
   './assets/js/analytics.js',
   './assets/js/qrcode.min.js',
   './assets/img/logo-premium-2026.png',

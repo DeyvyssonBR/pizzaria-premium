@@ -1,9 +1,19 @@
 let WHATSAPP_NUMBER = localStorage.getItem('premium_pizzaria_whatsapp') || '5586981423367';
+// v13 (TAA-18): PIX key no longer hardcoded. With the Cloudflare Worker backend,
+// Pix payloads come from POST /api/mp/create-pix (token server-side). The legacy
+// localStorage keys are kept for backward compatibility with browsers that still
+// have them cached, but the new code path is `createBackendPix` below.
 const PIX_KEY = localStorage.getItem('premium_pizzaria_pix_key') || '5586994854771';
 const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria Premium';
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
 const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
+// Worker base URL — admin grava em `premium_pizzaria_mp_worker_url` (campo visível),
+// o front usa `premium_pizzaria_mp_base` (chave antiga preservada) com fallback padrão.
+const MP_BASE = (localStorage.getItem('premium_pizzaria_mp_base')
+  || localStorage.getItem('premium_pizzaria_mp_worker_url')
+  || 'https://pizzaria-premium-mp.workers.dev').replace(/\/+$/, '');
+let currentPixPayment = null; // { payment_id, status, external_ref } — used by the polling loop
 // v11: flat DELIVERY_FEE removed from checkout. The delivery fee is now computed from
 // the customer's CEP via calcDeliveryByDistance(cepData) — see maybePrefillCepFromLookup()
 // and getCheckoutDeliveryFee(). The legacy localStorage key is left untouched for
@@ -845,6 +855,20 @@ function hydrateStaticWhatsAppLinks() {
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noreferrer');
   });
+  // TAA-20: GA4 generate_lead — fire on every WhatsApp CTA click (hero,
+  // floating button, order-completed retry, full-screen "Pedido Recebido").
+  // The pipeline uses the GA4 "generate_lead" recommended event so the dono
+  // sees conversas iniciadas no painel; PII (telefone/email) nao e' coletado.
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target.closest('[data-whatsapp-link], #btn-confirm-payment-whatsapp, #success-whatsapp-retry, #pr-whatsapp-btn') : null;
+    if (!target) return;
+    if (typeof window.pizzariaTrack === 'function') {
+      window.pizzariaTrack('lead_whatsapp', {
+        source: target.id || target.getAttribute('data-whatsapp-link') ? 'static' : 'dynamic',
+        item_id: target.id || null
+      });
+    }
+  }, true);
 }
 
 function renderPromotions() {
@@ -992,6 +1016,18 @@ function renderMenu() {
 
   menuGrid.querySelectorAll('[data-add-item]').forEach((button) => {
     button.addEventListener('click', () => handleAddItem(button.dataset.addItem));
+    // TAA-20: GA4 view_item — emitted when a non-customizable menu item is shown/clicked
+    const it = menu.find((entry) => entry.id === button.dataset.addItem);
+    if (it && window.pizzariaTrack) {
+      window.pizzariaTrack('view_item', {
+        items: [{
+          item_id: it.id,
+          item_name: it.name,
+          item_category: it.type || 'simple',
+          price_brl: it.price
+        }]
+      });
+    }
   });
 
   menuGrid.querySelectorAll('[data-add-item-card]').forEach((card) => {
@@ -1002,6 +1038,18 @@ function renderMenu() {
         handleAddItem(card.dataset.addItemCard);
       }
     });
+    // TAA-20: GA4 view_item — pizza cards open the customizer; track intent here
+    const it = menu.find((entry) => entry.id === card.dataset.addItemCard);
+    if (it && window.pizzariaTrack) {
+      window.pizzariaTrack('view_item', {
+        items: [{
+          item_id: it.id,
+          item_name: it.name,
+          item_category: it.type || 'pizza',
+          price_brl: it.price
+        }]
+      });
+    }
   });
 }
 
@@ -1019,18 +1067,6 @@ function handleAddItem(itemId) {
   }
 
   addSimpleItemToCart(item);
-}
-
-function addSimpleItemToCart(item) {
-  const message = [
-    'Olá! Gostaria de fazer o seguinte pedido:',
-    '',
-    `*1x ${item.name}* (${formatBRL(item.price)})`,
-    '',
-    `Total: ${formatBRL(item.price)}`
-  ].join('\n');
-
-  window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
 }
 
 function openPizzaModal(itemId) {
@@ -1735,7 +1771,6 @@ function confirmPizzaSelection() {
     : `${selectedSize.label} ${firstFlavor.name} / ${secondFlavor.name}`;
 
   const pizzaPrice = calculatePizzaPrice();
-
   const options = [
     `Tamanho: ${selectedSize.label}`,
     `Formato: ${pizzaSelection.mode === 'inteira' ? 'Inteira' : 'Meio a Meio'}`,
@@ -1770,6 +1805,21 @@ function confirmPizzaSelection() {
   });
 
   showToast(`Pizza adicionada ao pedido! 😉`);
+  // TAA-20: GA4 add_to_cart — pizza customizer confirmed
+  if (window.pizzariaTrack) {
+    window.pizzariaTrack('add_to_cart', {
+      items: [{
+        item_id: basePizza.id,
+        item_name: customLabel,
+        item_category: 'pizza',
+        item_variant: selectedSize.id,
+        price_brl: pizzaPrice,
+        quantity: 1
+      }],
+      value: pizzaPrice,
+      currency: 'BRL'
+    });
+  }
   closePizzaModal();
   updateFloatingCartBar();
   renderCart();
@@ -2034,7 +2084,22 @@ function addSimpleItemToCart(item) {
       image: item.image
     });
   }
-  
+
+  // TAA-20: GA4 add_to_cart — simple item added
+  if (window.pizzariaTrack) {
+    window.pizzariaTrack('add_to_cart', {
+      items: [{
+        item_id: item.id,
+        item_name: item.name,
+        item_category: item.type || 'simple',
+        price_brl: item.price,
+        quantity: 1
+      }],
+      value: item.price,
+      currency: 'BRL'
+    });
+  }
+
   showToast(`Adicionado ao pedido! 😉`);
   updateFloatingCartBar();
   renderCart();
@@ -2142,8 +2207,19 @@ function navigateCartStep(stepId) {
   if (window.pizzariaTrack) {
     window.pizzariaTrack('cart_step_view', { step: stepId });
     if (stepId === 'cart-step-delivery') {
+      // TAA-20: GA4 begin_checkout — emitted on the "Entrega e Pagamento" step
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       window.pizzariaTrack('checkout_start', {
-        cart_size: cart.length
+        cart_size: cart.length,
+        cart_value_brl: subtotal,
+        currency: 'BRL',
+        items: cart.map((it) => ({
+          item_id: it.itemId || it.id,
+          item_name: it.name,
+          item_category: it.type || 'simple',
+          price_brl: it.price,
+          quantity: it.quantity
+        }))
       });
     }
   }
@@ -2566,8 +2642,30 @@ function parseEstimatedMinutes(str) {
   return 45;
 }
 
+// LGPD: política de retenção de pedidos.
+// Mantém apenas os últimos `LGPD_ORDERS_MAX_AGE_DAYS` dias de pedidos no
+// `localStorage` do dispositivo. Pedidos com mais idade são descartados no
+// carregamento, sem migração (o dispositivo é a única fonte de verdade).
+const LGPD_ORDERS_MAX_AGE_DAYS = 90;
+const LGPD_ORDERS_MAX_AGE_MS = LGPD_ORDERS_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+
+function pruneExpiredOrders(list) {
+  const cutoff = Date.now() - LGPD_ORDERS_MAX_AGE_MS;
+  return list.filter((o) => {
+    if (!o || !o.createdAt) return false;
+    return Number(o.createdAt) >= cutoff;
+  });
+}
+
 function loadOrders() {
-  try { return JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || '[]'); }
+  try {
+    const raw = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || '[]');
+    const pruned = pruneExpiredOrders(Array.isArray(raw) ? raw : []);
+    if (pruned.length !== (Array.isArray(raw) ? raw.length : 0)) {
+      try { localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(pruned)); } catch (e) { /* ignore */ }
+    }
+    return pruned;
+  }
   catch (e) { return []; }
 }
 
@@ -2605,7 +2703,17 @@ function saveCustomerProfile(snapshot) {
 function loadCustomerProfile() {
   try {
     const raw = localStorage.getItem(CUSTOMER_PROFILE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const profile = JSON.parse(raw);
+    // LGPD: perfil de visitante expira após 365 dias sem uso.
+    if (profile && profile.lastUsedAt) {
+      const age = Date.now() - Number(profile.lastUsedAt);
+      if (!Number.isFinite(age) || age > 365 * 24 * 60 * 60 * 1000) {
+        try { localStorage.removeItem(CUSTOMER_PROFILE_KEY); } catch (e) { /* ignore */ }
+        return null;
+      }
+    }
+    return profile;
   } catch (e) { return null; }
 }
 
@@ -3148,10 +3256,21 @@ function finalizeOrder() {
   // Privacy-respecting analytics: order_complete (no PII, no MP txId)
   if (window.pizzariaTrack) {
     const shortId = String(orderId || '').replace(/^PED-?/, '').slice(0, 12);
+    // TAA-20: GA4 purchase — with items array, value, currency
+    const gaItems = (order.items || []).map((it) => ({
+      item_id: it.itemId || it.id,
+      item_name: it.name,
+      item_category: it.type || 'simple',
+      price_brl: it.price,
+      quantity: it.quantity
+    }));
     window.pizzariaTrack('order_complete', {
       order_id: shortId,
       order_total_brl: cartTotal,
-      payment_method: payment
+      payment_method: payment,
+      items: gaItems,
+      value: cartTotal,
+      currency: 'BRL'
     });
   }
 
@@ -3266,13 +3385,117 @@ function startPixTimer() {
 }
 
 function regeneratePixCode(total) {
+  // v13 (TAA-18): the QRCode payload now comes from the Cloudflare Worker.
+  // We keep `pixTxId` / `pixExpiresAt` for the timer, but the actual BRCode
+  // is fetched via POST /api/mp/create-pix (token stays on the server).
   pixTxId = generatePixTxId(25);
+  const externalRef = `pp-${Date.now()}-${pixTxId.slice(0, 8).toLowerCase()}`;
   pixExpiresAt = Date.now() + 15 * 60 * 1000;
-  const code = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, total, pixTxId);
   const ta = document.getElementById('pix-copia-cola');
-  if (ta) ta.value = code;
-  renderPixQRCode(code);
+  const img = document.getElementById('pix-qrcode-img');
+  if (ta) { ta.value = ''; ta.placeholder = 'Gerando QR Pix seguro...'; }
+  if (img) { img.src = ''; img.alt = 'QR Code Pix (gerando...)'; }
   startPixTimer();
+  createBackendPix(total, externalRef).then((res) => {
+    if (!res) return;
+    if (res.qr_code) {
+      if (ta) { ta.value = res.qr_code; ta.placeholder = ''; }
+    }
+    if (res.qr_code_base64) {
+      if (img) { img.src = `data:image/png;base64,${res.qr_code_base64}`; img.alt = 'QR Code Pix'; }
+    } else if (res.qr_code) {
+      // Fallback: gera QR client-side a partir do BRCode (a lib qrcode.min.js continua aqui só pra isso).
+      renderPixQRCode(res.qr_code);
+    }
+    if (res.expiration_date) {
+      const exp = new Date(res.expiration_date).getTime();
+      if (Number.isFinite(exp)) pixExpiresAt = exp;
+    }
+    currentPixPayment = {
+      payment_id: res.payment_id,
+      external_ref: externalRef,
+      status: res.status || 'pending'
+    };
+    startPixPolling();
+  }).catch((err) => {
+    console.error('Falha ao gerar Pix no backend:', err);
+    if (ta) { ta.value = ''; ta.placeholder = '⚠️ Não foi possível gerar o QR Pix. Tente novamente ou pague na entrega.'; }
+    if (img) { img.alt = 'QR Pix indisponível'; }
+  });
+}
+
+// v13 (TAA-18): talks to the Cloudflare Worker. NO token, NO secret, NO key in
+// the request body. The Worker resolves everything server-side and returns the
+// Pix payload generated by Mercado Pago.
+async function createBackendPix(amount, externalRef) {
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timeoutMs = 12000;
+  let timeoutHandle = null;
+  if (ctrl) timeoutHandle = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(MP_BASE + '/api/mp/create-pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: Number(amount),
+        external_ref: externalRef,
+        description: 'Pedido Pizzaria Premium',
+        payer: {
+          first_name: (typeof checkoutName !== 'undefined' && checkoutName && checkoutName.value) ? checkoutName.value.trim().split(/\s+/)[0] : 'Cliente',
+          last_name: (typeof checkoutName !== 'undefined' && checkoutName && checkoutName.value) ? checkoutName.value.trim().split(/\s+/).slice(1).join(' ') || 'Pizzaria' : 'Pizzaria',
+          email: (typeof getCurrentAccount === 'function' && getCurrentAccount() && getCurrentAccount().email) ? getCurrentAccount().email : undefined
+        }
+      }),
+      signal: ctrl ? ctrl.signal : undefined
+    });
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`mp_create_pix_failed:${res.status}:${errBody.slice(0, 200)}`);
+    }
+    return res.json();
+  } finally {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
+  }
+}
+
+let pixPollingHandle = null;
+function startPixPolling() {
+  if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+  if (!currentPixPayment || !currentPixPayment.payment_id) return;
+  const startedAt = Date.now();
+  const maxMs = 15 * 60 * 1000; // 15 min, mesmo TTL do MP Pix
+  const tick = async () => {
+    if (Date.now() - startedAt > maxMs) {
+      clearInterval(pixPollingHandle); pixPollingHandle = null;
+      return;
+    }
+    if (!currentPixPayment) return;
+    try {
+      const res = await fetch(`${MP_BASE}/api/mp/payment-status?ref=${encodeURIComponent(currentPixPayment.payment_id)}`, { method: 'GET' });
+      if (res.status === 404) return; // ainda processando, sem erro
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === 'approved') {
+        clearInterval(pixPollingHandle); pixPollingHandle = null;
+        try { sessionStorage.setItem('premium_pizzaria_mp_paid', 'true'); } catch (e) { /* ignore */ }
+        showPaymentResult('success');
+      } else if (data.status === 'rejected' || data.status === 'cancelled') {
+        clearInterval(pixPollingHandle); pixPollingHandle = null;
+        showPaymentResult('failure');
+      }
+      // 'pending' / 'in_process' / 'in_mediation' / 'authorized' → continua polling
+    } catch (e) {
+      // Silencioso: polling pode falhar por offline; o usuário tem o "Enviar no WhatsApp" como fallback
+    }
+  };
+  // 1ª checagem em 2s, depois a cada 3s.
+  setTimeout(tick, 2000);
+  pixPollingHandle = setInterval(tick, 3000);
+}
+
+function stopPixPolling() {
+  if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+  currentPixPayment = null;
 }
 
 function checkMpPaymentConfirmed() {
@@ -3435,6 +3658,8 @@ if (cartNextBtn3) {
 
 if (cartBackToDelivery) {
   cartBackToDelivery.addEventListener('click', () => {
+    // v13 (TAA-18): parar o polling se o cliente voltar antes de pagar
+    stopPixPolling();
     navigateCartStep('cart-step-delivery');
   });
 }
@@ -3442,6 +3667,7 @@ if (cartBackToDelivery) {
 const btnBackToPaymentMethod = document.getElementById('btn-back-to-payment-method');
 if (btnBackToPaymentMethod) {
   btnBackToPaymentMethod.addEventListener('click', () => {
+    stopPixPolling();
     navigateCartStep('cart-step-delivery');
   });
 }
@@ -3678,15 +3904,40 @@ if (profileClearCheckbox) {
   const label = document.getElementById('store-hours-label');
   const list = document.getElementById('store-hours-list');
 
-  const SCHEDULE = {
-    0: { open: '18:00', close: '23:30' },
-    1: { open: '18:00', close: '22:00' },
-    2: { open: '18:00', close: '23:30' },
-    3: { open: '18:00', close: '23:30' },
-    4: { open: '18:00', close: '23:30' },
-    5: { open: '18:00', close: '23:30' },
-    6: { open: '18:00', close: '23:30' }
-  };
+  const SCHEDULE = (function () {
+    // TAA-23 (PP_ADMIN): if the admin panel saved custom hours, use them.
+    // Falls back to the original Teresina default if no key is set.
+    const FALLBACK = {
+      0: { open: '18:00', close: '23:30' },
+      1: { open: '18:00', close: '22:00' },
+      2: { open: '18:00', close: '23:30' },
+      3: { open: '18:00', close: '23:30' },
+      4: { open: '18:00', close: '23:30' },
+      5: { open: '18:00', close: '23:30' },
+      6: { open: '18:00', close: '23:30' }
+    };
+    try {
+      const raw = localStorage.getItem('premium_pizzaria_store_hours');
+      if (!raw) return FALLBACK;
+      const stored = JSON.parse(raw);
+      if (!stored || typeof stored !== 'object') return FALLBACK;
+      const out = {};
+      for (let d = 0; d < 7; d++) {
+        const h = stored[d];
+        if (h && h.closed === true) {
+          // Closed day: schedule an off-range window so the pill says "fechado".
+          out[d] = { open: '00:00', close: '00:00' };
+        } else if (h && h.open && h.close) {
+          out[d] = { open: h.open, close: h.close };
+        } else {
+          out[d] = FALLBACK[d];
+        }
+      }
+      return out;
+    } catch (e) {
+      return FALLBACK;
+    }
+  })();
 
   const toMinutes = (hhmm) => {
     const [h, m] = hhmm.split(':').map(Number);
@@ -3720,6 +3971,13 @@ if (profileClearCheckbox) {
     if (list) {
       list.querySelectorAll('li').forEach(li => {
         li.classList.toggle('is-today', Number(li.dataset.day) === day);
+        const cell = li.querySelector('span:last-child');
+        const schedule = SCHEDULE[Number(li.dataset.day)];
+        if (cell && schedule) {
+          cell.textContent = (schedule.open === schedule.close)
+            ? 'Fechado'
+            : `${schedule.open} às ${schedule.close}`;
+        }
       });
     }
   }
@@ -4334,7 +4592,10 @@ if (authModalEl) {
         showToast(`Conta criada! Bem-vindo, ${acc.name.split(' ')[0]}.`, 2800);
         // Se cadastro veio do upsell pós-pedido, registra conversão
         if (localStorage.getItem(UPSEL_DISMISS_KEY)) {
-          trackEvent('guest_converted_to_registered', { email: acc.email });
+          // Não enviar email aqui — o evento local serve só para a
+          // auditoria no admin; o pipeline analytics (pizzariaTrack)
+          // tem allowlist fechada e não aceita `email` por design.
+          trackEvent('guest_converted_to_registered', {});
         }
         regForm.reset();
       } catch (err) {

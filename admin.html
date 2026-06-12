@@ -4,11 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Painel | Pizzaria Premium</title>
-  
+
+  <!-- Security headers (defense in depth — primary enforcement is in vercel.json + server.js) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.mercadopago.com.br https://*.mercadopago.com.br 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.mercadopago.com.br https://api.mercadopago.com; frame-src 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(self &quot;https://www.mercadopago.com.br&quot;), usb=(), serial=(), magnetometer=(), gyroscope=(), accelerometer=()" />
+
   <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c90814">
   <link rel="apple-touch-icon" href="assets/img/pizzaria-premium-logo.webp">
@@ -176,6 +183,87 @@
       font-size: 0.85rem;
       margin-top: 10px;
       display: none;
+    }
+
+    /* Admin gate: wizard + locked copy */
+    .pp-wizard-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: -6px;
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+    .pp-wizard-hint strong {
+      color: var(--gold);
+    }
+    .pp-wizard-ok {
+      color: #7fe3a4;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+    }
+    .pp-locked {
+      color: #ffb14a;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+    }
+    .pp-recover {
+      margin-top: 18px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: left;
+      line-height: 1.5;
+    }
+    .pp-recover code {
+      background: var(--surface-accent);
+      padding: 1px 6px;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+    .pp-wizard-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .pp-wizard-form label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: left;
+    }
+    .pp-wizard-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+    .pp-wizard-form input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.18);
+    }
+    .pp-helper {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .pp-mode-pill {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(255, 193, 7, 0.4);
+      background: rgba(255, 193, 7, 0.08);
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
     }
 
     /* Admin Dashboard Layout */
@@ -2015,20 +2103,30 @@
   <!-- 1. Screen Login -->
   <div class="login-container" id="login-container">
     <h1 class="login-logo">Painel<span>Admin</span></h1>
-    <p class="login-desc">Entre com sua senha de administrador para gerenciar o cardápio e pagamentos.</p>
-    
+    <p class="login-desc" id="login-desc">Entre com sua senha de administrador para gerenciar o cardápio e pagamentos.</p>
+
     <div class="form-group">
-      <label for="admin-password">Senha de Acesso</label>
+      <span class="pp-mode-pill" id="admin-mode-pill" style="display:none;">Servidor</span>
+      <label for="admin-password" id="admin-password-label">Senha de Acesso</label>
       <div class="password-field">
-        <input type="password" id="admin-password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter') tryLogin()">
+        <input type="password" id="admin-password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter') submitAdminAuth()" autocomplete="current-password">
         <button type="button" class="toggle-password" aria-label="Mostrar ou ocultar senha" onclick="togglePassword(this)">
           <i class="fa-solid fa-eye"></i>
         </button>
       </div>
+      <div class="pp-wizard-hint" id="wizard-hint" style="display:none;">
+        <strong>Primeiro acesso:</strong> defina uma senha nova (mínimo 4 caracteres). Ela nunca é enviada ao servidor em texto puro — só guardamos o hash SHA-256 combinado com um <em>pepper</em> gerado neste dispositivo.
+      </div>
       <div class="error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
+      <div class="pp-locked" id="login-locked">Muitas tentativas. Aguarde alguns minutos antes de tentar de novo.</div>
+      <div class="pp-wizard-ok" id="wizard-ok">Senha definida. Entrando…</div>
     </div>
-    
-    <button class="btn" onclick="tryLogin()">Entrar no Painel</button>
+
+    <button class="btn" id="admin-submit-btn" onclick="submitAdminAuth()">Entrar no Painel</button>
+
+    <p class="pp-recover" id="recover-note" style="display:none;">
+      Esqueceu a senha? Abra o DevTools (F12) → <code>Application → Local Storage → pp_admin_pepper</code> e remova as chaves <code>pp_admin_pepper</code>, <code>pp_admin_verifier</code> e <code>pp_admin_migrated_from_legacy</code>. Na próxima abertura, o assistente vai pedir uma senha nova.
+    </p>
   </div>
 
   <!-- 2. Dashboard Area -->
@@ -2085,6 +2183,18 @@
         </div>
         <div class="nav-item" onclick="switchTab('tab-config', this)">
           <i class="fa-solid fa-gears"></i> Configurações Loja
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-horarios', this)">
+          <i class="fa-regular fa-clock"></i> Horários
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-mensagens', this)">
+          <i class="fa-regular fa-comments"></i> Mensagens
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-backup', this)">
+          <i class="fa-solid fa-floppy-disk"></i> Backup
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-onboarding', this)">
+          <i class="fa-solid fa-route"></i> Onboarding
         </div>
       </div>
 
@@ -2710,12 +2820,36 @@
 
             <!-- API integration configs -->
             <div id="mp-api-fields" style="display: none;">
-              <div class="payment-note-box" style="background: rgba(46, 125, 50, 0.10); border: 1px solid rgba(46, 125, 50, 0.30); padding: 15px; border-radius: 12px;">
+              <div class="form-group">
+                <label for="cfg-mp-access-token">Access Token do Mercado Pago (APP_USR-...)</label>
+                <input type="password" id="cfg-mp-access-token" autocomplete="off" placeholder="Cole aqui o Access Token (criptografado no navegador)" />
+                <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:4px;">
+                  ⚠️ <strong>Use a opção "Salvar no Worker" abaixo</strong> em vez de salvar aqui. O Access Token NUNCA deve ir pro localStorage do navegador (qualquer pessoa com DevTools lê). Cole-o no painel da Cloudflare (Workers → Settings → Variables → <code>MP_ACCESS_TOKEN</code>) e clique "Testar conexão" pra confirmar.
+                </span>
+              </div>
+              <div class="form-group">
+                <label for="cfg-mp-worker-url">URL do Worker (backend Pix seguro)</label>
+                <input type="url" id="cfg-mp-worker-url" placeholder="https://pizzaria-premium-mp.<sua-conta>.workers.dev" />
+                <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:4px;">
+                  URL pública do Cloudflare Worker que cria os Pix. Sem ela, o checkout não consegue gerar o QR. Veja <code>docs-local/mercadopago-setup.md</code>.
+                </span>
+              </div>
+              <div class="form-group">
+                <label for="cfg-mp-public-key">Public Key (somente para Bricks / Checkout Pro — opcional)</label>
+                <input type="text" id="cfg-mp-public-key" autocomplete="off" placeholder="APP_USR-... (somente se for usar Checkout Bricks)" />
+                <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:4px;">
+                  A Public Key pode ser pública (diferente do Access Token). Por enquanto não é usada — Pix nativo não precisa dela. Guarde aqui pra quando for ativar Checkout Pro.
+                </span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+                <button class="btn btn-sm" type="button" onclick="testMpConnection()"><i class="fa-solid fa-plug-circle-bolt"></i> Testar conexão com o Worker</button>
+                <span id="mp-conn-result" style="font-size:0.78rem;"></span>
+              </div>
+              <div class="payment-note-box" style="background: rgba(46, 125, 50, 0.10); border: 1px solid rgba(46, 125, 50, 0.30); padding: 15px; border-radius: 12px; margin-top:12px;">
                 <p style="font-size: 0.82rem; line-height: 1.5; margin: 0;">
-                  ✅ A integração via API Oficial usa a função serverless em <code>/api/create-preference</code> (Vercel).<br>
-                  O Access Token é lido da variável de ambiente <code>MP_ACCESS_TOKEN</code> — <strong>nunca exposto no navegador</strong>.<br><br>
-                  ⚙️ Configure o token no painel da Vercel: Project Settings → Environment Variables → <code>MP_ACCESS_TOKEN</code>.<br>
-                  Veja <code>MERCADOPAGO_SKILL.md</code> para instruções completas.
+                  ✅ A integração via API Oficial usa o Cloudflare Worker em <code>/api/mp/create-pix</code>.<br>
+                  O Access Token é lido do <strong>secret</strong> configurado em Cloudflare Workers → Variables → <code>MP_ACCESS_TOKEN</code> — <strong>nunca exposto no navegador</strong>.<br><br>
+                  📖 Passo-a-passo completo de deploy do Worker + chave pública/privada: <code>docs-local/mercadopago-setup.md</code>.
                 </p>
               </div>
             </div>
@@ -2739,16 +2873,95 @@
                 <strong>Developers → Webhooks</strong> e ative o evento <strong>payment</strong>.
               </p>
               <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; word-break: break-all; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <code id="webhook-url-display" style="flex:1; font-size:0.82rem;">https://pizzaria-premium.vercel.app/api/mp-webhook</code>
+                <code id="webhook-url-display" style="flex:1; font-size:0.82rem;">https://pizzaria-premium-mp.<sua-conta>.workers.dev/api/mp/webhook</code>
                 <button class="btn btn-sm" onclick="copyWebhookUrl()" style="font-size:0.7rem; flex-shrink:0;">Copiar</button>
               </div>
               <p style="font-size: 0.72rem; color: #999; margin-top: 10px;">
-                ⚡ Para confirmação automática de pagamento (sem o cliente precisar retornar ao site),
-                instale <code>@vercel/kv</code> e crie um banco KV no painel Vercel. O webhook então
-                armazenará o status e o site poderá consultá-lo via <code>/api/payment-status?ref=...</code>.
-                <br>Sem KV, o webhook apenas registra as notificações nos logs da Vercel.
+                Substitua <code>&lt;sua-conta&gt;</code> pelo subdomínio do seu Worker. Esse valor aparece também em
+                <code>worker/wrangler.toml</code>. O Worker valida a assinatura HMAC de cada notificação
+                (<code>MP_WEBHOOK_SECRET</code> configurado no painel MP e no Cloudflare) e faz
+                <code>GET /v1/payments/&#123;id&#125;</code> no MP — fonte de verdade, mesmo se a notificação chegar atrasada.<br>
+                ⚡ Polling pro front: <code>GET /api/mp/payment-status?ref=&lt;payment_id&gt;</code> — o front consulta a cada 3s enquanto o cliente está na tela de Pix.
               </p>
             </div>
+          </div>
+        </div>
+
+        <!-- Tab: Horários de funcionamento (TAA-23 / PP_ADMIN) -->
+        <div class="tab-content" id="tab-horarios">
+          <div class="section-title">
+            <span>Horários de funcionamento</span>
+            <button class="btn" id="pp-btn-save-hours" style="width:auto;padding:10px 20px;font-size:0.88rem;">
+              <i class="fa-solid fa-save"></i> Salvar horários
+            </button>
+          </div>
+          <div class="section-subtitle">A home page mostra o status (Aberto / Fecha às / Abre às) e a lista detalhada por dia. Sem salvar, ela usa o padrão Teresina 18:00–23:30 (Seg até 22:00).</div>
+          <div class="config-container">
+            <div id="pp-hours-form" class="pp-hours-form"></div>
+            <div class="payment-note-box" style="margin-top:14px;background:rgba(21,101,192,0.08);border:1px solid rgba(21,101,192,0.20);padding:14px;border-radius:12px;">
+              <div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">Dica</div>
+              <p style="font-size:0.78rem;line-height:1.5;margin:0;">Marcar "Fechado" deixa o dia todo indisponível. Use para folgas semanais. O formato é HH:MM em 24h.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Mensagens automáticas (TAA-23 / PP_ADMIN) -->
+        <div class="tab-content" id="tab-mensagens">
+          <div class="section-title">
+            <span>Mensagens automáticas</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-logout" id="pp-btn-reset-msg" style="padding:8px 14px;font-size:0.8rem;">Restaurar padrão</button>
+              <button class="btn" id="pp-btn-add-msg" style="width:auto;padding:10px 18px;font-size:0.88rem;">
+                <i class="fa-solid fa-plus"></i> Nova mensagem
+              </button>
+            </div>
+          </div>
+          <div class="section-subtitle">Templates prontos para você colar no WhatsApp Business (respostas rápidas) ou disparar manualmente. Use <code>{{nome}}</code>, <code>{{pedido}}</code>, <code>{{eta}}</code> e <code>{{horario}}</code> como placeholders.</div>
+          <div class="config-container">
+            <div id="pp-messages-list" class="pp-messages-list"></div>
+          </div>
+        </div>
+
+        <!-- Tab: Backup / Restore (TAA-23 / PP_ADMIN) -->
+        <div class="tab-content" id="tab-backup">
+          <div class="section-title">
+            <span>Backup &amp; Restauração</span>
+          </div>
+          <div class="section-subtitle">Tudo o que o painel grava no <code>localStorage</code> pode ser exportado em um único arquivo JSON. Guarde em local seguro (HD externo, Drive, e-mail). Se trocar de celular ou limpar dados, basta importar.</div>
+          <div class="config-container">
+            <div class="config-section-title">Exportar tudo (JSON único)</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+              <button class="btn" id="pp-btn-export"><i class="fa-solid fa-download"></i> Baixar backup</button>
+              <button class="btn-logout" id="pp-btn-import"><i class="fa-solid fa-upload"></i> Importar arquivo…</button>
+              <input type="file" id="pp-import-file" accept="application/json,.json" style="display:none;">
+              <button class="btn-logout" id="pp-btn-clear" style="color:var(--danger);"><i class="fa-solid fa-trash-can"></i> Apagar tudo deste navegador</button>
+            </div>
+            <div id="backup-summary" style="font-size:0.82rem;color:#888;">Nenhuma exportação registrada nesta sessão.</div>
+            <div class="payment-note-box" style="margin-top:18px;background:rgba(255,193,7,0.10);border:1px solid rgba(255,193,7,0.30);padding:14px;border-radius:12px;">
+              <div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">⚠️ Antes de importar</div>
+              <p style="font-size:0.78rem;line-height:1.5;margin:0;">A importação SUBSTITUI todos os dados atuais. Exporte um backup novo primeiro se quiser poder desfazer.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Onboarding (placeholder; PP_ADMIN abre o overlay) -->
+        <div class="tab-content" id="tab-onboarding">
+          <div class="section-title">
+            <span>Onboarding do dono</span>
+            <button class="btn" id="pp-btn-reopen-onboarding" style="width:auto;padding:10px 20px;font-size:0.88rem;" onclick="PP_ADMIN.openOnboarding()">
+              <i class="fa-solid fa-play"></i> Abrir tour guiado
+            </button>
+          </div>
+          <div class="section-subtitle">Tour de 6 passos para deixar a loja 100% configurada. Aparece automaticamente no primeiro login; aqui você pode reabrir quando quiser.</div>
+          <div class="config-container">
+            <ol style="line-height:1.6;font-size:0.92rem;color:#ddd;">
+              <li>Horário de funcionamento</li>
+              <li>WhatsApp de atendimento</li>
+              <li>Pix para receber pedidos</li>
+              <li>Cardápio (pizzas, bebidas, combos)</li>
+              <li>Zonas e taxa de entrega</li>
+              <li>Backup do seu trabalho</li>
+            </ol>
           </div>
         </div>
 
@@ -3254,6 +3467,60 @@
     </div>
   </div>
 
+  <!-- Onboarding overlay (TAA-23 / PP_ADMIN) -->
+  <div id="pp-onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99990;align-items:center;justify-content:center;padding:24px;">
+    <div style="background:#16100e;border:1px solid rgba(255,255,255,0.08);border-radius:18px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:28px;color:#f5f0ed;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="margin:0;font-family:'Outfit',sans-serif;font-size:1.4rem;color:#dcaa64;">🍕 Onboarding do Dono</h2>
+        <button type="button" onclick="PP_ADMIN.closeOnboarding()" style="background:transparent;border:none;color:#a89f9a;font-size:1.6rem;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <div id="pp-onboarding-body"></div>
+    </div>
+  </div>
+
+  <style>
+    /* PP_ADMIN namespace — owner self-service UI (TAA-23) */
+    .pp-hours-form { display:flex; flex-direction:column; gap:10px; }
+    .pp-hours-row { display:grid; grid-template-columns:120px 130px 1fr 30px 1fr 1.2fr; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; }
+    .pp-hours-row .pp-day { font-weight:700; color:#dcaa64; }
+    .pp-hours-row input[type="time"] { background:var(--surface-accent); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:inherit; }
+    .pp-hours-row .pp-sep { color:#a89f9a; font-size:0.85rem; }
+    .pp-hours-row .pp-hours-state { font-size:0.78rem; color:#a89f9a; }
+    .pp-hours-row .pp-hours-state[data-kind="open"] { color:#27ae60; }
+    .pp-hours-row .pp-hours-state[data-kind="closed"] { color:#e67e22; }
+    .pp-toggle { display:flex; gap:6px; align-items:center; font-size:0.78rem; color:#a89f9a; }
+    .pp-toggle input { accent-color:var(--red); }
+    .pp-messages-list { display:flex; flex-direction:column; gap:14px; }
+    .pp-msg-row { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:14px; }
+    .pp-msg-head { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+    .pp-msg-head input[type="text"] { flex:1; min-width:200px; background:var(--surface-accent); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:inherit; }
+    .pp-msg-head select, .pp-msg-active { background:var(--surface-accent); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:0.82rem; }
+    .pp-msg-active { display:flex; gap:6px; align-items:center; }
+    .pp-msg-row textarea { width:100%; background:var(--surface-accent); color:#fff; border:1px solid var(--border); border-radius:8px; padding:10px; font-family:inherit; font-size:0.88rem; line-height:1.5; resize:vertical; }
+    .pp-msg-preview { margin-top:6px; font-size:0.82rem; color:#a89f9a; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; white-space:pre-wrap; }
+    .pp-btn-copy, .pp-btn-del { background:transparent; border:1px solid var(--border); color:#dcaa64; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.78rem; }
+    .pp-btn-del { color:#ff4a4a; }
+    .pp-btn-copy:hover, .pp-btn-del:hover { background:rgba(255,255,255,0.04); }
+    .pp-btn-primary, .pp-btn-secondary { padding:10px 18px; border-radius:10px; border:none; font-weight:700; cursor:pointer; font-size:0.88rem; font-family:inherit; }
+    .pp-btn-primary { background:var(--red); color:#fff; }
+    .pp-btn-primary:hover { background:var(--red-hover); }
+    .pp-btn-secondary { background:transparent; color:#a89f9a; border:1px solid var(--border); }
+    .pp-onb-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    .pp-onb-item { display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+    .pp-onb-item.is-done { border-color:rgba(39,174,96,0.4); background:rgba(39,174,96,0.06); }
+    .pp-onb-bullet { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.04); font-weight:800; color:#dcaa64; font-size:1.05rem; }
+    .pp-onb-item.is-done .pp-onb-bullet { background:#27ae60; color:#fff; }
+    .pp-onb-text p { margin:4px 0 0 0; color:#a89f9a; font-size:0.82rem; }
+    .pp-onb-go { background:transparent; border:1px solid var(--border); color:#dcaa64; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.78rem; }
+    .pp-onb-go:hover { background:rgba(255,255,255,0.05); }
+    .pp-onb-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+    @media (max-width:640px) {
+      .pp-hours-row { grid-template-columns:1fr 1fr; }
+      .pp-hours-row .pp-day, .pp-hours-row .pp-toggle { grid-column:1 / -1; }
+      .pp-hours-row .pp-hours-state { grid-column:1 / -1; }
+    }
+  </style>
+
   <script>
     // Global references
     let currentMenu = [];
@@ -3288,6 +3555,12 @@
       document.getElementById('cfg-mp-integration-type').value = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'link';
       document.getElementById('cfg-delivery-fee').value = localStorage.getItem('premium_pizzaria_delivery_fee') || '0';
       document.getElementById('cfg-estimated-time').value = localStorage.getItem('premium_pizzaria_estimated_time') || '40 a 60 min';
+      // v13 (TAA-18): campos novos do Worker — URL e (opcional) Public Key. Access Token fica vazio
+      // por design (campo password, com hard-guard em saveConfigStore que recusa persistir).
+      const mpWorkerUrlEl = document.getElementById('cfg-mp-worker-url');
+      if (mpWorkerUrlEl) mpWorkerUrlEl.value = localStorage.getItem('premium_pizzaria_mp_worker_url') || '';
+      const mpPublicKeyEl = document.getElementById('cfg-mp-public-key');
+      if (mpPublicKeyEl) mpPublicKeyEl.value = localStorage.getItem('premium_pizzaria_mp_public_key') || '';
 
       toggleMpFields();
       loadAdminMenu();
@@ -3338,14 +3611,366 @@
     }
 
     function tryLogin() {
-      const pass = document.getElementById('admin-password').value;
-      if (pass === 'admin' || pass === 'admin123') {
-        sessionStorage.setItem('admin_logged', 'true');
-        document.getElementById('login-error').style.display = 'none';
-        showDashboard();
-      } else {
-        document.getElementById('login-error').style.display = 'block';
+      // v16 (TAA-13): legacy entrypoint kept only as a fallback for the migration
+      // window. The real path is submitAdminAuth() which derives
+      // sha256(pepper + ':' + entered) and compares constant-time.
+      submitAdminAuth();
+    }
+
+    // ---------- Admin auth rewrite (TAA-13) ----------
+    //
+    // Two modes:
+    //   * Local mode (default): pepper + verifier live in localStorage. No
+    //     network. The pepper is per-install; without it, brute-forcing the
+    //     password file is useless. The session flag is in sessionStorage
+    //     (cleared on tab close) and gets auto-bumped by a 15-minute
+    //     inactivity timeout.
+    //   * Server mode: when `premium_pizzaria_admin_worker_url` is set, the
+    //     client posts { username, password } to that Worker, which derives
+    //     PBKDF2 server-side and sets an httpOnly `pp_admin_session` cookie.
+    //     The local pepper/verifier are ignored in this mode. This is the
+    //     recommended path once a Worker is provisioned; without one, the
+    //     local mode is still a strict improvement over the literal
+    //     compare that used to live here.
+    const PP_ADMIN_AUTH_VERSION = 'v16';
+    const PP_ADMIN_PEPPER_KEY = 'pp_admin_pepper';
+    const PP_ADMIN_VERIFIER_KEY = 'pp_admin_verifier';
+    const PP_ADMIN_MIGRATION_KEY = 'pp_admin_migrated_from_legacy';
+    const PP_ADMIN_ATTEMPTS_KEY = 'pp_admin_login_attempts';
+    const PP_ADMIN_SESSION_FLAG = 'admin_logged';
+    const PP_ADMIN_ACTIVITY_KEY = 'pp_admin_last_activity';
+    const PP_ADMIN_INACTIVITY_MS = 15 * 60 * 1000;
+    const PP_ADMIN_PEPPER_BYTES = 32;
+    const PP_ADMIN_LOCKOUT_TIERS = [
+      { fails: 5,  ms: 60 * 1000 },         // 1 min
+      { fails: 10, ms: 5 * 60 * 1000 },     // 5 min
+      { fails: 15, ms: 30 * 60 * 1000 }     // 30 min
+    ];
+    const PP_ADMIN_LEGACY = new Set(['admin', 'admin123']);
+    let ppAdminInactivityTimer = null;
+    let ppAdminActivityBound = false;
+
+    function ppAdminBytesToHex(bytes) {
+      return Array.from(new Uint8Array(bytes))
+        .map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function ppAdminSha256Hex(input) {
+      const enc = new TextEncoder().encode(input);
+      const digest = await crypto.subtle.digest('SHA-256', enc);
+      return ppAdminBytesToHex(digest);
+    }
+
+    function ppAdminConstantTimeEqual(a, b) {
+      if (typeof a !== 'string' || typeof b !== 'string') return false;
+      if (a.length !== b.length) return false;
+      let diff = 0;
+      for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+      return diff === 0;
+    }
+
+    function ppAdminIsFirstRun() {
+      return !localStorage.getItem(PP_ADMIN_PEPPER_KEY)
+          || !localStorage.getItem(PP_ADMIN_VERIFIER_KEY);
+    }
+
+    function ppAdminLoadAttempts() {
+      const raw = sessionStorage.getItem(PP_ADMIN_ATTEMPTS_KEY);
+      if (!raw) return { fails: 0, lockedUntil: null, lastFailAt: null };
+      try {
+        const p = JSON.parse(raw);
+        return {
+          fails: Number(p.fails) || 0,
+          lockedUntil: p.lockedUntil ? Number(p.lockedUntil) : null,
+          lastFailAt: p.lastFailAt ? Number(p.lastFailAt) : null
+        };
+      } catch (e) {
+        return { fails: 0, lockedUntil: null, lastFailAt: null };
       }
+    }
+    function ppAdminSaveAttempts(state) {
+      sessionStorage.setItem(PP_ADMIN_ATTEMPTS_KEY, JSON.stringify(state));
+    }
+    function ppAdminClearAttempts() {
+      sessionStorage.removeItem(PP_ADMIN_ATTEMPTS_KEY);
+    }
+    function ppAdminGetLockout(now) {
+      const s = ppAdminLoadAttempts();
+      if (s.lockedUntil && s.lockedUntil > now) {
+        return { locked: true, until: s.lockedUntil, fails: s.fails };
+      }
+      return { locked: false, until: null, fails: s.fails };
+    }
+    function ppAdminBumpFailure(now) {
+      const s = ppAdminLoadAttempts();
+      s.fails = (s.fails || 0) + 1;
+      s.lastFailAt = now;
+      let lockMs = 0;
+      for (const t of PP_ADMIN_LOCKOUT_TIERS) {
+        if (s.fails >= t.fails) lockMs = t.ms;
+      }
+      s.lockedUntil = lockMs > 0 ? now + lockMs : null;
+      ppAdminSaveAttempts(s);
+      return s;
+    }
+
+    async function ppAdminSetupPassword(password) {
+      if (typeof password !== 'string' || password.length < 4) {
+        throw new Error('Senha precisa ter pelo menos 4 caracteres.');
+      }
+      const arr = new Uint8Array(PP_ADMIN_PEPPER_BYTES);
+      crypto.getRandomValues(arr);
+      const pepper = ppAdminBytesToHex(arr);
+      const verifier = await ppAdminSha256Hex(pepper + ':' + password);
+      localStorage.setItem(PP_ADMIN_PEPPER_KEY, pepper);
+      localStorage.setItem(PP_ADMIN_VERIFIER_KEY, verifier);
+      return { pepper, verifier };
+    }
+
+    async function ppAdminLocalLogin(password) {
+      const now = Date.now();
+      if (ppAdminIsFirstRun()) return { ok: false, reason: 'no_setup' };
+      const pepper = localStorage.getItem(PP_ADMIN_PEPPER_KEY);
+      const stored = localStorage.getItem(PP_ADMIN_VERIFIER_KEY);
+      if (!pepper || !stored) return { ok: false, reason: 'no_setup' };
+      const lock = ppAdminGetLockout(now);
+      if (lock.locked) {
+        // Keep escalating even while locked, so a persistent attacker
+        // who keeps banging on a locked tab moves through the tiers.
+        ppAdminBumpFailure(now);
+        return { ok: false, reason: 'locked', until: lock.until };
+      }
+      const attempt = await ppAdminSha256Hex(pepper + ':' + (password || ''));
+      if (ppAdminConstantTimeEqual(attempt, stored)) {
+        return { ok: true };
+      }
+      ppAdminBumpFailure(now);
+      return { ok: false, reason: 'bad_password' };
+    }
+
+    async function ppAdminMigrateLegacy(password) {
+      if (!PP_ADMIN_LEGACY.has(password)) return false;
+      if (!ppAdminIsFirstRun()) return false;
+      await ppAdminSetupPassword(password);
+      localStorage.setItem(PP_ADMIN_MIGRATION_KEY, JSON.stringify({
+        migratedAt: Date.now(),
+        from: 'admin_legacy_placeholder',
+        version: PP_ADMIN_AUTH_VERSION
+      }));
+      return true;
+    }
+
+    function ppAdminResetLocal() {
+      // Operator recovery: clear the two pp_admin_* keys so the wizard
+      // re-runs on next open. Kept idempotent and exportable.
+      localStorage.removeItem(PP_ADMIN_PEPPER_KEY);
+      localStorage.removeItem(PP_ADMIN_VERIFIER_KEY);
+      localStorage.removeItem(PP_ADMIN_MIGRATION_KEY);
+    }
+
+    function ppAdminGetWorkerUrl() {
+      try { return (localStorage.getItem('premium_pizzaria_admin_worker_url') || '').trim(); }
+      catch (e) { return ''; }
+    }
+
+    async function ppAdminServerLogin(password) {
+      const url = ppAdminGetWorkerUrl();
+      if (!url) return { ok: false, reason: 'no_worker' };
+      const now = Date.now();
+      const lock = ppAdminGetLockout(now);
+      if (lock.locked) {
+        ppAdminBumpFailure(now);
+        return { ok: false, reason: 'locked', until: lock.until };
+      }
+      try {
+        const res = await fetch(url.replace(/\/$/, '') + '/api/admin/login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        if (res.ok) {
+          return { ok: true, mode: 'server' };
+        }
+        if (res.status === 401 || res.status === 403) {
+          ppAdminBumpFailure(now);
+          return { ok: false, reason: 'bad_password' };
+        }
+        if (res.status === 429) {
+          const data = await res.json().catch(() => ({}));
+          return { ok: false, reason: 'locked', until: now + ((data.retryAfter || 60) * 1000) };
+        }
+        return { ok: false, reason: 'server_error' };
+      } catch (e) {
+        return { ok: false, reason: 'network' };
+      }
+    }
+
+    async function ppAdminServerLogout() {
+      const url = ppAdminGetWorkerUrl();
+      if (!url) return;
+      try {
+        await fetch(url.replace(/\/$/, '') + '/api/admin/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (e) { /* offline / worker down — fall through */ }
+    }
+
+    function ppAdminSetSession() {
+      sessionStorage.setItem(PP_ADMIN_SESSION_FLAG, 'true');
+      sessionStorage.setItem(PP_ADMIN_ACTIVITY_KEY, String(Date.now()));
+    }
+    function ppAdminClearSession() {
+      sessionStorage.removeItem(PP_ADMIN_SESSION_FLAG);
+      sessionStorage.removeItem(PP_ADMIN_ACTIVITY_KEY);
+    }
+    function ppAdminIsAuthenticated() {
+      return sessionStorage.getItem(PP_ADMIN_SESSION_FLAG) === 'true';
+    }
+    function ppAdminTouchActivity() {
+      if (!ppAdminIsAuthenticated()) return;
+      sessionStorage.setItem(PP_ADMIN_ACTIVITY_KEY, String(Date.now()));
+    }
+    function ppAdminCheckInactivity() {
+      if (!ppAdminIsAuthenticated()) return;
+      const last = Number(sessionStorage.getItem(PP_ADMIN_ACTIVITY_KEY) || 0);
+      if (!last) return;
+      if (Date.now() - last >= PP_ADMIN_INACTIVITY_MS) {
+        ppAdminDoLogout(true);
+      }
+    }
+    function ppAdminBindActivity() {
+      if (ppAdminActivityBound) return;
+      ppAdminActivityBound = true;
+      ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach((ev) => {
+        document.addEventListener(ev, ppAdminTouchActivity, { passive: true });
+      });
+      if (ppAdminInactivityTimer) clearInterval(ppAdminInactivityTimer);
+      ppAdminInactivityTimer = setInterval(ppAdminCheckInactivity, 30 * 1000);
+    }
+    function ppAdminUnbindActivity() {
+      if (!ppAdminActivityBound) return;
+      ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach((ev) => {
+        document.removeEventListener(ev, ppAdminTouchActivity);
+      });
+      if (ppAdminInactivityTimer) clearInterval(ppAdminInactivityTimer);
+      ppAdminInactivityTimer = null;
+      ppAdminActivityBound = false;
+    }
+
+    function ppAdminShowError(msgId) {
+      ['login-error', 'login-locked', 'wizard-ok'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const target = document.getElementById(msgId);
+      if (target) target.style.display = 'block';
+    }
+
+    function ppAdminRenderLockoutBanner(until) {
+      const remain = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+      const mins = Math.floor(remain / 60);
+      const secs = remain % 60;
+      const txt = mins > 0
+        ? `Muitas tentativas. Aguarde ${mins} min ${secs}s antes de tentar de novo.`
+        : `Muitas tentativas. Aguarde ${secs}s antes de tentar de novo.`;
+      const el = document.getElementById('login-locked');
+      if (el) el.textContent = txt;
+      ppAdminShowError('login-locked');
+    }
+
+    function ppAdminIsUsingWorker() { return !!ppAdminGetWorkerUrl(); }
+
+    function ppAdminUpdateModeBadge() {
+      const pill = document.getElementById('admin-mode-pill');
+      if (!pill) return;
+      if (ppAdminIsUsingWorker()) {
+        pill.textContent = 'Servidor (Worker)';
+        pill.style.display = 'inline-block';
+      } else {
+        pill.style.display = 'none';
+      }
+    }
+
+    async function submitAdminAuth() {
+      const input = document.getElementById('admin-password');
+      const password = (input && input.value) || '';
+      const useWorker = ppAdminIsUsingWorker();
+      ppAdminUpdateModeBadge();
+      const hint = document.getElementById('wizard-hint');
+      if (hint) hint.style.display = ppAdminIsFirstRun() && !useWorker ? 'block' : 'none';
+
+      const recover = document.getElementById('recover-note');
+      if (recover) recover.style.display = (!useWorker && !ppAdminIsFirstRun()) ? 'block' : 'none';
+
+      if (password.length < 4 && ppAdminIsFirstRun() && !useWorker) {
+        ppAdminShowError('login-error');
+        const el = document.getElementById('login-error');
+        if (el) el.textContent = 'Senha precisa ter pelo menos 4 caracteres.';
+        return;
+      }
+
+      const lock = ppAdminGetLockout(Date.now());
+      if (lock.locked) {
+        ppAdminRenderLockoutBanner(lock.until);
+        return;
+      }
+
+      let result;
+      if (useWorker) {
+        result = await ppAdminServerLogin(password);
+      } else if (ppAdminIsFirstRun()) {
+        // First-run wizard: bootstrap with the typed password.
+        // Also handle backwards-compat: if the operator still types
+        // `admin`/`admin123`, accept it ONCE and migrate to the new scheme.
+        const migrated = await ppAdminMigrateLegacy(password).catch(() => false);
+        if (migrated) {
+          result = { ok: true, mode: 'local', migrated: true };
+        } else {
+          try {
+            await ppAdminSetupPassword(password);
+            result = { ok: true, mode: 'local', migrated: false };
+          } catch (e) {
+            ppAdminShowError('login-error');
+            const el = document.getElementById('login-error');
+            if (el) el.textContent = e.message || 'Erro ao definir a senha.';
+            return;
+          }
+        }
+      } else {
+        result = await ppAdminLocalLogin(password);
+      }
+
+      if (result && result.ok) {
+        ppAdminSetSession();
+        ppAdminBindActivity();
+        ppAdminShowError('wizard-ok');
+        if (input) input.value = '';
+        showDashboard();
+      } else if (result && result.reason === 'locked') {
+        ppAdminRenderLockoutBanner(result.until);
+      } else if (result && result.reason === 'no_setup') {
+        ppAdminShowError('login-error');
+        const el = document.getElementById('login-error');
+        if (el) el.textContent = 'Defina uma senha nova para começar.';
+      } else if (result && result.reason === 'network') {
+        ppAdminShowError('login-error');
+        const el = document.getElementById('login-error');
+        if (el) el.textContent = 'Sem conexão com o servidor de auth. Tente novamente.';
+      } else {
+        ppAdminShowError('login-error');
+        const el = document.getElementById('login-error');
+        if (el) el.textContent = 'Senha incorreta. Tente novamente.';
+      }
+    }
+
+    async function ppAdminDoLogout(silent) {
+      if (!silent) await ppAdminServerLogout();
+      ppAdminClearSession();
+      ppAdminClearAttempts();
+      ppAdminUnbindActivity();
+      if (!silent) window.location.reload();
     }
 
     function showDashboard() {
@@ -3363,8 +3988,17 @@
     }
 
     function logout() {
-      sessionStorage.removeItem('admin_logged');
-      window.location.reload();
+      ppAdminDoLogout(false);
+    }
+
+    // Backwards-compat: a few older paths (and assets/js/admin.js onboarding)
+    // still read `admin_logged` from sessionStorage. They keep working
+    // because ppAdminSetSession / ppAdminClearSession write the same key.
+    function ppAdminLegacySessionAlive() {
+      if (sessionStorage.getItem(PP_ADMIN_SESSION_FLAG) !== 'true') return false;
+      const last = Number(sessionStorage.getItem(PP_ADMIN_ACTIVITY_KEY) || 0);
+      if (!last) return false;
+      return (Date.now() - last) < PP_ADMIN_INACTIVITY_MS;
     }
 
     function switchTab(tabId, element) {
@@ -3606,11 +4240,27 @@
       const deliveryFee = document.getElementById('cfg-delivery-fee').value.trim();
       const estimatedTime = document.getElementById('cfg-estimated-time').value.trim();
 
+      // v13 (TAA-18): Worker URL + (opcional) Public Key. Access Token NUNCA é
+      // persistido no localStorage — o admin avisa e força o dono a usar o secret do Worker.
+      const mpWorkerUrl = (document.getElementById('cfg-mp-worker-url') || {}).value ? document.getElementById('cfg-mp-worker-url').value.trim() : '';
+      const mpAccessTokenField = document.getElementById('cfg-mp-access-token');
+      const mpAccessToken = mpAccessTokenField ? mpAccessTokenField.value.trim() : '';
+      const mpPublicKeyField = document.getElementById('cfg-mp-public-key');
+      const mpPublicKey = mpPublicKeyField ? mpPublicKeyField.value.trim() : '';
+
+      // Hard guard: Access Token NÃO pode ir pro localStorage.
+      if (mpAccessToken) {
+        try { localStorage.removeItem('premium_pizzaria_mp_access_token'); } catch (e) { /* ignore */ }
+        if (mpAccessTokenField) mpAccessTokenField.value = '';
+      }
+
       localStorage.setItem('premium_pizzaria_whatsapp', whatsapp);
       localStorage.setItem('premium_pizzaria_pix_key', pixKey);
       localStorage.setItem('premium_pizzaria_pix_name', pixName);
       localStorage.setItem('premium_pizzaria_pix_city', pixCity);
       localStorage.setItem('premium_pizzaria_mp_link', mpLink);
+      localStorage.setItem('premium_pizzaria_mp_worker_url', mpWorkerUrl);
+      localStorage.setItem('premium_pizzaria_mp_public_key', mpPublicKey);
 
       localStorage.setItem('premium_pizzaria_mp_integration_type', mpIntegrationType);
       localStorage.setItem('premium_pizzaria_delivery_fee', deliveryFee);
@@ -3622,9 +4272,9 @@
       const toast = document.createElement('div');
       toast.id = 'admin-save-toast';
       toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#2e7d32;color:#fff;padding:14px 24px;border-radius:12px;font-size:0.9rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:fadeInUp 0.3s ease;';
-      toast.textContent = 'Configuracoes salvas com sucesso!';
+      toast.textContent = 'Configuracoes salvas com sucesso!' + (mpAccessToken ? ' (Access Token N\u00c3O foi salvo por seguran\u00e7a; cole no Cloudflare Workers → Variables → MP_ACCESS_TOKEN)' : '');
       document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 4500);
     }
 
     function toggleMpFields() {
@@ -5767,39 +6417,72 @@
     }
 
     async function testMpPreference() {
+      // v13 (TAA-18): agora o backend é o Cloudflare Worker, não mais o /api/create-preference da Vercel.
+      // O admin usa o `cfg-mp-worker-url` (campo salvo) para chamar a rota de teste do Worker.
       const preview = document.getElementById('mp-test-preview');
-      preview.innerHTML = '<div style="font-size:0.82rem; color:#666;">Gerando link de pagamento...</div>';
+      const workerUrl = (localStorage.getItem('premium_pizzaria_mp_worker_url') || '').replace(/\/+$/, '');
+      if (!workerUrl) {
+        preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">⚠️ Preencha o campo "URL do Worker" acima e clique em "Salvar Configurações" antes de testar.</div>';
+        return;
+      }
+      preview.innerHTML = '<div style="font-size:0.82rem; color:#666;">Gerando Pix de R$ 1,00 via Worker…</div>';
 
       try {
-        const res = await fetch('/api/create-preference', {
+        const res = await fetch(workerUrl + '/api/mp/create-pix', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            items: [{
-              title: 'Produto Teste - Pizzaria Premium',
-              quantity: 1,
-              unit_price: 1.00,
-              currency_id: 'BRL'
-            }],
-            total: 1.00
+            amount: 1.00,
+            external_ref: 'admin-test-' + Date.now(),
+            description: 'Teste admin - Pizzaria Premium'
           })
         });
 
         if (!res.ok) {
           const errText = await res.text();
-          throw new Error('API retornou ' + res.status + ': ' + errText);
+          let msg = errText;
+          try { const j = JSON.parse(errText); if (j.message) msg = j.message; } catch {}
+          throw new Error('Worker retornou ' + res.status + ': ' + msg);
         }
 
         const data = await res.json();
-        if (!data.init_point) throw new Error('Resposta sem init_point');
+        if (!data.qr_code) throw new Error('Resposta sem qr_code');
 
-        preview.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #ddd; max-width:400px;">' +
-          '<div style="font-size:0.75rem; font-weight:700; margin-bottom:8px; color:#2e7d32;">Link de pagamento gerado com sucesso!</div>' +
-          '<a href="' + data.init_point + '" target="_blank" rel="noopener" style="display:block; word-break:break-all; font-size:0.78rem; color:#1565c0; margin-bottom:8px;">' + data.init_point + '</a>' +
-          '<button class="btn btn-sm" onclick="this.previousElementSibling.select(); document.execCommand(\'copy\'); this.textContent=\'Copiado!\'" style="font-size:0.7rem;">Copiar link</button>' +
+        preview.innerHTML =
+          '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #ddd; max-width:400px;">' +
+          '<div style="font-size:0.75rem; font-weight:700; margin-bottom:8px; color:#2e7d32;">✅ Worker OK — Pix de teste gerado</div>' +
+          '<div style="font-size:0.7rem; color:#666; margin-bottom:6px;">payment_id: <code>' + data.payment_id + '</code></div>' +
+          (data.qr_code_base64 ? '<img src="data:image/png;base64,' + data.qr_code_base64 + '" alt="QR" style="width:160px; height:160px; border:4px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block; margin:0 auto 6px;" />' : '') +
+          '<textarea readonly style="width:100%; height:70px; font-size:0.65rem; border:1px solid #ccc; border-radius:6px; padding:6px; resize:none;">' + data.qr_code + '</textarea>' +
+          '<div style="font-size:0.65rem; color:#999; margin-top:4px;">Abra o app do seu banco, escolha Pix Copia e Cola, cole e pague R$ 1,00 (o app mostra como cancelado em modo teste, mas a integração está validada).</div>' +
           '</div>';
       } catch (err) {
-        preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">Erro: ' + err.message.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+        preview.innerHTML = '<div style="color:#c62828; font-size:0.82rem;">❌ ' + (err && err.message ? err.message : String(err)).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+      }
+    }
+
+    async function testMpConnection() {
+      // v13 (TAA-18): testa CORS preflight + endpoint de status (sem precisar de pagamento real).
+      const result = document.getElementById('mp-conn-result');
+      const workerUrl = (document.getElementById('cfg-mp-worker-url').value || '').trim().replace(/\/+$/, '');
+      if (!workerUrl) {
+        result.innerHTML = '<span style="color:#c62828;">⚠️ Preencha a URL do Worker primeiro.</span>';
+        return;
+      }
+      result.innerHTML = '<span style="color:#1565c0;">⏳ testando…</span>';
+      try {
+        // 1) Preflight CORS
+        const pre = await fetch(workerUrl + '/api/mp/payment-status?ref=__ping__', { method: 'OPTIONS' });
+        if (pre.status >= 400) throw new Error('preflight ' + pre.status);
+        // 2) GET payment-status com ref inválido (espera 404, mas prova que o endpoint responde)
+        const res = await fetch(workerUrl + '/api/mp/payment-status?ref=__ping__', { method: 'GET' });
+        if (res.status === 404 || res.status === 200) {
+          result.innerHTML = '<span style="color:#2e7d32;">✅ Conectado! (status ' + res.status + ')</span>';
+        } else {
+          throw new Error('status ' + res.status);
+        }
+      } catch (err) {
+        result.innerHTML = '<span style="color:#c62828;">❌ ' + (err && err.message ? err.message : String(err)).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
       }
     }
 
@@ -6464,7 +7147,10 @@
     // Inicia a dashboard
     setTimeout(refreshDashboard, 100);
   </script>
-  
+
+  <!-- PP_ADMIN: owner self-service modular bootstrap (TAA-23) -->
+  <script src="assets/js/admin.js?v=premium-2026-16-owner" defer></script>
+
   <!-- Container invisível para impressão térmica -->
   <div id="print-receipt-container"></div>
 </body>
