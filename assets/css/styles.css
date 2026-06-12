@@ -4901,6 +4901,65 @@ body.has-cart .floating-whatsapp {
   .button--menu-cta { animation: none; }
 }
 
+/* --- CTA "Repetir meu último pedido" no hero: vinho premium --- */
+.button--last-order-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-weight: 800;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+  color: #fffaf2;
+  background:
+    linear-gradient(135deg, #5a0a18 0%, #7a0f23 50%, #3a0610 100%);
+  border: 2px solid rgba(255, 209, 102, 0.45);
+  border-radius: 999px;
+  box-shadow:
+    0 14px 32px rgba(90, 10, 24, 0.40),
+    0 0 0 4px rgba(90, 10, 24, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button--last-order-cta[hidden] { display: none !important; }
+.button--last-order-cta__price {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  margin-left: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #2a1410;
+  background: linear-gradient(135deg, #ffd166 0%, #f4a82a 100%);
+  border-radius: 999px;
+  text-shadow: none;
+  white-space: nowrap;
+}
+.button--last-order-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: brightness(1.05) saturate(1.1);
+  box-shadow:
+    0 20px 42px rgba(90, 10, 24, 0.55),
+    0 0 0 6px rgba(90, 10, 24, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.button--last-order-cta:active { transform: translateY(-1px) scale(1); }
+
+.checkout-cep-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: #6b5a55;
+  min-height: 1em;
+}
+.checkout-cep-hint.is-last { color: #5a0a18; font-weight: 600; }
+.checkout-cep-hint.is-error { color: #c0392b; }
+.checkout-cep-hint.is-ok { color: #0d7a26; }
+
 /* --- Categorias do cardapio: chips brancos premium --- */
 .category-shortcuts {
   gap: 12px;
@@ -6323,6 +6382,29 @@ body.has-cart .floating-whatsapp {
   font-size: 0.88rem;
 }
 
+/* v11: per-cart delivery result panel (parity with the public calculator) */
+.checkout-delivery-result {
+  display: none;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid rgba(36, 19, 15, 0.08);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.checkout-delivery-result.is-visible { display: block; animation: dcalc-in 0.25s ease-out; }
+.checkout-delivery-result.is-ok { border-color: #0d7a26; background: linear-gradient(135deg, #fff, #f0fdf4); }
+.checkout-delivery-result.is-out { border-color: #c0392b; background: linear-gradient(135deg, #fff, #fdecea); }
+.checkout-delivery-result__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  color: #24130f;
+}
+.checkout-delivery-result__row strong { color: #5a0a18; }
+
 @media (max-width: 480px) {
   .delivery-calc__form { flex-direction: column; }
   .delivery-calc__form button { width: 100%; }
@@ -6331,7 +6413,6 @@ body.has-cart .floating-whatsapp {
 /* ========================================================================
    Admin — abas Fidelidade e Zonas (reusa estilos genéricos)
    ======================================================================== */
-
 .admin-list-card {
   background: #fff;
   border: 1.5px solid rgba(36, 19, 15, 0.08);

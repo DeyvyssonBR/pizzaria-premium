@@ -59,6 +59,7 @@
     <link rel="apple-touch-icon" href="assets/img/logo-premium-2026.png" />
     <link rel="preload" as="image" href="assets/img/logo-premium-2026.png" />
     <script src="assets/js/qrcode.min.js" defer></script>
+    <script src="assets/js/analytics.js?v=premium-2026-12-errors" defer></script>
     <script src="assets/js/script.js?v=premium-2026-8-payment" defer></script>
 
     <!-- JSON-LD: Restaurant (Schema.org) -->
@@ -363,6 +364,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-2-2-3 2z"/><line x1="8" y1="8" x2="14" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/></svg>
                 <span>Ver Cardápio</span>
               </a>
+              <button type="button" class="button button--last-order-cta" id="home-last-order-btn" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/><path d="M12 7v5l3 2"/></svg>
+                <span>Repetir meu último pedido</span>
+                <span class="button--last-order-cta__price" id="home-last-order-price"></span>
+              </button>
             </div>
 
             <div class="category-shortcuts category-shortcuts--centered">
@@ -655,6 +661,12 @@
 
               <!-- Address Section -->
               <div class="address-fields" id="address-fields">
+                <div class="form-group">
+                  <label for="checkout-cep">CEP <span style="font-weight:600;opacity:.5;text-transform:none;letter-spacing:0;">(confirme a cada pedido)</span></label>
+                  <input type="text" id="checkout-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code">
+                  <small class="checkout-cep-hint" id="checkout-cep-hint"></small>
+                </div>
+                <div class="form-group" id="checkout-delivery-result" aria-live="polite"></div>
                 <div class="form-group">
                   <label for="checkout-street">Rua e Número</label>
                   <input type="text" id="checkout-street" placeholder="Ex: Av. Principal, 123">

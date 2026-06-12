@@ -4,7 +4,10 @@ const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria 
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
 const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
-const DELIVERY_FEE = parseFloat(localStorage.getItem('premium_pizzaria_delivery_fee') || '0');
+// v11: flat DELIVERY_FEE removed from checkout. The delivery fee is now computed from
+// the customer's CEP via calcDeliveryByDistance(cepData) — see maybePrefillCepFromLookup()
+// and getCheckoutDeliveryFee(). The legacy localStorage key is left untouched for
+// backward compatibility with any browser that still has it cached.
 const ESTIMATED_TIME = localStorage.getItem('premium_pizzaria_estimated_time') || '40-60 min';
 
 const PROMOS_KEY = 'premium_pizzaria_promos';
@@ -1952,6 +1955,8 @@ const cartBackToAuth = document.getElementById('cart-back-to-auth');
 const deliveryTypeDelivery = document.getElementById('delivery-type-delivery');
 const deliveryTypePickup = document.getElementById('delivery-type-pickup');
 const addressFields = document.getElementById('address-fields');
+const checkoutCep = document.getElementById('checkout-cep');
+const checkoutCepHint = document.getElementById('checkout-cep-hint');
 const checkoutStreet = document.getElementById('checkout-street');
 const checkoutNeighborhood = document.getElementById('checkout-neighborhood');
 const checkoutRef = document.getElementById('checkout-ref');
@@ -1981,6 +1986,13 @@ const floatingCartTotal = document.getElementById('floating-cart-total');
 
 let deliveryType = 'delivery';
 let lastOrderMessage = '';
+
+// Distance-based delivery (v11): the customer's CEP → geocoded coords → calcDeliveryByDistance.
+// Cached on every CEP validate so refreshPaymentDetailsScreen / finalizeOrder / getMPPreferenceUrl
+// all read the SAME value the public calculator shows. Mirrors the test parity in
+// tests/pizzaria-logic.test.mjs (calcDeliveryByDistance).
+let checkoutCepData = null;     // last successful geocode result for #checkout-cep
+let checkoutDeliveryCalc = null; // last calcDeliveryByDistance result for #checkout-cep
 
 // Toast notification function with happy emoji
 function showToast(message) {
@@ -2079,6 +2091,13 @@ function openCartDrawer() {
   if (typeof rotateNudgePhrase === 'function') rotateNudgePhrase();
   navigateCartStep('cart-step-items');
   renderCart();
+  if (window.pizzariaTrack) {
+    const subtotal = cart.reduce((s, it) => s + (it.price * it.quantity), 0);
+    window.pizzariaTrack('cart_open', {
+      cart_size: cart.length,
+      cart_total_brl: subtotal
+    });
+  }
 }
 
 function closeCartDrawer() {
@@ -2108,6 +2127,25 @@ function navigateCartStep(stepId) {
   if (stepId === 'cart-step-delivery' && typeof refreshCheckoutCoupons === 'function') {
     refreshCheckoutCoupons();
     if (typeof renderSavedAddressesSelector === 'function') renderSavedAddressesSelector();
+    if (typeof restoreCustomerProfile === 'function') restoreCustomerProfile();
+    // v11: if the customer already has a CEP filled, recompute the distance/fee so the
+    // delivery panel is up to date when they revisit the step. Re-validates the saved CEP.
+    if (checkoutCep && checkoutCep.value && typeof maybePrefillCepFromLookup === 'function') {
+      const digits = checkoutCep.value.replace(/\D/g, '');
+      if (digits.length === 8) {
+        // Fire-and-forget; renderCheckoutDeliveryResult is awaited inside.
+        maybePrefillCepFromLookup();
+      }
+    }
+  }
+  // Analytics: step view + checkout_start
+  if (window.pizzariaTrack) {
+    window.pizzariaTrack('cart_step_view', { step: stepId });
+    if (stepId === 'cart-step-delivery') {
+      window.pizzariaTrack('checkout_start', {
+        cart_size: cart.length
+      });
+    }
   }
 }
 
@@ -2313,7 +2351,9 @@ function calcOrderDiscount(subtotal) {
 function refreshPaymentDetailsScreen() {
   const payment = checkoutPayment.value;
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  // v11: distance-based delivery — fee comes from calcDeliveryByDistance on the customer's CEP
+  // (or 0 when the CEP is missing/out-of-range, so the user is forced to fix it before checkout).
+  const deliveryFee = getCheckoutDeliveryFee();
   const discount = calcOrderDiscount(subtotal);
   const cartTotal = subtotal + deliveryFee - discount;
 
@@ -2432,6 +2472,18 @@ if (checkoutPhone) {
 if (checkoutName) {
   checkoutName.addEventListener('input', handleAuthFormInputs);
 }
+if (checkoutCep) {
+  maskCepInput(checkoutCep);
+  checkoutCep.addEventListener('input', () => {
+    updateCheckoutCepHint(checkoutCep.value);
+  });
+  checkoutCep.addEventListener('blur', () => {
+    maybePrefillCepFromLookup();
+  });
+  checkoutCep.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); maybePrefillCepFromLookup(); }
+  });
+}
 
 // Delivery Form actions
 if (deliveryTypeDelivery) {
@@ -2440,6 +2492,13 @@ if (deliveryTypeDelivery) {
     deliveryTypeDelivery.classList.add('is-active');
     deliveryTypePickup.classList.remove('is-active');
     if (addressFields) addressFields.style.display = 'block';
+    // v11: refresh the in-cart delivery snapshot when switching back to delivery
+    // (the cart summary reads the cached calc on every refresh).
+    if (typeof renderCheckoutDeliveryResult === 'function'
+        && typeof checkoutCepData !== 'undefined' && checkoutCepData
+        && typeof checkoutDeliveryCalc !== 'undefined' && checkoutDeliveryCalc) {
+      renderCheckoutDeliveryResult(checkoutCepData, checkoutDeliveryCalc);
+    }
   });
 }
 if (deliveryTypePickup) {
@@ -2448,6 +2507,9 @@ if (deliveryTypePickup) {
     deliveryTypePickup.classList.add('is-active');
     deliveryTypeDelivery.classList.remove('is-active');
     if (addressFields) addressFields.style.display = 'none';
+    // v11: hide the per-cart distance/fee panel when the customer picks pickup
+    // — the summary row already disappears via getCheckoutDeliveryFee() === 0.
+    if (typeof clearCheckoutDelivery === 'function') clearCheckoutDelivery();
   });
 }
 if (checkoutPayment) {
@@ -2564,11 +2626,122 @@ function restoreCustomerProfile() {
     if (checkoutNeighborhood && !checkoutNeighborhood.value && profile.lastAddress.neighborhood) checkoutNeighborhood.value = profile.lastAddress.neighborhood;
     if (checkoutRef && !checkoutRef.value && profile.lastAddress.ref) checkoutRef.value = profile.lastAddress.ref;
   }
+  if (profile.lastCep && checkoutCep && !checkoutCep.value) {
+    const formatted = formatCepDisplay(profile.lastCep);
+    checkoutCep.value = formatted;
+    updateCheckoutCepHint(formatted, { markLast: true });
+  }
   if (checkoutPayment && profile.lastPayment) {
     const opt = Array.from(checkoutPayment.options).find(o => o.value === profile.lastPayment);
     if (opt) checkoutPayment.value = profile.lastPayment;
   }
   if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+}
+
+function formatCepDisplay(cep) {
+  const d = String(cep || '').replace(/\D/g, '').slice(0, 8);
+  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+}
+
+function updateCheckoutCepHint(value, opts) {
+  if (!checkoutCepHint) return;
+  const d = String(value || '').replace(/\D/g, '');
+  checkoutCepHint.classList.remove('is-last', 'is-error', 'is-ok');
+  if (!d) { checkoutCepHint.textContent = ''; return; }
+  if (d.length < 8) {
+    checkoutCepHint.textContent = `Faltam ${8 - d.length} dígito(s)…`;
+    return;
+  }
+  if (opts && opts.markLast) {
+    checkoutCepHint.textContent = '↺ Último CEP usado — confira antes de confirmar.';
+    checkoutCepHint.classList.add('is-last');
+    return;
+  }
+  checkoutCepHint.textContent = '';
+}
+
+async function maybePrefillCepFromLookup() {
+  if (!checkoutCep) return;
+  const v = checkoutCep.value;
+  const d = v.replace(/\D/g, '');
+  if (d.length !== 8) {
+    updateCheckoutCepHint(v);
+    clearCheckoutDelivery();
+    return;
+  }
+  if (checkoutCepHint) {
+    checkoutCepHint.classList.remove('is-error', 'is-ok');
+    checkoutCepHint.textContent = '🔎 Validando CEP…';
+  }
+  try {
+    const cepData = await geocodeCep(d);
+    if (checkoutStreet && !checkoutStreet.value && cepData.street) checkoutStreet.value = cepData.street;
+    if (checkoutNeighborhood && !checkoutNeighborhood.value && cepData.neighborhood) checkoutNeighborhood.value = cepData.neighborhood;
+    if (checkoutCepHint) {
+      checkoutCepHint.textContent = `✓ ${cepData.neighborhood || 'OK'} · ${cepData.city || ''}/${cepData.uf || ''}`;
+      checkoutCepHint.classList.add('is-ok');
+    }
+    // v11: distance-based delivery — recompute fee from this CEP so refreshPaymentDetailsScreen,
+    // getMPPreferenceUrl, and finalizeOrder all read the SAME value the public calculator shows.
+    checkoutCepData = cepData;
+    checkoutDeliveryCalc = calcDeliveryByDistance(cepData);
+    renderCheckoutDeliveryResult(cepData, checkoutDeliveryCalc);
+  } catch (e) {
+    if (checkoutCepHint) {
+      checkoutCepHint.textContent = `⚠️ ${e.message || 'CEP não encontrado.'}`;
+      checkoutCepHint.classList.add('is-error');
+    }
+    clearCheckoutDelivery();
+  }
+}
+
+function clearCheckoutDelivery() {
+  checkoutCepData = null;
+  checkoutDeliveryCalc = null;
+  const host = document.getElementById('checkout-delivery-result');
+  if (host) {
+    host.classList.remove('is-visible', 'is-ok', 'is-out');
+    host.innerHTML = '';
+  }
+}
+
+function getCheckoutDeliveryFee() {
+  // Returns the distance-based fee for the current CEP, or 0 for pickup / no CEP / out-of-range.
+  if (deliveryType !== 'delivery') return 0;
+  if (checkoutDeliveryCalc && !checkoutDeliveryCalc.outOfRange) return checkoutDeliveryCalc.fee;
+  // No valid CEP yet — fall back to 0 so the user is forced to fill the CEP on the delivery step.
+  return 0;
+}
+
+function getCheckoutDeliveryEta() {
+  if (deliveryType !== 'delivery') return null;
+  if (checkoutDeliveryCalc && !checkoutDeliveryCalc.outOfRange) {
+    return { minutesMin: checkoutDeliveryCalc.minutesMin, minutesMax: checkoutDeliveryCalc.minutesMax };
+  }
+  return null;
+}
+
+function renderCheckoutDeliveryResult(cepData, calc) {
+  const host = document.getElementById('checkout-delivery-result');
+  if (!host) return;
+  if (!cepData || !calc) { clearCheckoutDelivery(); return; }
+  if (calc.outOfRange) {
+    host.className = 'checkout-delivery-result is-visible is-out';
+    host.innerHTML = `
+      <div class="checkout-delivery-result__row">📍 <strong>${cepData.neighborhood || '—'}</strong>, ${cepData.city || ''}/${cepData.uf || ''}</div>
+      ${cepData.street ? `<div class="checkout-delivery-result__row" style="font-size:0.82rem;color:#6b5a55;">${cepData.street}</div>` : ''}
+      ${calc.km != null ? `<div class="checkout-delivery-result__row">📏 Distância: <strong>${calc.km.toFixed(1)} km</strong></div>` : ''}
+      <div class="checkout-delivery-result__row">⚠️ <strong>${calc.reason || 'Fora da área de entrega'}</strong></div>
+      <div class="checkout-delivery-result__row" style="font-size:0.82rem;color:#6b5a55;">Você pode retirar na pizzaria ou ajustar o CEP.</div>`;
+    return;
+  }
+  host.className = 'checkout-delivery-result is-visible is-ok';
+  host.innerHTML = `
+    <div class="checkout-delivery-result__row">📍 <strong>${cepData.neighborhood || '—'}</strong>, ${cepData.city || ''}/${cepData.uf || ''}</div>
+    ${cepData.street ? `<div class="checkout-delivery-result__row" style="font-size:0.82rem;color:#6b5a55;">${cepData.street}</div>` : ''}
+    <div class="checkout-delivery-result__row">📏 Distância: <strong>${calc.km.toFixed(1)} km</strong></div>
+    <div class="checkout-delivery-result__row">💰 Taxa de entrega: <strong>${formatBRL(calc.fee)}</strong></div>
+    <div class="checkout-delivery-result__row">⏱ Tempo estimado: <strong>${calc.minutesMin}-${calc.minutesMax} min</strong></div>`;
 }
 
 function formatPaymentLabel(payment, changeVal) {
@@ -2789,12 +2962,15 @@ function finalizeOrder() {
   const paymentStr = formatPaymentLabel(payment, changeVal);
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  // v11: distance-based delivery — fee is the same value shown on the public calculator
+  // for this CEP (computed in maybePrefillCepFromLookup).
+  const deliveryFee = getCheckoutDeliveryFee();
   const discount = calcOrderDiscount(subtotal);
   const cartTotal = subtotal + deliveryFee - discount;
 
   let deliveryStr = '';
   let addressSnap = null;
+  let deliveryDistance = null; // km, when delivery is on
   if (deliveryType === 'delivery') {
     const street = checkoutStreet ? checkoutStreet.value.trim() : '';
     const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
@@ -2804,8 +2980,24 @@ function finalizeOrder() {
       navigateCartStep('cart-step-delivery');
       return;
     }
+    // v11: block checkout if the CEP didn't resolve to a deliverable distance
+    if (!checkoutDeliveryCalc || checkoutDeliveryCalc.outOfRange) {
+      const reason = (checkoutDeliveryCalc && checkoutDeliveryCalc.reason) || 'Confirme o CEP para ver a taxa de entrega.';
+      showToast(`⚠️ ${reason}`, 3200);
+      navigateCartStep('cart-step-delivery');
+      if (typeof checkoutCep !== 'undefined' && checkoutCep) checkoutCep.focus();
+      return;
+    }
     addressSnap = { street, neighborhood, ref };
-    deliveryStr = `🛵 *Entrega para:*\n- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}\n- Taxa de Entrega: ${formatBRL(deliveryFee)}`;
+    const cepDigits = checkoutCep ? checkoutCep.value.replace(/\D/g, '') : '';
+    if (cepDigits.length === 8) {
+      addressSnap.cep = cepDigits;
+    }
+    deliveryDistance = checkoutDeliveryCalc.km;
+    const etaLine = checkoutDeliveryCalc
+      ? `\n- Distância: ${checkoutDeliveryCalc.km.toFixed(1)} km\n- Tempo estimado: ${checkoutDeliveryCalc.minutesMin}-${checkoutDeliveryCalc.minutesMax} min`
+      : '';
+    deliveryStr = `🛵 *Entrega para:*\n${cepDigits.length === 8 ? `- CEP: ${formatCepDisplay(cepDigits)}\n` : ''}- Rua: ${street}\n- Bairro: ${neighborhood}${ref ? `\n- Referência: ${ref}` : ''}\n- Taxa de Entrega: ${formatBRL(deliveryFee)}${etaLine}`;
   } else {
     deliveryStr = `🛍️ *Retirada no Balcão*`;
   }
@@ -2882,6 +3074,12 @@ function finalizeOrder() {
     changeFor: changeVal || null,
     deliveryType,
     address: addressSnap,
+    // v11: distance-based delivery snapshot — persisted with the order so receipts,
+    // history, and analytics can show the same distance/fee/ETA the customer saw.
+    deliveryDistanceKm: deliveryDistance,
+    deliveryEtaMin: checkoutDeliveryCalc ? checkoutDeliveryCalc.minutesMin : null,
+    deliveryEtaMax: checkoutDeliveryCalc ? checkoutDeliveryCalc.minutesMax : null,
+    deliverySource: checkoutDeliveryCalc ? 'distance' : (deliveryType === 'delivery' ? 'pending' : null),
     estimatedMinutes,
     obs: obs || null,
     status: 'received',
@@ -2915,11 +3113,18 @@ function finalizeOrder() {
   }
 
   // Salva perfil do cliente para próximo pedido
+  const lastCepDigits = (addressSnap && addressSnap.cep) ? addressSnap.cep : (checkoutCep ? checkoutCep.value.replace(/\D/g, '') : '');
   saveCustomerProfile({
     name, phone,
     lastAddress: addressSnap,
+    lastCep: lastCepDigits || null,
     lastPayment: payment
   });
+
+  // Atualiza o CTA "Repetir meu último pedido" do hero (caso esteja logado)
+  if (typeof refreshHomeLastOrderCta === 'function') {
+    setTimeout(refreshHomeLastOrderCta, 50);
+  }
 
   // Open WhatsApp
   window.open(buildWhatsAppUrl(fullMessage), '_blank', 'noopener,noreferrer');
@@ -2938,6 +3143,16 @@ function finalizeOrder() {
   // Track guest order
   if (!getCurrentAccount()) {
     trackEvent('guest_order_placed', { orderId: order.id, total: cartTotal });
+  }
+
+  // Privacy-respecting analytics: order_complete (no PII, no MP txId)
+  if (window.pizzariaTrack) {
+    const shortId = String(orderId || '').replace(/^PED-?/, '').slice(0, 12);
+    window.pizzariaTrack('order_complete', {
+      order_id: shortId,
+      order_total_brl: cartTotal,
+      payment_method: payment
+    });
   }
 
   // Clear cart state
@@ -3146,7 +3361,9 @@ async function getMPPreferenceUrl(cartItems, total) {
     currency_id: 'BRL'
   }));
 
-  const fee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+  // v11: distance-based delivery — pass the same fee to Mercado Pago that the user
+  // is seeing in the cart summary, so the preference total matches the order total.
+  const fee = getCheckoutDeliveryFee();
   if (fee > 0) {
     items.push({
       title: 'Taxa de Entrega',
@@ -3185,9 +3402,22 @@ if (cartNextBtn3) {
     if (deliveryType === 'delivery') {
       const street = checkoutStreet ? checkoutStreet.value.trim() : '';
       const neighborhood = checkoutNeighborhood ? checkoutNeighborhood.value.trim() : '';
-      
+      const cepDigits = checkoutCep ? checkoutCep.value.replace(/\D/g, '') : '';
+
+      if (!cepDigits) {
+        showToast('⚠️ Informe o CEP para calcular a taxa de entrega.', 3200);
+        if (checkoutCep) checkoutCep.focus();
+        return;
+      }
       if (!street || !neighborhood) {
-        window.alert('Por favor, preencha a rua e o bairro para a entrega.');
+        showToast('⚠️ Preencha rua e bairro para entrega', 3000);
+        return;
+      }
+      // v11: block when the CEP didn't resolve to a deliverable distance
+      if (!checkoutDeliveryCalc || checkoutDeliveryCalc.outOfRange) {
+        const reason = (checkoutDeliveryCalc && checkoutDeliveryCalc.reason) || 'Confirme o CEP para ver a taxa de entrega.';
+        showToast(`⚠️ ${reason}`, 3200);
+        if (checkoutCep) checkoutCep.focus();
         return;
       }
     }
@@ -3391,7 +3621,8 @@ const btnRegenPix = document.getElementById('btn-regen-pix');
 if (btnRegenPix) {
   btnRegenPix.addEventListener('click', () => {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = (deliveryType === 'delivery') ? DELIVERY_FEE : 0;
+    // v11: distance-based delivery — keep Pix total in sync with the cart summary.
+    const deliveryFee = getCheckoutDeliveryFee();
     regeneratePixCode(subtotal + deliveryFee);
     showToast('Novo código Pix gerado ✅');
   });
@@ -3426,6 +3657,8 @@ if (profileClearCheckbox) {
       if (checkoutStreet) checkoutStreet.value = '';
       if (checkoutNeighborhood) checkoutNeighborhood.value = '';
       if (checkoutRef) checkoutRef.value = '';
+      if (checkoutCep) checkoutCep.value = '';
+      if (checkoutCepHint) { checkoutCepHint.textContent = ''; checkoutCepHint.classList.remove('is-last','is-error','is-ok'); }
       const toggleLabel = document.getElementById('profile-clear-toggle');
       if (toggleLabel) toggleLabel.style.display = 'none';
       showToast('Dados limpos deste dispositivo 🔒');
@@ -3676,6 +3909,7 @@ function refreshAppbarAccount() {
   } else {
     avatar.setAttribute('data-initial', '');
   }
+  if (typeof refreshHomeLastOrderCta === 'function') refreshHomeLastOrderCta();
 }
 
 // ---------- ViaCEP ----------
@@ -3863,7 +4097,9 @@ function loadZones() {
     label: 'Teresina-PI',
     cepFrom: '64000000',
     cepTo: '64099999',
-    fee: DELIVERY_FEE || 5,
+    // v11: legacy zone default fee — kept for the admin "Zonas" fallback view, but the
+    // checkout no longer reads DELIVERY_FEE. Use the new distance-based default.
+    fee: 5,
     minutesMin: 30,
     minutesMax: 60,
     active: true
@@ -4211,6 +4447,7 @@ function refreshAccountHero() {
   const couponsActive = (acc.coupons || []).filter(c => !c.used).length;
   setT('account-menu-coupons-count', couponsActive ? `${couponsActive} cupom` : '');
   setT('account-menu-addresses-count', (acc.addresses || []).length ? String((acc.addresses || []).length) : '');
+  if (typeof refreshHomeLastOrderCta === 'function') refreshHomeLastOrderCta();
 }
 function renderAccountStep(step) {
   if (step === 'orders') renderAccountOrders('all');
@@ -4299,20 +4536,141 @@ function renderAccountOrders(filter) {
     b.addEventListener('click', () => {
       const o = getOrderById(b.dataset.orderRepeat);
       if (!o || !o.items) return;
-      o.items.forEach(it => {
-        cart.push({
-          id: 'r' + Date.now() + Math.random().toString(36).slice(2,6),
-          itemId: it.itemId, type: it.type,
-          name: it.name, price: it.price,
-          quantity: it.quantity, details: it.details
-        });
-      });
-      renderCart();
+      repeatOrderIntoCart(o);
       closeAccountDrawer();
       if (typeof openCartDrawer === 'function') openCartDrawer();
       showToast('Itens adicionados ao carrinho!', 2000);
     });
   });
+}
+
+// ---------- 3-tap "Repetir meu último pedido" ----------
+function computePizzaUnitPrice(details) {
+  if (!details) return null;
+  const sizeObj = pizzaSizes.find(s => s.id === (details.size && details.size.id)) || details.size;
+  const sizeExtra = sizeObj && typeof sizeObj.extra === 'number' ? sizeObj.extra : 0;
+  let flavorPrice = 0;
+  let flavorCount = 0;
+  const first = details.firstFlavor;
+  const second = details.secondFlavor;
+  if (first && typeof first.price === 'number') { flavorPrice += first.price; flavorCount++; }
+  if (second && typeof second.price === 'number') { flavorPrice += second.price; flavorCount++; }
+  if (!flavorCount) {
+    const base = (first && first.id && menu.find(m => m.id === first.id)) ||
+                 (second && second.id && menu.find(m => m.id === second.id));
+    if (base && typeof base.price === 'number') { flavorPrice = base.price; flavorCount = 1; }
+  }
+  if (!flavorCount) return null;
+  // meio a meio: cobra o sabor mais caro + 50% do segundo
+  let flavorUnit;
+  if (flavorCount === 2) {
+    flavorUnit = Math.max(first.price, second.price) + (Math.min(first.price, second.price) / 2);
+  } else {
+    flavorUnit = flavorPrice;
+  }
+  let total = flavorUnit + sizeExtra;
+  const border = details.border;
+  if (border && border.id && border.id !== 'sem-borda' && typeof border.price === 'number') {
+    total += border.price;
+  }
+  if (Array.isArray(details.extras)) {
+    details.extras.forEach(ex => {
+      if (ex && ex.id !== 'salsinha' && typeof ex.price === 'number' && ex.price > 0) {
+        total += ex.price;
+      }
+    });
+  }
+  const drink = details.drink;
+  if (drink && drink.id && drink.id !== 'sem-bebida' && typeof drink.price === 'number') {
+    total += drink.price;
+  }
+  return Math.round(total * 100) / 100;
+}
+
+function computeSimpleUnitPrice(it) {
+  if (!it || !it.itemId) return null;
+  const m = menu.find(x => x.id === it.itemId);
+  if (m && typeof m.price === 'number') return m.price;
+  return null;
+}
+
+function repeatOrderIntoCart(order) {
+  if (!order || !Array.isArray(order.items) || !order.items.length) return;
+  const added = [];
+  let skipped = [];
+  order.items.forEach(it => {
+    const qty = Math.max(1, parseInt(it.quantity, 10) || 1);
+    let price = null;
+    let name = it.name;
+    let details = it.details || null;
+    if (it.type === 'pizza' && details) {
+      price = computePizzaUnitPrice(details);
+    } else {
+      price = computeSimpleUnitPrice(it);
+    }
+    if (price == null) {
+      skipped.push(it.name);
+      return;
+    }
+    for (let i = 0; i < qty; i++) {
+      cart.push({
+        id: 'r' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + i,
+        itemId: it.itemId,
+        type: it.type,
+        name,
+        price,
+        quantity: 1,
+        details
+      });
+    }
+    added.push({ name, qty, price });
+  });
+  if (added.length) {
+    renderCart();
+    if (skipped.length) {
+      showToast(`Repetido! ${skipped.length} item(ns) ignorado(s) (fora do cardápio).`, 3000);
+    } else {
+      showToast('Itens adicionados ao carrinho! Preços atualizados.', 2200);
+    }
+  } else {
+    showToast('Nenhum item disponível no cardápio atual.', 3000);
+  }
+}
+
+function getLastOrderForCurrentAccount() {
+  if (typeof getCurrentAccount !== 'function') return null;
+  const acc = getCurrentAccount();
+  if (!acc) return null;
+  const orders = loadOrders().filter(o => o.accountEmail === acc.email);
+  if (!orders.length) return null;
+  orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  return orders[0];
+}
+
+function refreshHomeLastOrderCta() {
+  const btn = document.getElementById('home-last-order-btn');
+  const priceEl = document.getElementById('home-last-order-price');
+  if (!btn) return;
+  const acc = (typeof getCurrentAccount === 'function') ? getCurrentAccount() : null;
+  if (!acc) { btn.hidden = true; return; }
+  const last = getLastOrderForCurrentAccount();
+  if (!last || !Array.isArray(last.items) || !last.items.length) {
+    btn.hidden = true;
+    return;
+  }
+  const total = (last.items || []).reduce((s, it) => {
+    let unit = null;
+    if (it.type === 'pizza' && it.details) unit = computePizzaUnitPrice(it.details);
+    if (unit == null) unit = computeSimpleUnitPrice(it);
+    if (unit == null) unit = it.price || 0;
+    return s + unit * (parseInt(it.quantity, 10) || 1);
+  }, 0);
+  if (priceEl) priceEl.textContent = formatBRL(total);
+  btn.hidden = false;
+  btn.onclick = () => {
+    repeatOrderIntoCart(last);
+    if (typeof openCartDrawer === 'function') openCartDrawer();
+  };
 }
 
 // ---------- Render: Prêmios ----------
