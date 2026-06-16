@@ -62,7 +62,7 @@ textarea {
 
 .store-appbar {
   position: sticky;
-  top: 0;
+  top: 38px;
   z-index: 30;
   width: 100%;
   background: rgba(13, 11, 10, 0.85);
@@ -1032,13 +1032,22 @@ textarea {
 
 .menu-card__hint--cta {
   display: inline-block;
-  background: var(--red);
-  color: #fff;
+  background: linear-gradient(135deg, #ffd166 0%, #f4a82a 55%, #d98a12 100%);
+  color: #2a1410;
   font-size: 0.78rem;
   font-weight: 800;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
   margin-top: 4px;
+  width: fit-content;
+  justify-self: start;
+  box-shadow: 0 2px 8px rgba(217, 138, 18, 0.3);
+  transition: transform 0.18s ease, box-shadow 0.22s ease;
+}
+
+.menu-card__hint--cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 138, 18, 0.45);
 }
 
 .menu-card__actions,
@@ -2398,8 +2407,8 @@ textarea {
 
 .footer-info .footer-author {
   margin-top: 6px;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.50);
   font-weight: 600;
 }
 
@@ -2690,7 +2699,7 @@ textarea {
 }
 
 /* Adjust floating WhatsApp position dynamically on mobile when cart order bar is active */
-body.has-cart .floating-whatsapp {
+body.has-cart-items .floating-whatsapp {
   bottom: 88px !important;
 }
 
@@ -3840,7 +3849,8 @@ body.has-cart .floating-whatsapp {
 
 /* --- Promo bar (urgência no topo) --- */
 .promo-bar {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 35;
   display: flex;
   align-items: center;
@@ -4190,12 +4200,10 @@ body.has-cart .floating-whatsapp {
   }
 }
 
-/* Esconde o floating-whatsapp redundante quando o sticky-order-cta está ativo no mobile */
+/* Esconde o floating-whatsapp no mobile quando sticky-order-cta está ativo */
 @media (max-width: 899px) {
   .floating-whatsapp {
-    bottom: 82px;
-    width: 48px;
-    height: 48px;
+    display: none;
   }
 }
 
@@ -7154,3 +7162,75 @@ body.has-cart-items .pwa-install-banner {
 /* === Utility classes === */
 .text-muted { color: #6b5a55; }
 .text-sm { font-size: 0.85rem; }
+
+/* === Skeleton Loading States (M6) === */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(200,190,175,0.15) 25%, rgba(200,190,175,0.30) 50%, rgba(200,190,175,0.15) 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton-card {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: rgba(255, 248, 238, 0.98);
+  border: 1px solid rgba(255, 244, 228, 0.08);
+  box-shadow: 0 16px 42px rgba(9, 4, 3, 0.16);
+}
+
+.skeleton-card__image { width: 120px; height: 120px; border-radius: 14px; }
+.skeleton-card__body { display: grid; gap: 10px; padding-top: 4px; }
+.skeleton-card__badge { width: 110px; height: 22px; border-radius: 999px; }
+.skeleton-card__title { width: 70%; height: 18px; }
+.skeleton-card__price { width: 40%; height: 16px; }
+.skeleton-card__desc { width: 100%; height: 14px; }
+.skeleton-card__desc-short { width: 60%; height: 14px; }
+
+.skeleton-combo {
+  background: rgba(30, 28, 27, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.skeleton-combo__image {
+  width: 100%; height: 180px;
+  border-top-left-radius: 24px; border-top-right-radius: 24px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-combo__body { padding: 20px; display: grid; gap: 12px; flex-grow: 1; }
+.skeleton-combo__title { width: 75%; height: 20px; }
+.skeleton-combo__desc { width: 100%; height: 14px; }
+.skeleton-combo__desc-short { width: 55%; height: 14px; }
+.skeleton-combo__footer { display: flex; flex-direction: column; gap: 12px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px; }
+.skeleton-combo__price { width: 35%; height: 24px; }
+.skeleton-combo__buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.skeleton-combo__btn { height: 40px; border-radius: 8px; }
+
+@media (max-width: 719px) {
+  .skeleton-card {
+    grid-template-columns: minmax(0, 1fr) 92px;
+    gap: 12px; padding: 14px 16px;
+    border-radius: 0; background: transparent;
+    border: 0; border-bottom: 1px solid rgba(55, 65, 81, 0.12);
+    box-shadow: none;
+  }
+  .skeleton-card__image { order: 2; width: 92px; height: 92px; min-width: 92px; border-radius: 10px; }
+  .skeleton-card__body { order: 1; }
+}
