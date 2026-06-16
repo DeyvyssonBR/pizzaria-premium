@@ -17,6 +17,12 @@
     <meta name="ICBM" content="-5.0617, -42.7775" />
     <link rel="canonical" href="https://pizzaria-premium.vercel.app/" />
 
+    <!-- Security headers (defense in depth — primary enforcement is in vercel.json + server.js) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br https://umami.pizzariapremium.com.br https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://viacep.com.br https://cep.awesomeapi.com.br https://www.mercadopago.com.br https://api.mercadopago.com https://umami.pizzariapremium.com.br https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.googletagmanager.com https://region1.google-analytics.com; frame-src 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(self &quot;https://www.mercadopago.com.br&quot;), usb=(), serial=(), magnetometer=(), gyroscope=(), accelerometer=()" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="restaurant.restaurant" />
     <meta property="og:site_name" content="Pizzaria Premium Teresina" />
@@ -52,21 +58,90 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
       rel="stylesheet"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="assets/css/styles.css?v=premium-2026-17-ig-bg" />
+    <link rel="stylesheet" href="assets/css/styles.css?v=premium-2026-16-uiux" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#5a0a18" />
     <link rel="apple-touch-icon" href="assets/img/logo-premium-2026.png" />
     <link rel="preload" as="image" href="assets/img/logo-premium-2026.png" />
-    <script src="assets/js/qrcode.min.js" defer></script>
-    <script src="assets/js/analytics.js?v=premium-2026-12-errors" defer></script>
-    <script src="assets/js/script.js?v=premium-2026-8-payment" defer></script>
+    <script src="assets/js/qrcode.min.js?v=premium-2026-16-uiux" defer></script>
+    <script src="assets/js/analytics.js?v=premium-2026-16-uiux" defer></script>
+    <script src="assets/js/script.js?v=premium-2026-16-uiux" defer></script>
 
-    <!-- JSON-LD: Restaurant (Schema.org) -->
+    <!-- ============================================================
+         Google Analytics 4 + Google Tag Manager (TAA-20)
+         - IDs are read from localStorage('premium_pizzaria_ga4_id') and
+           ('premium_pizzaria_gtm_id') so the dono can plug them in via
+           DevTools or admin without redeploy. If the keys are missing,
+           the snippets are no-ops and the existing Umami (privacy-first)
+           runtime analytics keeps working.
+         - Snippets are loaded with `defer` to keep first paint fast and
+           are wrapped in try/catch so a blocked GTM/GA never breaks the SPA.
+         ============================================================ -->
+    <script>
+      (function () {
+        'use strict';
+        try {
+          var ga4Id = (localStorage.getItem('premium_pizzaria_ga4_id') || '').trim();
+          var gtmId = (localStorage.getItem('premium_pizzaria_gtm_id') || '').trim();
+
+          // GTM (noscript fallback injected only if a container id is present)
+          if (gtmId) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: 'gtm.js', 'gtm.start': Date.now() });
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(gtmId);
+            document.head.appendChild(s);
+          }
+
+          // GA4 gtag.js (only loaded when an id is set)
+          if (ga4Id) {
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = window.gtag || function () {
+              window.dataLayer.push(arguments);
+            };
+            window.gtag('js', new Date());
+            window.gtag('config', ga4Id, { send_page_view: true });
+            var a = document.createElement('script');
+            a.async = true;
+            a.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4Id);
+            document.head.appendChild(a);
+          }
+
+          // Bridge: the existing pizzariaTrack(...) pipeline now also forwards
+          // to gtag() with GA4 event names, so the same hook covers both
+          // Umami (self-hosted) and GA4 (cloud) destinations.
+          var originalTrack = window.pizzariaTrack;
+          window.pizzariaTrack = function (name, props) {
+            try { if (typeof originalTrack === 'function') originalTrack(name, props); } catch (e) {}
+            try {
+              if (window.gtag && name) {
+                // Map Umami-style names to GA4 recommended event names when applicable
+                var gaEvent = name;
+                var gaParams = props || {};
+                if (name === 'cart_open') gaEvent = 'view_cart';
+                else if (name === 'checkout_start') gaEvent = 'begin_checkout';
+                else if (name === 'order_complete') gaEvent = 'purchase';
+                else if (name === 'cart_step_view') gaEvent = 'view_item_list';
+                window.gtag('event', gaEvent, gaParams);
+              }
+            } catch (e) {}
+          };
+        } catch (e) {
+          // Never break the SPA on analytics bootstrap
+          console.warn('[analytics] bootstrap skipped:', e && e.message);
+        }
+      })();
+    </script>
+
+    <!-- JSON-LD: Restaurant / LocalBusiness (Schema.org) - TAA-20 -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Restaurant",
+      "@type": ["Restaurant", "LocalBusiness", "FoodEstablishment"],
       "@id": "https://pizzaria-premium.vercel.app/#restaurant",
       "name": "Pizzaria Premium Teresina",
       "alternateName": "Pizzaria Premium & Espetaria",
@@ -77,7 +152,7 @@
       "telephone": "+55-86-3221-4870",
       "priceRange": "$$",
       "servesCuisine": ["Pizza", "Italian", "Brazilian"],
-      "acceptsReservations": false,
+      "acceptsReservations": "False",
       "currenciesAccepted": "BRL",
       "paymentAccepted": "Pix, Mercado Pago, Cash, Credit Card, Debit Card",
       "address": {
@@ -93,11 +168,9 @@
         "latitude": -5.0617,
         "longitude": -42.7775
       },
-      "areaServed": {
-        "@type": "City",
-        "name": "Teresina",
-        "containedInPlace": { "@type": "State", "name": "Piauí" }
-      },
+      "areaServed": [
+        { "@type": "City", "name": "Teresina", "containedInPlace": { "@type": "State", "name": "Piauí" } }
+      ],
       "openingHoursSpecification": [
         { "@type": "OpeningHoursSpecification", "dayOfWeek": "Monday",    "opens": "18:00", "closes": "22:00" },
         { "@type": "OpeningHoursSpecification", "dayOfWeek": "Tuesday",   "opens": "18:00", "closes": "23:30" },
@@ -109,7 +182,11 @@
       ],
       "hasMenu": "https://pizzaria-premium.vercel.app/#cardapio",
       "menu": "https://pizzaria-premium.vercel.app/#cardapio",
-      "sameAs": ["https://wa.me/5586981423367"],
+      "sameAs": [
+        "https://wa.me/5586981423367",
+        "https://www.instagram.com/pizzariapremiumteresina/",
+        "https://deyvyssonbr.github.io/pizzaria-premium/"
+      ],
       "potentialAction": {
         "@type": "OrderAction",
         "target": {
@@ -123,6 +200,19 @@
         },
         "deliveryMethod": ["http://purl.org/goodrelations/v1#DeliveryModeOwnFleet"]
       }
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite + SearchAction (helpa Google a encontrar o sitemap) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://pizzaria-premium.vercel.app/#website",
+      "url": "https://pizzaria-premium.vercel.app/",
+      "name": "Pizzaria Premium Teresina",
+      "inLanguage": "pt-BR",
+      "publisher": { "@id": "https://pizzaria-premium.vercel.app/#restaurant" }
     }
     </script>
 
@@ -234,6 +324,19 @@
     <!-- TODO (TAKA-20): AggregateRating só quando houver fonte real (Google/iFood). Não inventar. -->
   </head>
   <body>
+    <!-- GTM noscript fallback (rendered only if gtm id is configured) -->
+    <script>
+      try {
+        var gtmId = (localStorage.getItem('premium_pizzaria_gtm_id') || '').trim();
+        if (gtmId) {
+          document.write(
+            '<iframe src="https://www.googletagmanager.com/ns.html?id=' +
+            encodeURIComponent(gtmId) +
+            '" height="0" width="0" style="display:none;visibility:hidden" aria-hidden="true"></iframe>'
+          );
+        }
+      } catch (e) {}
+    </script>
     <div class="promo-bar" role="region" aria-label="Promoção em destaque" id="promo-bar">
       <span id="promo-bar-content">🔥 <a href="#promocoes">Ver promoções</a></span>
     </div>
@@ -435,18 +538,28 @@
 
           <div class="menu-tabs" id="menu-tabs"></div>
 
-          <div class="menu-grid" id="menu-grid"></div>
+          <div class="menu-grid" id="menu-grid">
+            <noscript>
+              <p style="color:#5a5550;text-align:center;padding:2rem;grid-column:1/-1;">Ative o JavaScript para ver nosso cardápio completo.</p>
+            </noscript>
+          </div>
         </section>
 
         <section class="section section--promos" id="promocoes">
           <div class="section-heading section-heading--centered">
             <span class="kicker">Ofertas da semana</span>
             <h2>Promoções ativas</h2>
-            <p>Aproveite enquanto está no ar — peça direto pelo WhatsApp.</p>
+            <p>Aproveite enquanto estiver no ar - peça direto pelo WhatsApp.</p>
           </div>
           <div class="promo-grid" id="promo-grid"></div>
         </section>
 
+        <!-- ============================================================
+             PIZAA-3 (Refinamento visual): Prova social (depoimentos)
+             Secao adicionada para preencher o gap do brief item 5
+             (Prova social + Instagram + Localizacao + Rodape).
+             3 cards editaveis com estrelas, copy PT-BR, sem dependencia nova.
+             ============================================================ -->
         <section class="section section--instagram">
           <div class="panel panel--gradient">
             <div class="instagram-icon-wrapper">

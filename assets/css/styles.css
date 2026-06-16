@@ -13,6 +13,7 @@
   --brown: #C49170;           /* Brand Crust Brown */
   --green: #2f7d4a;
   --text: #fff9ef;
+  --text-muted: #a89f9a;
   --muted: rgba(255, 249, 239, 0.72);
   --dark-muted: rgba(45, 31, 26, 0.68);
   --line: rgba(255, 244, 228, 0.16);
@@ -389,6 +390,7 @@ textarea {
 
 .store-hero {
   padding: 14px 0 10px;
+  position: relative;
 }
 
 .store-hero__cover {
@@ -396,10 +398,17 @@ textarea {
   width: 100%;
   border-radius: 0;
   background:
-    linear-gradient(180deg, rgba(20,10,6,0.05), rgba(20,10,6,0.35)),
-    url('../img/cardapio/photo-1513104890138-7c749659a591.webp') center 45% / cover no-repeat,
-    url('../img/hero-fachada-premium-2026.jpg?v=fachada-2026-v4') center 45% / cover no-repeat;
+    url('../img/cardapio/photo-1513104890138-7c749659a591.webp') center 45% / cover no-repeat;
   box-shadow: var(--shadow);
+  position: relative;
+}
+
+.store-hero__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20,10,6,0.05), rgba(20,10,6,0.35));
+  pointer-events: none;
 }
 
 .store-hero__identity {
@@ -646,7 +655,8 @@ textarea {
   box-shadow: 0 22px 64px rgba(10, 4, 3, 0.2);
 }
 
-.section--promo {
+.section--promo,
+.section--promos {
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding-left: max(22px, calc((100vw - 1540px) / 2));
@@ -656,6 +666,12 @@ textarea {
   background:
     linear-gradient(135deg, rgba(117, 19, 33, 0.92), rgba(33, 26, 24, 0.98)),
     url('../img/cardapio/photo-1579751626657-72bc17010498@2x.webp') center/cover;
+  color: var(--text);
+}
+
+.section--promos .section-heading h2,
+.section--promos .section-heading p,
+.section--promos .section-heading .kicker {
   color: var(--text);
 }
 
@@ -701,8 +717,8 @@ textarea {
   align-items: flex-start;
   padding: 22px;
   color: var(--text);
-  background: rgba(255, 250, 242, 0.08);
-  border-color: rgba(255, 244, 228, 0.18);
+  background: rgba(255, 250, 242, 0.18);
+  border-color: rgba(255, 244, 228, 0.30);
   box-shadow: none;
 }
 
@@ -965,14 +981,15 @@ textarea {
 .menu-card__badge {
   display: inline-flex;
   width: fit-content;
-  padding: 6px 10px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(183, 31, 45, 0.1);
-  color: var(--red);
+  background: var(--red);
+  color: #fff;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(213, 2, 1, 0.3);
 }
 
 .menu-card__meta {
@@ -989,19 +1006,21 @@ textarea {
   font-weight: 800;
   line-height: 1.35;
   text-transform: uppercase;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .menu-card p {
   margin: 0;
   min-height: 0;
-  color: #8a8f98;
+  color: #5a5550;
   font-size: 0.92rem;
   line-height: 1.45;
 }
 
 .menu-card__price {
-  color: #2f3640;
-  font-size: 0.98rem;
+  color: #1a1f26;
+  font-size: 1.08rem;
   font-weight: 700;
 }
 
@@ -1009,6 +1028,17 @@ textarea {
   color: #c56a1d;
   font-size: 0.84rem;
   font-weight: 700;
+}
+
+.menu-card__hint--cta {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-top: 4px;
 }
 
 .menu-card__actions,
@@ -1550,7 +1580,8 @@ textarea {
 }
 
 .choice-section-head em.is-required {
-  background: #df5237;
+  background: #b91c1c;
+  color: #fff;
 }
 
 .product-option {
@@ -1676,14 +1707,14 @@ textarea {
 .choice-card span {
   font-size: 0.82rem;
   line-height: 1.4;
-  color: rgba(36, 19, 15, 0.6) !important;
+  color: rgba(36, 19, 15, 0.6);
   margin-top: 4px;
   font-weight: 500;
   transition: color 0.18s ease;
 }
 
 .choice-card.is-active span {
-  color: rgba(183, 31, 45, 0.85) !important;
+  color: rgba(183, 31, 45, 0.85);
 }
 
 .pizza-review p,
@@ -1926,16 +1957,19 @@ textarea {
     order: 2;
     width: 92px;
     height: 92px;
+    min-width: 92px;
     border-radius: 10px;
   }
 
   .menu-card__body {
     order: 1;
     gap: 6px;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .menu-card__badge {
-    padding: 4px 8px;
+    padding: 4px 10px;
     font-size: 0.68rem;
   }
 
@@ -1947,10 +1981,6 @@ textarea {
   .menu-card p {
     font-size: 0.86rem;
     line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
   .menu-card__price {
@@ -2040,7 +2070,7 @@ textarea {
 }
 
 .carousel-slide {
-  flex: 0 0 82%; /* Show next card preview on mobile */
+  flex: 0 0 90%; /* Show next card preview on mobile */
   scroll-snap-align: start;
   transition: transform 0.3s ease;
 }
@@ -2132,10 +2162,13 @@ textarea {
 
 .combo-slide-card__content p {
   font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.45;
   margin: 0 0 20px 0;
   flex-grow: 1;
+  min-height: 0;
+  max-height: 4.5em;
+  overflow: hidden;
 }
 
 .combo-slide-card__footer {
@@ -2170,6 +2203,8 @@ textarea {
   font-family: var(--font-heading);
   font-size: 0.78rem;
   font-weight: 800;
+  min-height: 40px;
+  padding: 8px 10px;
   padding: 8px 12px;
   border-radius: 8px;
   display: flex;
@@ -2250,11 +2285,11 @@ textarea {
 }
 
 .carousel-nav--prev {
-  left: -20px;
+  left: 4px;
 }
 
 .carousel-nav--next {
-  right: -20px;
+  right: 4px;
 }
 
 @media (min-width: 1200px) {
@@ -2410,6 +2445,149 @@ textarea {
 .section--instagram {
   margin-top: 36px;
   margin-bottom: 24px;
+}
+
+/* ============================================================
+   PIZAA-3 (Refinamento visual): Prova social (depoimentos)
+   - Mobile-first (1 coluna no mobile, 2 no tablet, 3 no desktop)
+   - Reusa design tokens (--gold, --red, --cream, --graphite, --text)
+   - Card visual: glass sutil sobre o grafite + borda dourada na estrela
+   - Sem dependencia nova. Sem JS. Copy 100% PT-BR.
+   ============================================================ */
+.section--testimonials {
+  margin-top: 32px;
+  margin-bottom: 8px;
+  padding-top: clamp(24px, 4vw, 40px);
+  padding-bottom: clamp(24px, 4vw, 40px);
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonials-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+.testimonial-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    rgba(20, 17, 16, 0.78);
+  border: 1px solid rgba(232, 193, 112, 0.18);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.testimonial-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--red) 50%, transparent 100%);
+  opacity: 0.85;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(232, 193, 112, 0.45);
+  box-shadow: 0 20px 48px rgba(229, 9, 20, 0.18);
+}
+
+.testimonial-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1.05rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.testimonial-quote {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--text);
+  font-style: italic;
+  position: relative;
+  padding-left: 14px;
+  border-left: 2px solid rgba(232, 193, 112, 0.55);
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 244, 228, 0.08);
+}
+
+.testimonial-avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red-deep), var(--red));
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  flex: 0 0 auto;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.35);
+}
+
+.testimonial-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.testimonial-meta {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255, 249, 239, 0.6);
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 380px) {
+  .testimonial-card {
+    padding: 18px 16px 14px;
+  }
+  .testimonial-quote {
+    font-size: 0.92rem;
+  }
 }
 
 .section--instagram .panel--gradient {
@@ -2619,7 +2797,7 @@ body.has-cart .floating-whatsapp {
 .flavor-search-container:focus-within {
   border-color: var(--red);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.35);
 }
 
 .flavor-search-container .search-icon {
@@ -3703,7 +3881,7 @@ body.has-cart .floating-whatsapp {
 }
 
 .promo-bar a {
-  color: var(--gold-bright);
+  color: #ffffff;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -4962,17 +5140,17 @@ body.has-cart .floating-whatsapp {
 
 /* --- Categorias do cardapio: chips brancos premium --- */
 .category-shortcuts {
-  gap: 12px;
-  padding: 18px 16px 22px;
+  gap: 8px;
+  padding: 14px 12px 18px;
 }
 
 .category-shortcuts--centered .category-shortcut,
 .category-shortcut {
   position: relative;
-  min-height: 48px;
-  padding: 0 22px;
+  min-height: 44px;
+  padding: 0 16px;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   letter-spacing: 0.01em;
   color: #2a1410;
   background: #ffffff;
@@ -6150,6 +6328,7 @@ body.has-cart .floating-whatsapp {
   background: #e6e6e6;
   color: #999;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Cupons do cliente (na resgate de pontos) */
@@ -6710,6 +6889,19 @@ body.has-cart-items .pwa-install-banner {
 #notification-drawer {
   --drawer-side: right;
 }
+#notification-drawer,
+#notification-drawer .account-drawer__body {
+  color: #2d1f1a;
+}
+#notification-drawer .notification-card__title {
+  color: #2d1f1a;
+}
+#notification-drawer .notification-card__msg {
+  color: #6b5b55;
+}
+#notification-drawer .notification-card__date {
+  color: #9a8b85;
+}
 #notification-drawer.is-open {
   transform: translateX(0);
 }
@@ -6921,3 +7113,44 @@ body.has-cart-items .pwa-install-banner {
 .welcome-coupon-modal .btn-coupon-dismiss:hover {
   color: var(--text);
 }
+
+/* === Accessibility: focus-visible === */
+.pizza-modal__close:focus-visible,
+.cart-drawer__back:focus-visible,
+.cart-drawer__clear:focus-visible,
+.cart-drawer .form-group input:focus-visible,
+.cart-drawer .form-group select:focus-visible,
+.cart-drawer .form-group textarea:focus-visible,
+.payment-card:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+/* === Backdrop-filter fallback === */
+.pizza-modal__backdrop,
+.modal-overlay__backdrop {
+  background: rgba(18, 12, 10, 0.85);
+}
+@supports (backdrop-filter: blur(10px)) {
+  .pizza-modal__backdrop,
+  .modal-overlay__backdrop {
+    background: rgba(18, 12, 10, 0.72);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* === Grid: dense para busca sabores === */
+.choice-list {
+  grid-auto-flow: dense;
+}
+
+/* === Carousel: center no desktop === */
+@media (min-width: 768px) {
+  .carousel-track {
+    justify-content: center;
+  }
+}
+
+/* === Utility classes === */
+.text-muted { color: #6b5a55; }
+.text-sm { font-size: 0.85rem; }

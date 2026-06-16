@@ -154,7 +154,12 @@ function check(name, ok, detail) {
   // 17. CORS rejected origin
   const rCors = await handler.fetch(req('POST', '/api/mp/create-pix', { amount: 1, external_ref: 'cors-test' }, { Origin: 'https://evil.com' }), env);
   const corsHeader = rCors.headers.get('Access-Control-Allow-Origin');
-  check('CORS rejected origin falls back to first allowed', corsHeader === 'https://example.com', 'got=' + corsHeader);
+  check('CORS rejected origin returns ACAO="null" (not first allowed)', corsHeader === 'null', 'got=' + corsHeader);
+
+  // 17b. CORS preflight for rejected origin also returns ACAO="null"
+  const rCorsPreflight = await handler.fetch(req('OPTIONS', '/api/mp/create-pix', null, { Origin: 'https://evil.com' }), env);
+  const corsPreflightHeader = rCorsPreflight.headers.get('Access-Control-Allow-Origin');
+  check('CORS preflight for rejected origin returns ACAO="null"', corsPreflightHeader === 'null', 'got=' + corsPreflightHeader);
 
   // 18. method not allowed
   const rGet = await handler.fetch(req('GET', '/api/mp/create-pix'), env);

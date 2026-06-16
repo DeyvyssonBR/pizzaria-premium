@@ -1,12 +1,12 @@
 /* ============================================================
    Pizzaria Premium — Admin Panel Modular Bootstrap
    --------------------------------------------------------------
-   v12 (TAA-23): owner self-service features that complement the
-   existing 6.4k-line admin.html. Loaded as a deferred <script> at
-   the end of admin.html. Everything is namespaced under
+   v13 (PIZAA-5): owner self-service features that complement the
+   existing admin.html. Loaded as a deferred <script> at the
+   end of admin.html. Everything is namespaced under
    `window.PP_ADMIN` to avoid colliding with the inline scripts.
 
-   New pieces (Tudo em pt-BR, sem framework, sem build):
+   Pieces (Tudo em pt-BR, sem framework, sem build):
      1. Backup/restore do localStorage (export/import JSON).
      2. Horários de funcionamento (semana × faixa de horário) que
         a home page lê em tempo real.
@@ -14,18 +14,23 @@
         dono copiar e colar no WhatsApp Business / resposta rápida.
      4. Onboarding em 1 página: checklist guiado para o primeiro
         acesso do dono com 6 passos numerados.
+     5. Log de auditoria (PIZAA-5): ring buffer das últimas 200
+        ações sensíveis do admin (login, edições, exports, deletes).
+        Mantido no `localStorage` e exposto em uma aba dedicada
+        "Auditoria" (renderizada pela produção em admin.html via
+        hook de switchTab).
 
    Não-duplicação: este arquivo NÃO sobrescreve o que já existe
-   em admin.html (TAA-13 cobre rewrite de auth, TAA-2 cobre o
-   dashboard). Ele só ADICIONA as abas "Backup", "Horários" e
-   "Mensagens" e injeta o modal de Onboarding no primeiro login.
+   em admin.html. Ele só ADICIONA as abas "Backup", "Horários",
+   "Mensagens", "Onboarding" e "Auditoria" e injeta o modal de
+   Onboarding no primeiro login.
    ============================================================ */
 
 (function () {
   'use strict';
 
   if (window.PP_ADMIN && window.PP_ADMIN.loaded) return;
-  const PP_ADMIN = window.PP_ADMIN = { loaded: true, version: 'v12-owner-self-service' };
+  const PP_ADMIN = window.PP_ADMIN = { loaded: true, version: 'v17-audit-log' };
 
   // ---------- Constants ----------
   const STORAGE_PREFIX = 'premium_pizzaria_';
@@ -41,6 +46,8 @@
   const HOURS_KEY = STORAGE_PREFIX + 'store_hours';
   const MESSAGES_KEY = STORAGE_PREFIX + 'auto_messages';
   const ONBOARDING_KEY = STORAGE_PREFIX + 'onboarding_done_v1';
+  const AUDIT_LOG_KEY = STORAGE_PREFIX + 'audit_log';
+  const AUDIT_LOG_MAX = 200;
 
   const DEFAULT_HOURS = {
     0: { open: '18:00', close: '23:30', closed: false },
@@ -164,6 +171,7 @@
     if (summary) {
       summary.textContent = `Última exportação: ${new Date().toLocaleString('pt-BR')} · ${keys.length} chaves no arquivo.`;
     }
+    try { logEvent('backup.export', 'keys=' + keys.length); } catch (e) { /* noop */ }
   }
 
   function importBackupFromFile(file) {
@@ -196,9 +204,11 @@
           }
         }
         showToast(`Backup restaurado (${n} chaves). Recarregando…`, { success: true });
+        try { logEvent('backup.import', 'keys=' + n); } catch (e) { /* noop */ }
         setTimeout(() => window.location.reload(), 1200);
       } catch (e) {
         showToast('Arquivo JSON inválido.', { danger: true });
+        try { logEvent('backup.import.fail', String(e && e.message || e).slice(0, 200)); } catch (e2) { /* noop */ }
       }
     };
     reader.readAsText(file);
@@ -218,6 +228,7 @@
       }
     }
     showToast(`LocalStorage limpo (${removed.length} chaves). Recarregando…`, { success: true });
+    try { logEvent('backup.clear', 'keys=' + removed.length); } catch (e) { /* noop */ }
     setTimeout(() => window.location.reload(), 1200);
   }
 
@@ -322,6 +333,7 @@
     });
     saveHours(hours);
     showToast('Horários salvos. A home page já mostra o novo status.', { success: true });
+    try { logEvent('hours.save', '7days'); } catch (e) { /* noop */ }
   }
 
   function bindHoursTab() {
@@ -435,6 +447,7 @@
     });
     saveMessages(list);
     renderMessages();
+    try { logEvent('messages.add', id); } catch (e) { /* noop */ }
   }
 
   function resetMessagesToDefault() {
@@ -442,6 +455,7 @@
     saveMessages(JSON.parse(JSON.stringify(DEFAULT_MESSAGES)));
     renderMessages();
     showToast('Mensagens restauradas.', { success: true });
+    try { logEvent('messages.reset', 'default'); } catch (e) { /* noop */ }
   }
 
   function bindMessagesTab() {
@@ -590,16 +604,88 @@
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // ---------- 5. Audit Log (PIZAA-5) ----------
+  // Ring-buffered, cap-pinned audit log. Each entry is { ts, actor, action, detail }.
+  // The buffer is bounded by AUDIT_LOG_MAX so localStorage cannot grow without
+  // limit if the owner leaves the panel open. Storage failures are swallowed so
+  // a corrupted quota never breaks the UI (defense in depth).
+  function getAuditLog() {
+    const stored = readJSON(AUDIT_LOG_KEY, null);
+    return Array.isArray(stored) ? stored : [];
+  }
+  function saveAuditLog(list) {
+    writeJSON(AUDIT_LOG_KEY, list);
+  }
+  function clearAuditLogStorage() {
+    try { localStorage.removeItem(AUDIT_LOG_KEY); } catch (e) { /* noop */ }
+  }
+  function logEvent(action, detail, opts) {
+    opts = opts || {};
+    const entry = {
+      ts: typeof opts.now === 'number' ? opts.now : Date.now(),
+      actor: opts.actor || 'admin',
+      action: String(action || '').slice(0, 80),
+      detail: detail == null ? '' : String(detail).slice(0, 240)
+    };
+    const list = getAuditLog();
+    list.push(entry);
+    const trimmed = list.length > AUDIT_LOG_MAX ? list.slice(list.length - AUDIT_LOG_MAX) : list;
+    try { saveAuditLog(trimmed); } catch (e) { /* localStorage may throw in some sandboxes */ }
+    return entry;
+  }
+  function fmtAuditTime(ts) {
+    if (!ts) return '—';
+    try {
+      const d = new Date(ts);
+      return d.toLocaleString('pt-BR');
+    } catch (e) { return String(ts); }
+  }
+  function renderAuditList() {
+    const wrap = $('#pp-audit-list');
+    if (!wrap) return;
+    const list = getAuditLog();
+    if (!list.length) {
+      wrap.innerHTML = '<div class="pp-audit-empty">Nenhuma ação registrada ainda. As ações do admin (login, edições, exports) aparecem aqui em tempo real.</div>';
+      return;
+    }
+    // Newest first.
+    const rows = list.slice().reverse().map((e) => {
+      const action = escapeAttr(e.action || '');
+      const detail = escapeText(e.detail || '');
+      const actor = escapeAttr(e.actor || 'admin');
+      const ts = escapeAttr(fmtAuditTime(e.ts));
+      return '<div class="pp-audit-row" data-action="' + action + '">' +
+        '<span class="pp-audit-ts">' + ts + '</span>' +
+        '<span class="pp-audit-actor">' + actor + '</span>' +
+        '<span class="pp-audit-action">' + action + '</span>' +
+        '<span class="pp-audit-detail">' + detail + '</span>' +
+      '</div>';
+    }).join('');
+    wrap.innerHTML = rows;
+  }
+  function clearAuditLog() {
+    if (!confirm('Apagar todo o histórico de auditoria? Esta ação é IRREVERSÍVEL.')) return;
+    clearAuditLogStorage();
+    renderAuditList();
+    showToast('Log de auditoria limpo.', { success: true });
+  }
+  function bindAuditTab() {
+    const btn = $('#pp-btn-clear-audit');
+    if (btn) btn.addEventListener('click', clearAuditLog);
+  }
+
   // ---------- Bootstrap ----------
   function refreshAll() {
     renderHoursForm();
     renderMessages();
+    renderAuditList();
   }
 
   function onReady() {
     bindBackupTab();
     bindHoursTab();
     bindMessagesTab();
+    bindAuditTab();
     refreshAll();
 
     // Open onboarding on first login if not done yet.
@@ -626,6 +712,8 @@
           renderHoursForm();
         } else if (tabId === 'tab-mensagens') {
           renderMessages();
+        } else if (tabId === 'tab-auditoria') {
+          renderAuditList();
         } else if (tabId === 'tab-onboarding') {
           resetOnboarding();
           openOnboarding();
@@ -643,9 +731,15 @@
     window.PP_ADMIN.openOnboarding = openOnboarding;
     window.PP_ADMIN.closeOnboarding = closeOnboarding;
     window.PP_ADMIN.refresh = refreshAll;
+    window.PP_ADMIN.getAuditLog = getAuditLog;
+    window.PP_ADMIN.saveAuditLog = saveAuditLog;
+    window.PP_ADMIN.clearAuditLog = clearAuditLog;
+    window.PP_ADMIN.logEvent = logEvent;
     window.PP_ADMIN.STORAGE_KEYS = STORAGE_KEYS;
     window.PP_ADMIN.HOURS_KEY = HOURS_KEY;
     window.PP_ADMIN.MESSAGES_KEY = MESSAGES_KEY;
+    window.PP_ADMIN.AUDIT_LOG_KEY = AUDIT_LOG_KEY;
+    window.PP_ADMIN.AUDIT_LOG_MAX = AUDIT_LOG_MAX;
   }
 
   if (document.readyState === 'loading') {

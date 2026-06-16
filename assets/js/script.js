@@ -999,14 +999,14 @@ function renderMenu() {
         <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
           <div class="menu-card__image"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
           <div class="menu-card__body">
-            ${isPizza ? '<span class="menu-card__badge">Personalizável</span>' : ''}
+            ${isPizza ? '<span class="menu-card__badge">Monte do seu jeito</span>' : ''}
             <div class="menu-card__meta">
               <h3>${item.name}</h3>
               <strong class="menu-card__price">${isPizza ? `A partir de ${formatBRL(item.price)}` : formatBRL(item.price)}</strong>
             </div>
             <p>${item.description}</p>
             ${isPizza
-              ? '<span class="menu-card__hint">Toque para montar seu pedido</span>'
+              ? '<span class="menu-card__hint menu-card__hint--cta">Toque para montar seu pedido</span>'
               : `<div class="menu-card__actions"><button class="button button--add-to-cart" type="button" data-add-item="${item.id}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span class="button-text">Pedir</span></button></div>`}
           </div>
         </article>
@@ -4790,7 +4790,19 @@ function renderAccountOrders(filter) {
     b.addEventListener('click', () => {
       const o = getOrderById(b.dataset.orderView);
       if (!o) return;
-      alert(`Pedido ${o.id}\n${new Date(o.createdAt).toLocaleString('pt-BR')}\nTotal: ${formatBRL(o.total)}\nItens: ${(o.items||[]).map(i => `${i.quantity}x ${i.name}`).join(', ')}`);
+      const items = (o.items||[]).map(i => `${i.quantity}x ${i.name}`).join(', ');
+      const modal = document.getElementById('pay-result-modal');
+      if (modal) {
+        modal.querySelector('.pay-result-modal__title').textContent = `Pedido ${o.id}`;
+        modal.querySelector('.pay-result-modal__desc').innerHTML = `
+          <div style="text-align:left; font-size:0.92rem; line-height:1.6;">
+            <p><strong>Data:</strong> ${new Date(o.createdAt).toLocaleString('pt-BR')}</p>
+            <p><strong>Total:</strong> ${formatBRL(o.total)}</p>
+            <p><strong>Itens:</strong> ${items}</p>
+          </div>`;
+        modal.querySelector('.pay-result-modal__icon').textContent = '🧾';
+        modal.classList.add('is-open');
+      }
     });
   });
   list.querySelectorAll('[data-order-repeat]').forEach(b => {
@@ -5205,9 +5217,13 @@ if (dCalcForm) {
       <div class="delivery-calc__result-row">💰 Taxa de entrega: <strong>${formatBRL(calc.fee)}</strong></div>
       <div class="delivery-calc__result-row">⏱ Tempo estimado: <strong>${calc.minutesMin}-${calc.minutesMax} min</strong></div>
       <div class="delivery-calc__result-actions">
-        <a class="button button--ghost" href="#cardapio" onclick="document.getElementById('delivery-calc-result').classList.remove('is-visible')">Ver cardápio</a>
+        <a class="button button--ghost delivery-calc__back-link" href="#cardapio">Ver cardápio</a>
         ${getCurrentAccount() ? '<button type="button" class="button button--whatsapp-pulse" id="dcalc-save-addr">📍 Salvar este CEP</button>' : ''}
       </div>`;
+    const backLink = dCalcResult.querySelector('.delivery-calc__back-link');
+    if (backLink) {
+      backLink.addEventListener('click', () => dCalcResult.classList.remove('is-visible'));
+    }
     const saveBtn = document.getElementById('dcalc-save-addr');
     if (saveBtn) {
       saveBtn.addEventListener('click', () => {
@@ -5566,13 +5582,13 @@ function renderNotifications() {
   var typeIcons = { promocao: '🎉', aviso: '📢', novidade: '✨' };
   list.innerHTML =
     '<div style="padding:8px 0;text-align:right;">' +
-    '<button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-weight:600;">Marcar todas como lidas</button>' +
+    '<button class="notification-mark-all-btn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-weight:600;">Marcar todas como lidas</button>' +
     '</div>' +
     notifs.map(function(n) {
       var icon = n.icon || typeIcons[n.type] || '📌';
       var isRead = readIds.includes(n.id);
       var dateStr = new Date(n.createdAt).toLocaleDateString('pt-BR');
-      return '<div class="notification-card' + (isRead ? '' : ' notification-card--unread') + '" data-id="' + n.id + '" onclick="markNotificationRead(\'' + n.id + '\')">' +
+      return '<div class="notification-card' + (isRead ? '' : ' notification-card--unread') + '" data-id="' + n.id + '">' +
         '<div class="notification-card__icon">' + icon + '</div>' +
         '<div class="notification-card__body">' +
         '<div class="notification-card__title">' + (n.title || '') + '</div>' +
@@ -5582,6 +5598,10 @@ function renderNotifications() {
         (isRead ? '' : '<div class="notification-card__dot"></div>') +
         '</div>';
     }).join('');
+  list.querySelector('.notification-mark-all-btn')?.addEventListener('click', markAllNotificationsRead);
+  list.querySelectorAll('.notification-card').forEach(card => {
+    card.addEventListener('click', () => markNotificationRead(card.dataset.id));
+  });
 }
 
 function openNotificationDrawer() {

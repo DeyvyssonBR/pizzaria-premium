@@ -53,7 +53,10 @@ function getCorsHeaders(request, env) {
   const origin = request.headers.get('Origin') || '';
   const list = (env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
     .split(',').map((s) => s.trim()).filter(Boolean);
-  const allowed = list.includes(origin) ? origin : (list[0] || '*');
+  // Origens não-autorizadas recebem 'null': o browser moderno bloqueia a
+  // leitura client-side (não casa com Origin), então não vaza dados, e o
+  // header deixa de ser enganoso ao ecoar uma origin válida arbitrária.
+  const allowed = list.includes(origin) ? origin : 'null';
   return {
     'Access-Control-Allow-Origin': allowed,
     'Access-Control-Allow-Credentials': 'true',
@@ -326,11 +329,14 @@ async function paymentStatus(request, env) {
   if (!ref) return badRequest(request, env, 'ref is required');
 
   // ref pode ser payment_id numérico (ex: 12345678901) ou external_ref.
-  let key;
-  if (/^\d{6,}$/.test(ref)) key = `tx:${ref}`;
-  else key = `ref:${ref}`;
+  // Para resolver a colisão do padrão "6+ dígitos" (que tanto tx:<id> quanto
+  // um external_ref puramente numérico podem casar), tentamos ref:<ref>
+  // primeiro e caímos em tx:<ref> apenas se não existir e o ref for numérico.
+  let record = await safeKvGet(env, `ref:${ref}`);
+  if (!record && /^\d{6,}$/.test(ref)) {
+    record = await safeKvGet(env, `tx:${ref}`);
+  }
 
-  const record = await safeKvGet(env, key);
   if (!record) {
     return jsonResponse(request, env, 404, { error: 'not_found' });
   }

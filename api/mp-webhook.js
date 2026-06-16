@@ -9,11 +9,25 @@
  *   URL: https://pizzaria-premium.vercel.app/api/mp-webhook
  *   Eventos: payment
  *
+ * Segurança:
+ *   - Valida assinatura `x-signature` (HMAC-SHA256) usando
+ *     `MP_WEBHOOK_SECRET`. Rejeita 401 quando ausente ou inválida.
+ *   - Replay protection: rejeita `ts` fora de ±5 min.
+ *   - Manifesto: `id:<resourceId>;topic:<topic>;ts:<ts>;` (formato MP).
+ *
+ * Variáveis de ambiente:
+ *   MP_ACCESS_TOKEN     — token privado de produção
+ *   MP_WEBHOOK_SECRET   — segredo configurado no painel MP (Webhooks)
+ *
  * Opcional — Vercel KV para persistência:
  *   1. Vercel Dashboard → Storage → Create KV Database
  *   2. Adicionar envs: KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN
  *   3. npm install @vercel/kv no projeto
  */
+
+const crypto = require('crypto');
+
+const REPLAY_WINDOW_MS = 5 * 60 * 1000;
 
 async function tryStoreKv(key, data) {
   try {
@@ -24,6 +38,39 @@ async function tryStoreKv(key, data) {
   } catch {
     return false;
   }
+}
+
+function extractSignatureHeader(header) {
+  // MP sends: "ts=<unix_ts>,v1=<hmac_hex>" or just "v1=<hmac_hex>"
+  if (!header || typeof header !== 'string') return { ts: null, v1: null };
+  const out = { ts: null, v1: null };
+  header.split(',').forEach((part) => {
+    const [k, v] = part.split('=');
+    if (k === 'ts') out.ts = v;
+    else if (k === 'v1') out.v1 = v;
+  });
+  return out;
+}
+
+function verifyMpSignature({ secret, signatureHeader, manifest, requestId }) {
+  if (!secret) return { ok: false, reason: 'no_secret' };
+  if (!signatureHeader) return { ok: false, reason: 'no_signature' };
+  const { ts, v1 } = extractSignatureHeader(signatureHeader);
+  if (!v1) return { ok: false, reason: 'malformed_signature' };
+  if (ts) {
+    const tsNum = parseInt(ts, 10);
+    if (!Number.isFinite(tsNum)) return { ok: false, reason: 'bad_ts' };
+    const drift = Math.abs(Date.now() - tsNum * 1000);
+    if (drift > REPLAY_WINDOW_MS) return { ok: false, reason: 'ts_out_of_range' };
+  }
+  // MP official manifest format for v1: "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(manifest);
+  const expected = hmac.digest('hex');
+  // Constant-time compare
+  const ok = expected.length === v1.length &&
+    crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(v1, 'hex'));
+  return { ok, reason: ok ? null : 'mismatch' };
 }
 
 module.exports = async (req, res) => {
@@ -37,9 +84,22 @@ module.exports = async (req, res) => {
   }
   body = body || {};
 
+  const dataId = body.data && body.data.id ? String(body.data.id) : (body.id ? String(body.id) : '');
   const topic = body.topic || body.type || '';
-  const resourceId = body.id || body.data?.id || '';
+  const resourceId = dataId;
   const action = body.action || '';
+
+  // ---- Signature validation ---------------------------------------------
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  const signatureHeader = req.headers['x-signature'] || '';
+  const requestId = req.headers['x-request-id'] || '';
+  const manifest = `id:${dataId};request-id:${requestId};ts:${extractSignatureHeader(signatureHeader).ts || ''};`;
+  const sig = verifyMpSignature({ secret, signatureHeader, manifest, requestId });
+  if (!sig.ok) {
+    // Log minimal info for ops; never echo the body (could carry payment data).
+    console.warn('[MP-Webhook] signature rejected', { reason: sig.reason, topic });
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
 
   console.log('[MP-Webhook]', JSON.stringify({ topic, resourceId, action }));
 

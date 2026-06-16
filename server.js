@@ -5,6 +5,36 @@ const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.resolve(__dirname);
+
+// --- In-memory rate limiter (per IP) ---------------------------------------
+// Defense against credential stuffing / abuse on the /api/* payment surface.
+// Best-effort: with multiple Vercel serverless instances the limit is per
+// instance. For production-grade limit, swap to Upstash/Vercel KV.
+const RATE_BUCKETS = new Map();
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX_REQ = {
+  '/api/create-preference': 20,
+  '/api/payment-status': 60,
+  '/api/mp-webhook': 120
+};
+function rateCheck(ip, path) {
+  const limit = RATE_MAX_REQ[path];
+  if (!limit) return { ok: true };
+  const now = Date.now();
+  const arr = RATE_BUCKETS.get(ip) || [];
+  const fresh = arr.filter((t) => now - t < RATE_WINDOW_MS);
+  if (fresh.length >= limit) {
+    return { ok: false, retryAfterMs: RATE_WINDOW_MS - (now - fresh[0]) };
+  }
+  fresh.push(now);
+  RATE_BUCKETS.set(ip, fresh);
+  return { ok: true, remaining: limit - fresh.length };
+}
+function clientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length > 0) return xff.split(',')[0].trim();
+  return (req.socket && req.socket.remoteAddress) || 'unknown';
+}
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -50,7 +80,13 @@ function serveStatic(res, filePath, ext) {
       res.end('404 Não encontrado');
       return;
     }
-    const headers = { 'Content-Type': mime };
+    const headers = {
+      'Content-Type': mime,
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'X-Frame-Options': 'DENY',
+      'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=(self "https://www.mercadopago.com.br"), usb=(), serial=(), magnetometer=(), gyroscope=(), accelerometer=()'
+    };
     if (cacheable) {
       headers['Cache-Control'] = 'public, max-age=31536000, immutable';
     }
@@ -76,20 +112,31 @@ const server = http.createServer((req, res) => {
   const parsed = url.parse(req.url, true);
   const pathname = parsed.pathname;
 
-  if (pathname === '/api/create-preference') {
-    if (req.method === 'OPTIONS') {
-      MP_HANDLER(req, res);
+  if (pathname === '/api/create-preference' || pathname === '/api/mp-webhook' || pathname === '/api/payment-status') {
+    const ip = clientIp(req);
+    const r = rateCheck(ip, pathname);
+    if (!r.ok) {
+      res.setHeader('Retry-After', Math.ceil(r.retryAfterMs / 1000).toString());
+      res.status(429).json({ error: 'Rate limit exceeded' });
       return;
     }
-    if (req.method !== 'POST') {
-      MP_HANDLER(req, res);
+    if (req.method === 'OPTIONS') {
+      const handler = pathname === '/api/mp-webhook' ? require('./api/mp-webhook') : MP_HANDLER;
+      handler(req, res);
+      return;
+    }
+    if (pathname === '/api/mp-webhook' && req.method !== 'POST') {
+      res.status(405).json({ error: 'Use POST' });
       return;
     }
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       req.body = body;
-      MP_HANDLER(req, res);
+      const handler = pathname === '/api/mp-webhook' ? require('./api/mp-webhook')
+                    : pathname === '/api/payment-status' ? require('./api/payment-status')
+                    : MP_HANDLER;
+      handler(req, res);
     });
     return;
   }

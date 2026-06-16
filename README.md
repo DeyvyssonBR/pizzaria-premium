@@ -100,3 +100,49 @@ Não é necessário mexer em `manifest.json` nem em paths internos — todos sã
 
 *Desenvolvido com ☕ & ❤️ por **Scheeren Company**.*
 
+---
+
+## v12 — Painel admin "no ponto" (TAA-23, 2026-06-12)
+
+**O que o dono ganhou**
+
+- **Onboarding automático em 1 página** — tour guiado de 6 passos que aparece no primeiro login. Reabrível em "Onboarding" no menu lateral.
+- **Aba "Horários"** — edita os 7 dias da semana (faixa de horário + flag "Fechado"). A home page mostra a pílula "Aberto · Fecha às HH:MM" / "Abre amanhã às HH:MM" / "Fechado" lendo o `localStorage` em tempo real.
+- **Aba "Mensagens"** — 4 templates prontos (boas-vindas, saiu para entrega, pronto para retirada, fora do horário) com placeholders `{{nome}}` / `{{pedido}}` / `{{eta}}` / `{{horario}}`. Copia com 1 clique para colar no WhatsApp Business.
+- **Aba "Backup"** — exporta TODAS as chaves `premium_pizzaria_*` em 1 JSON; importa de volta para restaurar em outro dispositivo. Botão "Apagar tudo" com dupla confirmação.
+- **Não-duplicação** — login/dashboard continuam cobertos por [TAA-13](/TAA/issues/TAA-13) e [TAA-2](/TAA/issues/TAA-2). Esta entrega só ADICIONA abas.
+
+**Como abrir**
+
+```
+abrir admin.html
+# no primeiro login: tour de 6 passos aparece sozinho
+# force reload sem cache se a UI parecer velha: Ctrl+Shift+R
+```
+
+**Onde está no código**
+
+- `assets/js/admin.js` (novo, 651 linhas) — `window.PP_ADMIN` com 4 features, deferred script.
+- `admin.html:2096-2108` — 4 nav items novos: `Horários`, `Mensagens`, `Backup`, `Onboarding`.
+- `admin.html:2774-2871` — 4 abas com mesmo `.tab-content` style.
+- `admin.html:3354-3455` — overlay de onboarding + CSS escopado `.pp-*` + `<script src="assets/js/admin.js" defer>`.
+- `assets/js/script.js:3713-3746` — `SCHEDULE` lê `premium_pizzaria_store_hours` do `localStorage`. Fallback preserva o padrão Teresina 18:00–23:30.
+- `assets/js/script.js:3777-3786` — lista de horários da pílula re-renderiza com os valores editados e marca "Fechado" para `closed:true`.
+- `sw.js:1,5` — `CACHE_NAME` → `pizzaria-premium-v14-owner-self-service`; `assets/js/admin.js` adicionado à lista de precache.
+- `tests/admin-self-service.{mjs,test.mjs}` — 21 testes (parity) cobrindo constants, getHours/saveHours, getMessages/saveMessages, renderPreview, collectAllStorage, onboarding flow.
+- `docs-local/admin-onboarding.md` (privado, gitignored) — passo-a-passo para o dono em pt-BR.
+
+**Limitações**
+
+- Tudo persiste no `localStorage` do navegador. Trocar de dispositivo = perder tudo a menos que tenha backup.
+- Mensagens não disparam sozinhas — são biblioteca de templates para colar no WhatsApp Business.
+- Horários não bloqueiam pedidos (cliente pode mandar WhatsApp mesmo fechado). Integração automática fica para próximo nível.
+
+**Tests**
+
+```
+164 passed (164) — 138 pre-existing + 5 v11 + 21 v12 (TAA-23)
+```
+
+Refs: [TAA-23](/TAA/issues/TAA-23), [TAA-13](/TAA/issues/TAA-13), [TAA-2](/TAA/issues/TAA-2), CHANGELOG_LOCAL.md.
+

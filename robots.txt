@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://pizzaria-premium.vercel.app/sitemap.xml
+Sitemap: https://deyvyssonbr.github.io/pizzaria-premium/sitemap.xml

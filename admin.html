@@ -4196,6 +4196,7 @@
 
       // Save to localStorage
       localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
+      try { window.PP_ADMIN && window.PP_ADMIN.logEvent && window.PP_ADMIN.logEvent('menu.item.save', (type || 'item') + ':' + (name || '')); } catch (e) { /* noop */ }
       renderGrids();
       closeItemModal();
     }
@@ -4218,8 +4219,10 @@
 
     function confirmDeleteItem() {
       if (!pendingDeleteId) return;
+      const removed = currentMenu.find(i => i.id === pendingDeleteId);
       currentMenu = currentMenu.filter(i => i.id !== pendingDeleteId);
       localStorage.setItem('premium_pizzaria_menu', JSON.stringify(currentMenu));
+      try { window.PP_ADMIN && window.PP_ADMIN.logEvent && window.PP_ADMIN.logEvent('menu.item.delete', removed ? (removed.type + ':' + removed.name) : pendingDeleteId); } catch (e) { /* noop */ }
       pendingDeleteId = null;
       confirmDeleteModal.style.display = 'none';
       renderGrids();
@@ -4269,6 +4272,8 @@
       localStorage.setItem('premium_pizzaria_mp_integration_type', mpIntegrationType);
       localStorage.setItem('premium_pizzaria_delivery_fee', deliveryFee);
       localStorage.setItem('premium_pizzaria_estimated_time', estimatedTime);
+
+      try { window.PP_ADMIN && window.PP_ADMIN.logEvent && window.PP_ADMIN.logEvent('config.save', 'whatsapp/pix/mp/delivery'); } catch (e) { /* noop */ }
 
       // Toast feedback
       const existingToast = document.getElementById('admin-save-toast');
@@ -5774,6 +5779,7 @@
         });
       }
       savePromos(list);
+      try { window.PP_ADMIN && window.PP_ADMIN.logEvent && window.PP_ADMIN.logEvent('promo.save', title.trim().slice(0, 80)); } catch (e) { /* noop */ }
       closePromoForm();
       renderPromosAdminList();
       adminToast('Promoção salva.');
@@ -5783,6 +5789,7 @@
       if (!confirm('Excluir esta promoção? Ela deixará de aparecer no site.')) return;
       const list = loadPromos().filter(p => p.id !== id);
       savePromos(list);
+      try { window.PP_ADMIN && window.PP_ADMIN.logEvent && window.PP_ADMIN.logEvent('promo.delete', id); } catch (e) { /* noop */ }
       renderPromosAdminList();
       adminToast('Promoção excluída.');
     }
