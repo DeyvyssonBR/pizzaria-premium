@@ -6,6 +6,31 @@ const url = require('url');
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.resolve(__dirname);
 
+// --- CSP / Security headers (espelha vercel.json p/ preview local) ----------
+const CSP_POLICY = [
+  "default-src 'self'",
+  "script-src 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br https://umami.pizzariapremium.com.br https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.gstatic.com https://apis.google.com",
+  "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self' https://viacep.com.br https://cep.awesomeapi.com.br https://www.mercadopago.com.br https://api.mercadopago.com https://umami.pizzariapremium.com.br https://www.google-analytics.com https://www.googletagmanager.com",
+  "frame-src 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br https://www.googletagmanager.com https://www.google.com https://www.gstatic.com https://apis.google.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self' https://www.mercadopago.com.br https://*.mercadopago.com.br"
+].join('; ');
+const SECURITY_HEADERS = {
+  'Content-Type': 'text/html; charset=utf-8',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-Frame-Options': 'DENY',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=(self "https://www.mercadopago.com.br"), usb=(), serial=(), magnetometer=(), gyroscope=(), accelerometer=()',
+  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+  'Cross-Origin-Resource-Policy': 'same-site',
+  'Content-Security-Policy': CSP_POLICY
+};
+
 // --- In-memory rate limiter (per IP) ---------------------------------------
 // Defense against credential stuffing / abuse on the /api/* payment surface.
 // Best-effort: with multiple Vercel serverless instances the limit is per
@@ -80,7 +105,7 @@ function serveStatic(res, filePath, ext) {
       res.end('404 Não encontrado');
       return;
     }
-    const headers = {
+    const headers = ext === '.html' ? SECURITY_HEADERS : {
       'Content-Type': mime,
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'strict-origin-when-cross-origin',

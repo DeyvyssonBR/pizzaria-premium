@@ -1,0 +1,212 @@
+/* ── Menu Category Chips (replaces old dropdown) ─────────────── */
+
+.menu-category-chips-container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 16px 0;
+  margin: 0 0 22px 0;
+}
+
+/* Hide scrollbar on WebKit browsers */
+.menu-category-chips-container::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(35, 20, 16, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #3d2f28;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.menu-chip-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(183, 31, 45, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.menu-chip-btn.is-active {
+  background: linear-gradient(135deg, #b71f2d 0%, #9a1a26 100%);
+  color: #fffaf2;
+  border-color: transparent;
+  box-shadow: 0 4px 18px rgba(183, 31, 45, 0.35);
+  font-weight: 700;
+}
+
+.menu-chip-btn.is-active .menu-chip-icon {
+  transform: scale(1.1);
+}
+
+.menu-chip-btn:focus-visible {
+  outline: 2px solid #b71f2d;
+  outline-offset: 2px;
+}
+
+.menu-chip-icon {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.menu-chip-label {
+  line-height: 1;
+}
+
+/* ── Mobile chips: tighter spacing ───────────────────────────── */
+@media (max-width: 719px) {
+  .menu-category-chips-container {
+    gap: 6px;
+    padding: 4px 16px 16px 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
+  }
+
+  .menu-chip-btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ── Menu Search Bar ─────────────────────────────────────────── */
+.menu-search-wrapper {
+  margin-bottom: 16px;
+}
+
+.menu-search-container {
+  position: relative;
+  width: 100%;
+}
+
+.menu-search-container input {
+  width: 100%;
+  padding: 14px 46px 14px 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(35, 20, 16, 0.12);
+  background: #ffffff;
+  color: #24130f;
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-search-container input::placeholder {
+  color: rgba(61, 47, 40, 0.5);
+  font-weight: 400;
+}
+
+.menu-search-container input:focus {
+  border-color: rgba(183, 31, 45, 0.4);
+  box-shadow: 0 0 0 3px rgba(183, 31, 45, 0.08);
+}
+
+.menu-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(61, 47, 40, 0.4);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.menu-search-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(61, 47, 40, 0.08);
+  color: #3d2f28;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.menu-search-clear-btn:hover {
+  background: rgba(61, 47, 40, 0.15);
+}
+
+/* ── Category Group Headers (used when "Todos" is active) ──── */
+.menu-category-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 14px 0;
+  padding: 0;
+}
+
+.menu-category-group-header:first-child {
+  margin-top: 0;
+}
+
+.menu-category-group-header__icon {
+  font-size: 1.2rem;
+}
+
+.menu-category-group-header__text {
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3d2f28;
+  opacity: 0.7;
+}
+
+.menu-category-group-header__line {
+  flex: 1;
+  height: 1px;
+  background: rgba(35, 20, 16, 0.1);
+}
+
+/* ── No results state ────────────────────────────────────────── */
+.menu-grid__no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 20px;
+  color: rgba(61, 47, 40, 0.6);
+}
+
+.menu-grid__no-results-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.menu-grid__no-results-text {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #3d2f28;
+}
+
+.menu-grid__no-results-hint {
+  font-size: 0.85rem;
+}

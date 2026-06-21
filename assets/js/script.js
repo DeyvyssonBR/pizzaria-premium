@@ -786,6 +786,7 @@ const pizzaSteps = [
 ];
 
 let activeCategory = 'todos';
+let menuSearchQuery = '';
 let pizzaSelection = {
   itemId: null,
   step: 0,
@@ -804,6 +805,8 @@ let pizzaSelection = {
 const promoGrid = document.getElementById('promo-grid');
 const menuTabs = document.getElementById('menu-tabs');
 const menuGrid = document.getElementById('menu-grid');
+const menuSearchInput = document.getElementById('menu-search-input');
+const menuSearchClearBtn = document.getElementById('menu-search-clear-btn');
 const pizzaModal = document.getElementById('pizza-modal');
 const pizzaChoiceMode = document.getElementById('pizza-choice-mode');
 const pizzaChoiceFlavors = document.getElementById('pizza-choice-flavors');
@@ -894,79 +897,34 @@ function renderPromotions() {
 function renderTabs() {
   if (!menuTabs) return;
 
-  const activeCat = categories.find((c) => c.id === activeCategory) || categories[0];
-
   menuTabs.innerHTML = `
-    <!-- Versão Desktop -->
-    <div class="menu-tabs-desktop">
+    <div class="menu-category-chips-container" role="tablist" aria-label="Categorias do cardápio">
       ${categories
         .map(
           (category) => `
-            <button class="menu-tab ${category.id === activeCategory ? 'is-active' : ''}" type="button" data-category="${category.id}">
-              <span class="menu-tab__icon">${category.icon}</span>
-              <span class="menu-tab__label">${category.label}</span>
+            <button class="menu-chip-btn ${category.id === activeCategory ? 'is-active' : ''}" 
+                    type="button" 
+                    role="tab"
+                    aria-selected="${category.id === activeCategory ? 'true' : 'false'}"
+                    data-category="${category.id}">
+              <span class="menu-chip-icon" aria-hidden="true">${category.icon}</span>
+              <span class="menu-chip-label">${category.label}</span>
             </button>
           `
         )
         .join('')}
     </div>
-
-    <!-- Versão Mobile (Dropdown) -->
-    <div class="menu-tabs-mobile">
-      <button class="category-dropdown-btn" type="button" id="category-dropdown-toggle">
-        <span class="category-dropdown-btn__selected">
-          <span class="selected-icon">${activeCat.icon}</span>
-          <span class="selected-label">${activeCat.label}</span>
-        </span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
-      </button>
-      <div class="category-dropdown-options" id="category-dropdown-options">
-        ${categories
-          .map(
-            (category) => `
-              <button class="category-dropdown-option ${category.id === activeCategory ? 'is-active' : ''}" type="button" data-category="${category.id}">
-                <span class="option-icon">${category.icon}</span>
-                <span class="option-label">${category.label}</span>
-              </button>
-            `
-          )
-          .join('')}
-      </div>
-    </div>
   `;
 
-  // Event Listeners Desktop
-  menuTabs.querySelectorAll('.menu-tabs-desktop [data-category]').forEach((button) => {
+  // Event Listeners for Chips
+  menuTabs.querySelectorAll('[data-category]').forEach((button) => {
     button.addEventListener('click', () => {
       activeCategory = button.dataset.category;
       renderTabs();
       renderMenu();
-    });
-  });
-
-  // Event Listeners Mobile (Dropdown)
-  const toggleBtn = document.getElementById('category-dropdown-toggle');
-  const optionsDiv = document.getElementById('category-dropdown-options');
-  
-  if (toggleBtn && optionsDiv) {
-    toggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      optionsDiv.classList.toggle('is-open');
-      toggleBtn.classList.toggle('is-active');
-    });
-
-    // Fechar ao clicar fora
-    document.addEventListener('click', () => {
-      optionsDiv.classList.remove('is-open');
-      toggleBtn.classList.remove('is-active');
-    });
-  }
-
-  menuTabs.querySelectorAll('.category-dropdown-option').forEach((button) => {
-    button.addEventListener('click', () => {
-      activeCategory = button.dataset.category;
-      renderTabs();
-      renderMenu();
+      
+      // Auto scroll active chip into view inside container
+      button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     });
   });
 }
@@ -982,41 +940,46 @@ function hydrateCategoryTriggers() {
 }
 
 function getVisibleMenuItems() {
-  return activeCategory === 'todos'
+  let items = activeCategory === 'todos'
     ? menu.slice()
     : menu.filter((item) => item.category === activeCategory);
+
+  // Apply search filter if there's a query
+  if (menuSearchQuery) {
+    const query = menuSearchQuery.toLowerCase().trim();
+    items = items.filter((item) =>
+      item.name.toLowerCase().includes(query) ||
+      (item.description && item.description.toLowerCase().includes(query))
+    );
+  }
+
+  return items;
 }
 
-function renderMenu() {
-  menuGrid.innerHTML = getVisibleMenuItems()
-    .map((item) => {
-      const isPizza = item.type === 'pizza';
-      const requestMessage = isPizza
-        ? `Olá! Quero pedir a pizza ${item.name}.`
-        : `Olá! Quero pedir ${item.name}.`;
+function renderMenuCard(item) {
+  const isPizza = item.type === 'pizza';
 
-      return `
-        <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
-          <div class="menu-card__image"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
-          <div class="menu-card__body">
-            ${isPizza ? '<span class="menu-card__badge">Monte do seu jeito</span>' : ''}
-            <div class="menu-card__meta">
-              <h3>${item.name}</h3>
-              <strong class="menu-card__price">${isPizza ? `A partir de ${formatBRL(item.price)}` : formatBRL(item.price)}</strong>
-            </div>
-            <p>${item.description}</p>
-            ${isPizza
-              ? '<span class="menu-card__hint menu-card__hint--cta">Toque para montar seu pedido</span>'
-              : `<div class="menu-card__actions"><button class="button button--add-to-cart" type="button" data-add-item="${item.id}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span class="button-text">Pedir</span></button></div>`}
-          </div>
-        </article>
-      `;
-    })
-    .join('');
+  return `
+    <article class="menu-card ${isPizza ? 'menu-card--pizza' : ''}" ${isPizza ? `data-add-item-card="${item.id}" role="button" tabindex="0"` : ''}>
+      <div class="menu-card__image"><img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/img/cardapio/placeholder.webp'"></div>
+      <div class="menu-card__body">
+        ${isPizza ? '<span class="menu-card__badge">Monte do seu jeito</span>' : ''}
+        <div class="menu-card__meta">
+          <h3>${item.name}</h3>
+          <strong class="menu-card__price">${isPizza ? `A partir de ${formatBRL(item.price)}` : formatBRL(item.price)}</strong>
+        </div>
+        <p>${item.description}</p>
+        ${isPizza
+          ? '<span class="menu-card__hint menu-card__hint--cta">Toque para montar seu pedido</span>'
+          : `<div class="menu-card__actions"><button class="button button--add-to-cart" type="button" data-add-item="${item.id}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span class="button-text">Pedir</span></button></div>`}
+      </div>
+    </article>
+  `;
+}
 
+function attachMenuCardListeners() {
   menuGrid.querySelectorAll('[data-add-item]').forEach((button) => {
     button.addEventListener('click', () => handleAddItem(button.dataset.addItem));
-    // TAA-20: GA4 view_item — emitted when a non-customizable menu item is shown/clicked
     const it = menu.find((entry) => entry.id === button.dataset.addItem);
     if (it && window.pizzariaTrack) {
       window.pizzariaTrack('view_item', {
@@ -1038,7 +1001,6 @@ function renderMenu() {
         handleAddItem(card.dataset.addItemCard);
       }
     });
-    // TAA-20: GA4 view_item — pizza cards open the customizer; track intent here
     const it = menu.find((entry) => entry.id === card.dataset.addItemCard);
     if (it && window.pizzariaTrack) {
       window.pizzariaTrack('view_item', {
@@ -1051,6 +1013,49 @@ function renderMenu() {
       });
     }
   });
+}
+
+function renderMenu() {
+  const visibleItems = getVisibleMenuItems();
+
+  // No results state
+  if (visibleItems.length === 0) {
+    menuGrid.innerHTML = `
+      <div class="menu-grid__no-results">
+        <span class="menu-grid__no-results-icon">🔍</span>
+        <div class="menu-grid__no-results-text">Nenhum item encontrado</div>
+        <div class="menu-grid__no-results-hint">Tente buscar por outro sabor ou ingrediente</div>
+      </div>
+    `;
+    return;
+  }
+
+  // When "todos" is active AND no search query, group by category with headers
+  if (activeCategory === 'todos' && !menuSearchQuery) {
+    let html = '';
+    for (const category of categories) {
+      if (category.id === 'todos') continue;
+      const categoryItems = visibleItems.filter((item) => item.category === category.id);
+      if (categoryItems.length === 0) continue;
+
+      html += `
+        <div class="menu-category-group" style="grid-column: 1 / -1;">
+          <div class="menu-category-group-header">
+            <span class="menu-category-group-header__icon">${category.icon}</span>
+            <span class="menu-category-group-header__text">${category.label}</span>
+            <span class="menu-category-group-header__line"></span>
+          </div>
+        </div>
+      `;
+      html += categoryItems.map(renderMenuCard).join('');
+    }
+    menuGrid.innerHTML = html;
+  } else {
+    // Specific category or search results: flat list
+    menuGrid.innerHTML = visibleItems.map(renderMenuCard).join('');
+  }
+
+  attachMenuCardListeners();
 }
 
 function getFlavorById(flavorId) {
@@ -3818,6 +3823,31 @@ renderMenu();
 renderCombosCarousel();
 hydrateCategoryTriggers();
 
+// Menu search — real-time filtering with debounce
+let menuSearchDebounce = null;
+if (menuSearchInput) {
+  menuSearchInput.addEventListener('input', (e) => {
+    clearTimeout(menuSearchDebounce);
+    menuSearchDebounce = setTimeout(() => {
+      menuSearchQuery = e.target.value;
+      if (menuSearchClearBtn) {
+        menuSearchClearBtn.style.display = menuSearchQuery ? 'flex' : 'none';
+      }
+      renderMenu();
+    }, 150);
+  });
+}
+
+if (menuSearchClearBtn) {
+  menuSearchClearBtn.addEventListener('click', () => {
+    menuSearchInput.value = '';
+    menuSearchQuery = '';
+    menuSearchClearBtn.style.display = 'none';
+    menuSearchInput.focus();
+    renderMenu();
+  });
+}
+
 // Restaura o carrinho no floating bar caso haja itens salvos
 updateFloatingCartBar();
 
@@ -4568,6 +4598,11 @@ if (authModalEl) {
     regForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       showAuthError('');
+      const lgpdCheckbox = document.getElementById('auth-reg-lgpd');
+      if (!lgpdCheckbox || !lgpdCheckbox.checked) {
+        showAuthError('Você precisa concordar com o processamento dos seus dados (LGPD).');
+        return;
+      }
       const data = {
         name: document.getElementById('auth-reg-name').value,
         email: document.getElementById('auth-reg-email').value,
@@ -4732,6 +4767,76 @@ if (accountDrawerEl) {
       closeAccountDrawer();
     }
   });
+
+  // LGPD: Exportar meus dados (art. 18, VI)
+  const exportDataBtn = document.getElementById('account-export-data-btn');
+  if (exportDataBtn) {
+    exportDataBtn.addEventListener('click', () => {
+      const acc = getCurrentAccount();
+      if (!acc) { showToast('Faça login para exportar seus dados.', 2000); return; }
+      const orders = loadOrders().filter(o => o.accountEmail === acc.email);
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        source: 'Pizzaria Premium Teresina',
+        lgpd_art: '18, VI — Portabilidade e acesso aos dados pessoais',
+        account: { name: acc.name, email: acc.email, phone: acc.phone, cep: acc.cep, createdAt: acc.createdAt },
+        orders: orders.map(o => ({
+          id: o.id, createdAt: o.createdAt, items: o.items, total: o.total,
+          address: o.address, paymentMethod: o.paymentMethod, status: o.statusManual || o.status
+        })),
+        points: acc.points || 0,
+        coupons: acc.coupons || []
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pizzaria-premium-dados-${acc.email}-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Seus dados foram exportados!', 2800);
+    });
+  }
+
+  // LGPD: Apagar minha conta (art. 18, VI — eliminação dos dados)
+  const deleteAccountBtn = document.getElementById('account-delete-account-btn');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', () => {
+      goAccountStep('delete-confirm');
+    });
+  }
+  const deleteConfirmBtn = document.getElementById('account-delete-confirm-btn');
+  if (deleteConfirmBtn) {
+    deleteConfirmBtn.addEventListener('click', () => {
+      const acc = getCurrentAccount();
+      if (!acc) return;
+      if (!confirm('Tem CERTEZA? Esta ação é irreversível. Seus dados serão apagados permanentemente.')) return;
+      // Remove account from accounts list
+      const accounts = loadAccounts();
+      const remaining = accounts.filter(a => a.email !== acc.email);
+      saveAccounts(remaining);
+      // Remove related orders from localStorage
+      try {
+        const allOrders = loadOrders();
+        const otherOrders = allOrders.filter(o => o.accountEmail !== acc.email);
+        localStorage.setItem('premium_pizzaria_orders', JSON.stringify(otherOrders));
+      } catch (e) { /* ignore */ }
+      // Clear session
+      setSession(null);
+      refreshAppbarAccount();
+      closeAccountDrawer();
+      showToast('Conta apagada permanentemente.', 3000);
+    });
+  }
+  const deleteCancelBtn = document.getElementById('account-delete-cancel-btn');
+  if (deleteCancelBtn) {
+    deleteCancelBtn.addEventListener('click', () => {
+      goAccountStep('menu');
+      accountStepHistory = ['menu'];
+    });
+  }
   document.querySelectorAll('.history-filter-tab').forEach(t => {
     t.addEventListener('click', () => {
       document.querySelectorAll('.history-filter-tab').forEach(x => x.classList.toggle('is-active', x === t));

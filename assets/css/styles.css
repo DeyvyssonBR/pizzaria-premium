@@ -462,7 +462,14 @@ textarea {
   font-weight: 800;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 0, 0, 0.4);
+}
+
+.hero-premium-badge {
+  color: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .store-status {
@@ -664,7 +671,7 @@ textarea {
   padding-top: clamp(60px, 8vw, 90px);
   padding-bottom: clamp(60px, 8vw, 90px);
   background:
-    linear-gradient(135deg, rgba(117, 19, 33, 0.92), rgba(33, 26, 24, 0.98)),
+    linear-gradient(135deg, rgba(117, 19, 33, 0.96), rgba(20, 8, 6, 0.98)),
     url('../img/cardapio/photo-1579751626657-72bc17010498@2x.webp') center/cover;
   color: var(--text);
 }
@@ -716,14 +723,16 @@ textarea {
   flex-direction: column;
   align-items: flex-start;
   padding: 22px;
-  color: var(--text);
-  background: rgba(255, 250, 242, 0.18);
-  border-color: rgba(255, 244, 228, 0.30);
-  box-shadow: none;
+  color: #fff;
+  background: rgba(20, 10, 6, 0.55);
+  border-color: rgba(220, 170, 100, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
 }
 
 .promo-card p {
-  color: rgba(255, 249, 239, 0.72);
+  color: rgba(255, 245, 230, 0.9);
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .promo-card .button {
@@ -777,158 +786,7 @@ textarea {
   display: none !important; /* Esconde a antiga versão de abas no PC */
 }
 
-/* Dropdown de Categorias para PC e Mobile */
-.menu-tabs-mobile {
-  display: block;
-  position: relative;
-  width: 100%;
-  max-width: 320px; /* Largura perfeita para PC e Celular */
-  margin: 0 auto 22px auto; /* Centraliza horizontalmente */
-  z-index: 100;
-}
-
-.category-dropdown-btn {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(35, 20, 16, 0.15);
-  background: #ffffff;
-  color: #24130f;
-  font-weight: 800;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-}
-
-.category-dropdown-btn__selected {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.category-dropdown-btn .chevron {
-  color: rgba(36, 19, 15, 0.5);
-  transition: transform 0.2s ease;
-}
-
-.category-dropdown-btn.is-active .chevron {
-  transform: rotate(180deg);
-}
-
-.category-dropdown-btn:hover {
-  background: #faf8f5;
-  border-color: rgba(35, 20, 16, 0.25);
-}
-
-.category-dropdown-options {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid rgba(35, 20, 16, 0.15);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  animation: dropdownFadeIn 0.2s ease;
-}
-
-.category-dropdown-options.is-open {
-  display: block;
-}
-
-@keyframes dropdownFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.category-dropdown-option {
-  width: 100%;
-  padding: 14px 18px;
-  background: transparent;
-  border: none;
-  color: rgba(36, 19, 15, 0.85);
-  font-weight: 700;
-  font-size: 0.92rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-}
-
-.category-dropdown-option:not(:last-child) {
-  border-bottom: 1px solid rgba(35, 20, 16, 0.06);
-}
-
-.category-dropdown-option:hover {
-  background: #fff8f0;
-  color: var(--red);
-}
-
-.category-dropdown-option.is-active {
-  background: #fff3f3;
-  color: var(--red);
-}
-
-.menu-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(35, 20, 16, 0.12);
-  border-radius: 999px;
-  padding: 11px 18px;
-  background: #fff;
-  color: rgba(32, 20, 16, 0.72);
-  cursor: pointer;
-  font-weight: 800;
-  font-family: var(--font-body);
-  transition: all 0.2s ease;
-}
-
-.menu-tab__icon {
-  font-size: 1.1rem;
-  display: inline-flex;
-  align-items: center;
-}
-
-.menu-tab__label {
-  white-space: nowrap;
-}
-
-.menu-tab:hover {
-  background: rgba(183, 31, 45, 0.04);
-  border-color: rgba(183, 31, 45, 0.3);
-  color: var(--red);
-  transform: translateY(-1px);
-}
-
-.menu-tab.is-active {
-  background: var(--red);
-  border-color: var(--red);
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(183, 31, 45, 0.2);
-}
-
-.menu-tab.is-active:hover {
-  background: var(--red-deep);
-  border-color: var(--red-deep);
-  color: #fff;
-}
+/* ── Old dropdown CSS removed — now using horizontal chips ─── */
 
 .menu-card {
   display: grid;
@@ -981,15 +839,14 @@ textarea {
 .menu-card__badge {
   display: inline-flex;
   width: fit-content;
-  padding: 6px 14px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: var(--red);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 900;
+  background: rgba(90, 10, 24, 0.12);
+  color: #9e1b2e;
+  font-size: 0.7rem;
+  font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(213, 2, 1, 0.3);
 }
 
 .menu-card__meta {
@@ -1559,6 +1416,9 @@ textarea {
   padding: 14px 16px;
   background: #e8e7e6;
   color: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .choice-section-head strong,
@@ -4200,6 +4060,24 @@ body.has-cart-items .floating-whatsapp {
   }
 }
 
+@media (min-width: 720px) {
+  .mobile-order-bar {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(440px, calc(100% - 32px));
+    border-radius: 999px;
+    bottom: 24px;
+    padding: 14px 24px;
+  }
+  .mobile-order-bar:hover {
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .mobile-order-bar:active {
+    transform: translateX(-50%) scale(0.97) !important;
+  }
+}
+
 /* Esconde o floating-whatsapp no mobile quando sticky-order-cta está ativo */
 @media (max-width: 899px) {
   .floating-whatsapp {
@@ -5910,6 +5788,38 @@ body.has-cart-items .floating-whatsapp {
   cursor: pointer;
   transition: transform 0.12s, box-shadow 0.15s;
   box-shadow: 0 6px 18px rgba(90, 10, 24, 0.3);
+}
+
+/* LGPD: consentimento no cadastro */
+.auth-form__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: #6b5b55;
+  font-weight: 500;
+}
+.auth-form__checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin: 2px 0 0 0;
+  accent-color: var(--red, #9e1b2e);
+  cursor: pointer;
+}
+.auth-form__checkbox label {
+  cursor: pointer;
+  margin: 0;
+  color: #6b5b55;
+}
+.auth-form__checkbox a {
+  color: var(--gold, #dcaa64);
+  text-decoration: underline;
+}
+.auth-form__checkbox a:hover {
+  color: #fff;
 }
 .auth-form__submit:hover {
   transform: translateY(-1px);

@@ -61,14 +61,15 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="assets/css/styles.css?v=premium-2026-16-uiux" />
+    <link rel="stylesheet" href="assets/css/styles.css?v=premium-2026-20-menu-redesign" />
+    <link rel="stylesheet" href="assets/css/menu-chips.css?v=premium-2026-19-menu-redesign" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#5a0a18" />
     <link rel="apple-touch-icon" href="assets/img/logo-premium-2026.png" />
     <link rel="preload" as="image" href="assets/img/logo-premium-2026.png" />
-    <script src="assets/js/qrcode.min.js?v=premium-2026-16-uiux" defer></script>
-    <script src="assets/js/analytics.js?v=premium-2026-16-uiux" defer></script>
-    <script src="assets/js/script.js?v=premium-2026-16-uiux" defer></script>
+    <script src="assets/js/qrcode.min.js?v=premium-2026-20-menu-redesign" defer></script>
+    <script src="assets/js/analytics.js?v=premium-2026-20-menu-redesign" defer></script>
+    <script src="assets/js/script.js?v=premium-2026-20-menu-redesign" defer></script>
 
     <!-- ============================================================
          Google Analytics 4 + Google Tag Manager (TAA-20)
@@ -455,7 +456,7 @@
             </div>
 
             <p class="store-hero__lead">
-              <strong>Pizza artesanal de forno a lenha, no coração de Teresina.</strong> 30 sabores — dos clássicos aos regionais piauienses. Massa fermentada 48h, ingredientes selecionados.
+              <strong>Pizzaria Premium</strong> 30 sabores de clássicos e regionais, pizza quentinha com ingredientes selecionados.
             </p>
 
             <div class="store-hero__actions">
@@ -536,6 +537,20 @@
           <div class="catalog-banner">
             <strong>Monte meia a meia ou inteira</strong>
             <span>Você pode dividir os sabores da sua pizza, adicionar borda recheada, bebida trincando de gelada e finalizar pelo WhatsApp em menos de 1 minuto.</span>
+          </div>
+
+          <!-- Main Menu Real-time Search -->
+          <div class="menu-search-wrapper">
+            <div class="menu-search-container">
+              <span class="menu-search-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </span>
+              <input type="text" id="menu-search-input" placeholder="Pesquise por sabor, ingrediente ou bebida..." aria-label="Pesquisar itens do cardápio">
+              <button type="button" id="menu-search-clear-btn" class="menu-search-clear-btn" aria-label="Limpar pesquisa" style="display: none;">&times;</button>
+            </div>
           </div>
 
           <div class="menu-tabs" id="menu-tabs"></div>
@@ -1184,6 +1199,12 @@
             <label for="auth-reg-cep">CEP (opcional)</label>
             <input type="text" id="auth-reg-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" />
           </div>
+          <div class="auth-form__checkbox">
+            <input type="checkbox" id="auth-reg-lgpd" required />
+            <label for="auth-reg-lgpd">
+              Concordo com o <a href="#" data-auth-switch="forgot" style="text-decoration:underline;color:var(--gold);">processamento dos meus dados pessoais</a> conforme a LGPD (Lei nº 13.709/2018, art. 7º, I). Seus dados serão usados para processar pedidos, comunicar status via WhatsApp e gerenciar pontos de fidelidade.
+            </label>
+          </div>
           <button type="submit" class="auth-form__submit">Criar conta</button>
           <div class="auth-warning">
             ⚠️ Sua conta fica apenas neste dispositivo. Se trocar de celular ou limpar dados do navegador, será necessário recadastrar.
@@ -1291,11 +1312,43 @@
               <span class="account-menu__item-label">Mudar senha</span>
               <span class="account-menu__item-arrow">›</span>
             </button>
+            <button type="button" class="account-menu__item" id="account-export-data-btn">
+              <span class="account-menu__item-icon">📥</span>
+              <span class="account-menu__item-label">Exportar meus dados</span>
+              <span class="account-menu__item-arrow">›</span>
+            </button>
+            <button type="button" class="account-menu__item account-menu__item--danger" id="account-delete-account-btn">
+              <span class="account-menu__item-icon">🗑️</span>
+              <span class="account-menu__item-label">Apagar minha conta</span>
+            </button>
             <button type="button" class="account-menu__item account-menu__item--danger" id="account-logout-btn">
               <span class="account-menu__item-icon">🚪</span>
               <span class="account-menu__item-label">Sair da conta</span>
             </button>
           </nav>
+        </div>
+
+        <!-- Step: Confirmar exclusão de conta (LGPD art. 18) -->
+        <div class="account-step" data-account-step="delete-confirm">
+          <div class="account-section">
+            <h3 class="account-section__title" style="color:var(--danger);">Apagar minha conta</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin:12px 0;">
+              Esta ação é <strong>irreversível</strong>. Todos os seus dados serão apagados conforme a LGPD art. 18, exceto:
+            </p>
+            <ul style="color:var(--text-muted);font-size:0.85rem;padding-left:20px;margin:8px 0 12px 0;">
+              <li>Pedidos já enviados ao WhatsApp (mantidos pelo WhatsApp)</li>
+              <li>Logs de auditoria do admin (retidos por 90 dias)</li>
+            </ul>
+            <p style="font-size:0.85rem;margin-bottom:16px;">
+              Após confirmar, você precisará <strong>recriar sua conta</strong> para fazer novos pedidos.
+            </p>
+            <button type="button" class="auth-form__submit" id="account-delete-confirm-btn" style="background:var(--danger);box-shadow:0 4px 12px rgba(255,74,74,0.25);">
+              🗑️ Confirmar exclusão
+            </button>
+            <button type="button" class="btn-logout" id="account-delete-cancel-btn" style="margin-top:8px;">
+              Cancelar
+            </button>
+          </div>
         </div>
 
         <!-- Step: Meus pedidos -->

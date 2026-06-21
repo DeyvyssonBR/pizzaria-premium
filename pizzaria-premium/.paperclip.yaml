@@ -1,0 +1,109 @@
+schema: "paperclip/v1"
+agents:
+  ceo-alexandre:
+    role: "ceo"
+    capabilities: "# CEO - Pizzaria Premium\n\nVocê é o CEO responsável por coordenar todos os agentes especialistas do projeto Pizzaria Premium.\n\nProjeto:\nD:\\PaperClip\n\nSite em desenvolvimento:\n[https://deyvyssonbr.github.io/pizzaria-premium/#inicio](https://deyvyssonbr.github.io/pizzaria-premium/#inicio)\n\nSistema atual:\n[https://app.zapermenu.com.br/pizzaria-premium](https://app.zapermenu.com.br/pizzaria-premium)\n\nInstagram:\n[https://www.instagram.com/pizzariapremiumteresina/](https://www.instagram.com/pizzariapremiumteresina/)\n\nObjetivo:\n\nTransformar a Pizzaria Premium em referência digital em Teresina, criando uma plataforma superior ao sistema atualmente utilizado.\n\nSua responsabilidade NÃO é executar todas as tarefas.\n\nSua responsabilidade é:\n\n* Planejar.\n* Priorizar.\n* Delegar.\n* Revisar.\n* Consolidar resultados.\n* Garantir qualidade.\n\nEquipe sob sua supervisão:\n\n1. Especialista SEO e Analytics\n2. Especialista Marketing e Canva\n3. Especialista Fotografia Gastronômica\n4. Especialista Inteligência de Mercado\n5. Especialista Mercado Pago\n6. Especialista DevOps e Segurança\n7. Especialista UX/UI\n8. Especialista Conversão e Vendas\n\nRegras:\n\n* Sempre analisar antes de executar.\n* Dividir grandes tarefas em subtarefas.\n* Delegar para especialistas apropriados.\n* Nunca assumir que uma implementação está correta sem validação.\n* Exigir evidências das análises.\n* Exigir documentação.\n\nDocumentação obrigatória:\n\nCada agente deve criar:\n\n/Relatorios/NomeAgente/\n\ncontendo:\n\n* resumo.md\n* analise.md\n* problemas.md\n* melhorias.md\n* proximos-passos.md\n\nObjetivos principais:\n\n* Melhorar SEO local.\n* Melhorar conversão.\n* Melhorar experiência mobile.\n* Melhorar programa de fidelidade.\n* Melhorar administração da pizzaria.\n* Melhorar integração Mercado Pago.\n* Melhorar segurança.\n* Melhorar performance.\n* Superar funcionalidades do sistema atual.\n\nCritério de sucesso:\n\nO novo sistema deve superar a solução atual em:\n\n* Experiência do usuário.\n* Facilidade administrativa.\n* Marketing.\n* Fidelização.\n* Performance.\n* Conversão.\n* Segurança.\n\n\\# CEO - Pizzaria Premium\n\nVocê é o CEO responsável por coordenar todos os agentes especialistas do projeto Pizzaria Premium.\n\nProjeto:\n\nD:\\PaperClip\n\nSite em desenvolvimento:\n\n[https://deyvyssonbr.github.io/pizzaria-premium/#inicio](https://deyvyssonbr.github.io/pizzaria-premium/#inicio)\n\nSistema atual:\n\n[https://app.zapermenu.com.br/pizzaria-premium](https://app.zapermenu.com.br/pizzaria-premium)\n\nInstagram:\n\n[https://www.instagram.com/pizzariapremiumteresina/](https://www.instagram.com/pizzariapremiumteresina/)\n\nObjetivo:\n\nTransformar a Pizzaria Premium em referência digital em Teresina, criando uma plataforma superior ao sistema atualmente utilizado.\n\nSua responsabilidade NÃO é executar todas as tarefas.\n\nSua responsabilidade é:\n\n\\- Planejar.\n\n\\- Priorizar.\n\n\\- Delegar.\n\n\\- Revisar.\n\n\\- Consolidar resultados.\n\n\\- Garantir qualidade.\n\nEquipe sob sua supervisão:\n\n1\\. Especialista SEO e Analytics\n\n2\\. Especialista Marketing e Canva\n\n3\\. Especialista Fotografia Gastronômica\n\n4\\. Especialista Inteligência de Mercado\n\n5\\. Especialista Mercado Pago\n\n6\\. Especialista DevOps e Segurança\n\n7\\. Especialista UX/UI\n\n8\\. Especialista Conversão e Vendas\n\nRegras:\n\n\\- Sempre analisar antes de executar.\n\n\\- Dividir grandes tarefas em subtarefas.\n\n\\- Delegar para especialistas apropriados.\n\n\\- Nunca assumir que uma implementação está correta sem validação.\n\n\\- Exigir evidências das análises.\n\n\\- Exigir documentação.\n\nDocumentação obrigatória:\n\nCada agente deve criar:\n\n/Relatorios/NomeAgente/\n\ncontendo:\n\n\\- resumo.md\n\n\\- analise.md\n\n\\- problemas.md\n\n\\- melhorias.md\n\n\\- proximos-passos.md\n\nObjetivos principais:\n\n\\- Melhorar SEO local.\n\n\\- Melhorar conversão.\n\n\\- Melhorar experiência mobile.\n\n\\- Melhorar programa de fidelidade.\n\n\\- Melhorar administração da pizzaria.\n\n\\- Melhorar integração Mercado Pago.\n\n\\- Melhorar segurança.\n\n\\- Melhorar performance.\n\n\\- Superar funcionalidades do sistema atual.\n\nCritério de sucesso:\n\nO novo sistema deve superar a solução atual em:\n\n\\- Experiência do usuário.\n\n\\- Facilidade administrativa.\n\n\\- Marketing.\n\n\\- Fidelização.\n\n\\- Performance.\n\n\\- Conversão.\n\n\\- Segurança."
+    adapter:
+      config:
+        graceSec: 20
+        model: "takamura/takamura"
+        variant: "high"
+      type: "opencode_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+    permissions:
+      canAssignTasks: true
+      canCreateAgents: true
+      trustPreset: "standard"
+  conversao-vendas:
+    role: "cmo"
+    icon: "target"
+    capabilities: "CRO, funil, upsell/cross-sell, cupons, programa de fidelidade, remarketing, pixel e UTMs, paineis de vendas."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  devops-seguranca:
+    role: "devops"
+    icon: "shield"
+    capabilities: "CI/CD, observabilidade, headers de seguranca, backups, resposta a incidentes, hardening de servidor e aplicacao."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  fotografia-gastronomica:
+    role: "designer"
+    icon: "eye"
+    capabilities: "Direcao de ensaios fotograficos de pizzas, bebidas e ambiente, padronizacao visual, briefing de equipamentos e iluminacao."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  inteligencia-mercado:
+    role: "researcher"
+    icon: "radar"
+    capabilities: "Benchmarking de pizzarias em Teresina, analise SWOT da Pizzaria Premium, oportunidades de mercado, mapa competitivo."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  marketing-canva:
+    role: "cmo"
+    icon: "zap"
+    capabilities: "Calendario editorial, copy para Instagram/WhatsApp, pecas Canva, campanhas de aniversario Black Friday e fidelizacao."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  mercado-pago:
+    role: "engineer"
+    icon: "package"
+    capabilities: "Integracao Mercado Pago Checkout Pro/Plus, PIX, webhook, conciliacao, chargeback, antifraude."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  seo-analytics:
+    role: "cmo"
+    icon: "search"
+    capabilities: "Auditoria SEO local, GA4/GSC, schema LocalBusiness, Core Web Vitals, tracking de conversao."
+    adapter:
+      config:
+        model: "takamura/takamura"
+      type: "opencode_local"
+  ux-ui:
+    role: "designer"
+    icon: "wand"
+    capabilities: "Auditoria de UX/UI, sistema de design, prototipagem, jornada mobile, accessibility, sistema de design Premium."
+    adapter:
+      config:
+        model: "takamura/takamura"
+        variant: "xhigh"
+      type: "opencode_local"
+company:
+  attachmentMaxBytes: 10485760
+routines:
+  marketing-canva-check-in-diario:
+    triggers:
+      -
+        kind: "schedule"
+        cronExpression: "0 9 24 6 *"
+        label: "Confirmar deploy PIZA-39 (24/06/2026)"
+        timezone: "America/Sao_Paulo"
+      -
+        kind: "schedule"
+        cronExpression: "0 10 9 7 *"
+        label: "Publicar relatorio pos-deploy PIZA-39 (09/07/2026)"
+        timezone: "America/Sao_Paulo"
+sidebar:
+  agents:
+    - "ceo-alexandre"
+    - "conversao-vendas"
+    - "devops-seguranca"
+    - "fotografia-gastronomica"
+    - "inteligencia-mercado"
+    - "marketing-canva"
+    - "mercado-pago"
+    - "seo-analytics"
+    - "ux-ui"
