@@ -8,28 +8,48 @@ const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria 
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
 const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
+// Backend Node com as APIs de pagamento (Railway).
+// GitHub Pages / hospedagem só-estática NÃO rodam /api/* — apontamos pro Railway.
+const DEFAULT_PAYMENT_API_ORIGIN = 'https://pizzaria-premium-production-da49.up.railway.app';
+
 // Base da API de pagamento:
-// - localhost / mesmo host do server.js → '' (mesma origem: /api/...)
-// - admin pode forçar Worker: premium_pizzaria_mp_worker_url
-// - produção estática (GitHub Pages) sem Worker → Pix local + link MP
+// - localhost / Railway / Vercel (mesmo host com server.js) → '' (mesma origem)
+// - admin pode forçar: localStorage premium_pizzaria_mp_base
+// - GitHub Pages e hosts estáticos → DEFAULT_PAYMENT_API_ORIGIN
 function resolveMpApiBase() {
   try {
     const forced = (localStorage.getItem('premium_pizzaria_mp_base')
       || localStorage.getItem('premium_pizzaria_mp_worker_url')
       || '').trim().replace(/\/+$/, '');
     if (forced) return forced;
+
     const host = (typeof location !== 'undefined' && location.hostname) || '';
+    // Node local
     if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
-      return ''; // server.js local
-    }
-    // Vercel / domínio próprio com serverless na mesma origem
-    if (host.includes('vercel.app') || host.includes('pizzariapremium')) {
       return '';
     }
-    // GitHub Pages: sem backend → string vazia ainda tenta /api (falha) e cai no fallback Pix local
-    return '';
+    // Já estamos no backend Railway / Vercel / domínio com Node
+    if (
+      host.includes('railway.app') ||
+      host.includes('vercel.app') ||
+      host.includes('pizzariapremium')
+    ) {
+      return '';
+    }
+    // Hosts estáticos (GitHub Pages, etc.) → API no Railway
+    if (
+      host.includes('github.io') ||
+      host.includes('pages.dev') ||
+      host.includes('netlify.app') ||
+      host.includes('cloudflare') ||
+      host.includes('level7')
+    ) {
+      return DEFAULT_PAYMENT_API_ORIGIN;
+    }
+    // Por segurança: se não for host conhecido com Node, usa Railway
+    return DEFAULT_PAYMENT_API_ORIGIN;
   } catch (e) {
-    return '';
+    return DEFAULT_PAYMENT_API_ORIGIN;
   }
 }
 const MP_BASE = resolveMpApiBase();
@@ -4256,21 +4276,29 @@ async function getMPPreferenceUrl(cartItems, total, externalReference) {
     external_reference: externalReference || `pp-cart-${Date.now()}`
   };
 
-  // 1. API no mesmo host (node server.js / Vercel)
+  // 1. API no backend Node (mesma origem OU Railway se estiver no GitHub Pages)
+  const apiBase = typeof resolveMpApiBase === 'function' ? resolveMpApiBase() : MP_BASE;
   try {
-    const res = await fetch('/api/create-preference', {
+    const res = await fetch(apiBase + '/api/create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.init_point) {
-      return { url: data.init_point, sandbox: !!data.sandbox, preference_id: data.preference_id || null };
+      return {
+        url: data.init_point,
+        sandbox: !!data.sandbox,
+        preference_id: data.preference_id || null
+      };
     }
-    console.warn('create-preference falhou:', res.status, data);
-    return { url: null, error: data.error || `HTTP ${res.status}` };
+    console.warn('create-preference falhou:', res.status, data, 'base=', apiBase || '(same-origin)');
+    return {
+      url: null,
+      error: data.error || `HTTP ${res.status} em ${apiBase || location.origin}/api/create-preference`
+    };
   } catch (e) {
-    console.warn('API create-preference indisponível:', e);
+    console.warn('API create-preference indisponível:', e, 'base=', apiBase || '(same-origin)');
   }
 
   // 2. Link manual do admin
@@ -4280,7 +4308,10 @@ async function getMPPreferenceUrl(cartItems, total, externalReference) {
 
   return {
     url: null,
-    error: 'Mercado Pago indisponível. Rode o site com node server.js e MP_ACCESS_TOKEN no .env.local, ou cole um link no admin.'
+    error:
+      'Mercado Pago indisponível. Backend: ' +
+      (apiBase || location.origin) +
+      '. Use o site no Railway ou configure premium_pizzaria_mp_base no admin.'
   };
 }
 

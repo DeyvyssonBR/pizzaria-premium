@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v23-mp-card-not-pix';
+const CACHE_NAME = 'pizzaria-premium-v24-api-base-railway';
 const ASSETS = [
   './',
   './index.html',
