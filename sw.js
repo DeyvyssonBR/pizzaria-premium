@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizzaria-premium-v16-admin-auth';
+const CACHE_NAME = 'pizzaria-premium-v22-pay-verified-secure';
 const ASSETS = [
   './',
   './index.html',

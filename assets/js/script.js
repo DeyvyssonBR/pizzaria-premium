@@ -8,11 +8,31 @@ const PIX_NAME = localStorage.getItem('premium_pizzaria_pix_name') || 'Pizzaria 
 const PIX_CITY = localStorage.getItem('premium_pizzaria_pix_city') || 'TERESINA';
 const MP_LINK = localStorage.getItem('premium_pizzaria_mp_link') || '';
 const MP_INTEGRATION_TYPE = localStorage.getItem('premium_pizzaria_mp_integration_type') || 'api';
-// Worker base URL — admin grava em `premium_pizzaria_mp_worker_url` (campo visível),
-// o front usa `premium_pizzaria_mp_base` (chave antiga preservada) com fallback padrão.
-const MP_BASE = (localStorage.getItem('premium_pizzaria_mp_base')
-  || localStorage.getItem('premium_pizzaria_mp_worker_url')
-  || 'https://pizzaria-premium-mp.workers.dev').replace(/\/+$/, '');
+// Base da API de pagamento:
+// - localhost / mesmo host do server.js → '' (mesma origem: /api/...)
+// - admin pode forçar Worker: premium_pizzaria_mp_worker_url
+// - produção estática (GitHub Pages) sem Worker → Pix local + link MP
+function resolveMpApiBase() {
+  try {
+    const forced = (localStorage.getItem('premium_pizzaria_mp_base')
+      || localStorage.getItem('premium_pizzaria_mp_worker_url')
+      || '').trim().replace(/\/+$/, '');
+    if (forced) return forced;
+    const host = (typeof location !== 'undefined' && location.hostname) || '';
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+      return ''; // server.js local
+    }
+    // Vercel / domínio próprio com serverless na mesma origem
+    if (host.includes('vercel.app') || host.includes('pizzariapremium')) {
+      return '';
+    }
+    // GitHub Pages: sem backend → string vazia ainda tenta /api (falha) e cai no fallback Pix local
+    return '';
+  } catch (e) {
+    return '';
+  }
+}
+const MP_BASE = resolveMpApiBase();
 let currentPixPayment = null; // { payment_id, status, external_ref } — used by the polling loop
 // v11: flat DELIVERY_FEE removed from checkout. The delivery fee is now computed from
 // the customer's CEP via calcDeliveryByDistance(cepData) — see maybePrefillCepFromLookup()
@@ -669,7 +689,7 @@ const defaultMenu = [
 ];
 
 // Versao do seed do cardapio: ao subir, menus antigos em cache sao refrescados.
-const MENU_SEED_VERSION = '2026-demo-30';
+const MENU_SEED_VERSION = '2026-funcional-precos-v1';
 let menu;
 const storedMenuVersion = localStorage.getItem('premium_pizzaria_menu_version');
 const storedMenuRaw = localStorage.getItem('premium_pizzaria_menu');
@@ -1143,7 +1163,7 @@ function renderPizzaModal() {
       ${pizzaSelection.step === 0 ? 'Cancelar' : 'Voltar'}
     </button>
     <button class="button" type="button" id="pizza-modal-confirm">
-      ${pizzaSelection.step === pizzaSteps.length - 1 ? 'Pedir no WhatsApp' : 'Continuar'}
+      ${pizzaSelection.step === pizzaSteps.length - 1 ? 'Adicionar ao carrinho' : 'Continuar'}
     </button>
   `;
 
@@ -1336,16 +1356,25 @@ function renderCurrentPizzaStep() {
   const stepId = pizzaSteps[pizzaSelection.step].id;
 
   if (stepId === 'tamanho') {
+    const flavorForPrice = getFlavorById(pizzaSelection.firstFlavorId)
+      || menu.find((item) => item.id === pizzaSelection.itemId);
     return `
       ${renderChoiceSectionHeader('TAMANHO DA PIZZA', 'Escolha 1 item', true)}
       <div class="choice-grid">
-        ${pizzaSizes.map((size) => renderOptionCard({
-          active: pizzaSelection.sizeId === size.id,
-          attribute: `data-pizza-size="${size.id}"`,
-          title: size.label,
-          detail: size.detail,
-          price: size.extra ? `+ ${formatBRL(size.extra)}` : 'Base'
-        })).join('')}
+        ${pizzaSizes.map((size) => {
+          const sizePrice = getFlavorPriceForSize(flavorForPrice, size.id);
+          const basePrice = getFlavorPriceForSize(flavorForPrice, 'pequena');
+          const delta = sizePrice - basePrice;
+          return renderOptionCard({
+            active: pizzaSelection.sizeId === size.id,
+            attribute: `data-pizza-size="${size.id}"`,
+            title: size.label,
+            detail: size.detail,
+            price: size.id === 'pequena' || delta === 0
+              ? formatBRL(sizePrice)
+              : `${formatBRL(sizePrice)}`
+          });
+        }).join('')}
       </div>
     `;
   }
@@ -1612,20 +1641,45 @@ function renderPopularFlavorCard(flavor, role) {
   `;
 }
 
+/** Preço do sabor no tamanho (usa precos.p/m/g do cardápio; família = G + diferença de extra). */
+function getFlavorPriceForSize(flavor, sizeId) {
+  if (!flavor) return 0;
+  const size = pizzaSizes.find((s) => s.id === sizeId) || pizzaSizes[0];
+  const keyMap = { pequena: 'p', media: 'm', grande: 'g', familia: 'f' };
+  const key = keyMap[sizeId] || 'p';
+  const precos = flavor.precos;
+
+  if (precos && typeof precos[key] === 'number') {
+    return precos[key];
+  }
+  // Família sem precos.f: parte do G e soma o salto extra (G→Família)
+  if (sizeId === 'familia' && precos && typeof precos.g === 'number') {
+    const gExtra = (pizzaSizes.find((s) => s.id === 'grande') || {}).extra || 20;
+    const fExtra = (pizzaSizes.find((s) => s.id === 'familia') || {}).extra || 32;
+    return precos.g + (fExtra - gExtra);
+  }
+  // Fallback legado: price = base P + extra do tamanho
+  return (typeof flavor.price === 'number' ? flavor.price : 0) + (size ? size.extra : 0);
+}
+
 function calculatePizzaPrice() {
   const firstFlavor = getFlavorById(pizzaSelection.firstFlavorId);
   const secondFlavor = getFlavorById(pizzaSelection.secondFlavorId);
+  const sizeId = pizzaSelection.sizeId;
+  // Meio a meio: cobra o sabor mais caro no tamanho escolhido
   const basePrice = pizzaSelection.mode === 'metade' && secondFlavor
-    ? Math.max(firstFlavor ? firstFlavor.price : 0, secondFlavor.price)
-    : firstFlavor ? firstFlavor.price : 0;
-  const size = pizzaSizes.find((item) => item.id === pizzaSelection.sizeId);
+    ? Math.max(
+        getFlavorPriceForSize(firstFlavor, sizeId),
+        getFlavorPriceForSize(secondFlavor, sizeId)
+      )
+    : getFlavorPriceForSize(firstFlavor, sizeId);
   const border = borderOptions.find((item) => item.id === pizzaSelection.borderId);
   const drink = drinkOptions.find((item) => item.id === pizzaSelection.drinkId);
   const extrasTotal = extraOptions
     .filter((extra) => pizzaSelection.extraIds.includes(extra.id))
     .reduce((total, extra) => total + extra.price, 0);
 
-  return basePrice + (size ? size.extra : 0) + (border ? border.price : 0) + (drink ? drink.price : 0) + extrasTotal;
+  return basePrice + (border ? border.price : 0) + (drink ? drink.price : 0) + extrasTotal;
 }
 
 function buildPizzaSummaryText(firstFlavor, secondFlavor, size, border, extras, drink, sachet) {
@@ -1703,7 +1757,7 @@ function buildDemoCartItem(menuId, sizeId) {
   const noBorder = borderOptions.find((b) => b.id === 'sem-borda') || { id: 'sem-borda', label: 'Sem borda', price: 0 };
   const noDrink = drinkOptions.find((d) => d.id === 'sem-bebida') || { id: 'sem-bebida', label: 'Não quero bebida', price: 0 };
   const noSachet = sachetOptions.find((s) => s.id === 'sem-sache') || { id: 'sem-sache', label: 'Não quero sachê', price: 0 };
-  const price = base.price + (size ? size.extra : 0);
+  const price = getFlavorPriceForSize(base, sizeId);
   return {
     id: 'pizza_demo_' + menuId + '_' + sizeId,
     itemId: menuId,
@@ -1727,9 +1781,16 @@ function buildDemoCartItem(menuId, sizeId) {
   };
 }
 
+// Demo seed desligado em produção — cliente real deve começar com carrinho vazio.
+// Para reativar em apresentação: localStorage.removeItem('premium_pizzaria_demo_seeded')
+// e chamar seedDemoCart() manualmente, ou setar ?demo=1 na URL.
 function seedDemoCart() {
   if (localStorage.getItem('premium_pizzaria_demo_seeded') === '1') return;
-  // 3 classicas + 1 doce + 1 regional, tamanhos misturados
+  const wantDemo = typeof location !== 'undefined' && /[?&]demo=1\b/.test(location.search || '');
+  if (!wantDemo) {
+    localStorage.setItem('premium_pizzaria_demo_seeded', '1');
+    return;
+  }
   const seeds = [
     ['cla-margherita', 'media'],
     ['cla-calabresa', 'grande'],
@@ -1780,8 +1841,8 @@ function confirmPizzaSelection() {
     `Tamanho: ${selectedSize.label}`,
     `Formato: ${pizzaSelection.mode === 'inteira' ? 'Inteira' : 'Meio a Meio'}`,
     `Borda: ${selectedBorder.label}`,
-    selectedDrink && selectedDrink.id !== 'none' ? `Bebida: ${selectedDrink.label}` : null,
-    selectedSachet && selectedSachet.id !== 'none' ? `Sachê: ${selectedSachet.label}` : null,
+    selectedDrink && selectedDrink.id !== 'sem-bebida' ? `Bebida: ${selectedDrink.label}` : null,
+    selectedSachet && selectedSachet.id !== 'sem-sache' ? `Sachê: ${selectedSachet.label}` : null,
     selectedExtras.length ? `Adicionais: ${selectedExtras.map((extra) => extra.label).join(', ')}` : null,
     pizzaSelection.notes ? `Observações: ${pizzaSelection.notes}` : null
   ].filter(Boolean);
@@ -2176,6 +2237,54 @@ function closeCartDrawer() {
   cartDrawer.setAttribute('aria-hidden', 'true');
 }
 
+/** Soft capture: gate de conta no checkout (guest vs cadastro). */
+let checkoutGateMode = null; // null | 'gate' | 'guest' | 'account'
+
+function setCheckoutAuthHeader(title) {
+  const el = document.getElementById('cart-auth-header-title');
+  if (el) el.textContent = title || 'Quase lá';
+}
+
+function showCheckoutAccountGate() {
+  const gate = document.getElementById('checkout-account-gate');
+  const form = document.getElementById('checkout-identity-form');
+  if (gate) gate.hidden = false;
+  if (form) form.hidden = true;
+  checkoutGateMode = 'gate';
+  setCheckoutAuthHeader('Quase lá');
+  if (typeof trackEvent === 'function') trackEvent('checkout_account_gate_view');
+  if (window.pizzariaTrack) window.pizzariaTrack('checkout_account_gate_view', {});
+}
+
+function showCheckoutIdentityGuest() {
+  const gate = document.getElementById('checkout-account-gate');
+  const form = document.getElementById('checkout-identity-form');
+  if (gate) gate.hidden = true;
+  if (form) form.hidden = false;
+  checkoutGateMode = 'guest';
+  setCheckoutAuthHeader('Identifique-se');
+  if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+  if (checkoutPhone) {
+    try { checkoutPhone.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+  }
+}
+
+/** Após login/cadastro com carrinho aberto → preenche e vai pra entrega. */
+function continueCheckoutAfterAccount() {
+  const acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+  if (!acc) return false;
+  const drawerOpen = cartDrawer && cartDrawer.classList.contains('is-open');
+  if (!drawerOpen) return false;
+  if (checkoutName && acc.name) checkoutName.value = acc.name;
+  if (checkoutPhone && acc.phone) checkoutPhone.value = formatPhoneInput(acc.phone);
+  if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
+  checkoutGateMode = 'account';
+  if (typeof trackEvent === 'function') trackEvent('checkout_account_linked');
+  navigateCartStep('cart-step-delivery');
+  showToast('Conta conectada! Continue o pedido 👇', 2600);
+  return true;
+}
+
 function navigateCartStep(stepId) {
   // Atalho para contas logadas: pré-preenche o "Identifique-se" e avança direto
   if (stepId === 'cart-step-auth' && typeof getCurrentAccount === 'function') {
@@ -2185,7 +2294,9 @@ function navigateCartStep(stepId) {
       if (checkoutPhone) checkoutPhone.value = formatPhoneInput(acc.phone);
       if (typeof handleAuthFormInputs === 'function') handleAuthFormInputs();
       stepId = 'cart-step-delivery';
+      checkoutGateMode = 'account';
     } else {
+      // Guest (ou conta incompleta): mostra gate de cadastro opcional
       trackEvent('guest_checkout_started');
     }
   }
@@ -2194,6 +2305,22 @@ function navigateCartStep(stepId) {
   });
   const target = document.getElementById(stepId);
   if (target) target.classList.add('is-active');
+
+  // Ao entrar no passo de auth como guest → gate (não formulário vazio)
+  if (stepId === 'cart-step-auth') {
+    const acc = typeof getCurrentAccount === 'function' ? getCurrentAccount() : null;
+    if (acc && acc.name && acc.phone) {
+      // já deveria ter sido redirecionado; fallback
+      showCheckoutIdentityGuest();
+      if (checkoutName) checkoutName.value = acc.name;
+      if (checkoutPhone) checkoutPhone.value = formatPhoneInput(acc.phone);
+    } else if (checkoutGateMode === 'guest') {
+      showCheckoutIdentityGuest();
+    } else {
+      showCheckoutAccountGate();
+    }
+  }
+
   if (stepId === 'cart-step-delivery' && typeof refreshCheckoutCoupons === 'function') {
     refreshCheckoutCoupons();
     if (typeof renderSavedAddressesSelector === 'function') renderSavedAddressesSelector();
@@ -2429,6 +2556,189 @@ function calcOrderDiscount(subtotal) {
   return 0;
 }
 
+/** UI de status do pagamento (Pix / Mercado Pago). */
+let paymentConfirmedUi = false;
+/** Só true se o SERVIDOR confirmou no Mercado Pago (anti-fraude). */
+let paymentServerVerified = false;
+let lastPaymentMeta = { payment_id: null, external_reference: null, method: null };
+let mpRuntimeConfig = null;
+
+async function loadMpRuntimeConfig() {
+  try {
+    const base = typeof resolveMpApiBase === 'function' ? resolveMpApiBase() : '';
+    const r = await fetch(base + '/api/mp/config', { method: 'GET' });
+    if (!r.ok) return null;
+    mpRuntimeConfig = await r.json();
+    return mpRuntimeConfig;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Pergunta ao servidor se o pagamento está aprovado no MP.
+ * Nunca confiar só em ?payment_status=success (dá pra digitar na URL).
+ */
+async function verifyPaymentOnServer({ paymentId, externalReference }) {
+  const base = typeof resolveMpApiBase === 'function' ? resolveMpApiBase() : '';
+  const q = new URLSearchParams();
+  if (paymentId) q.set('payment_id', String(paymentId));
+  if (externalReference) q.set('external_reference', String(externalReference));
+  if (![...q.keys()].length) {
+    return { approved: false, verified: false, error: 'missing_ref' };
+  }
+  try {
+    const r = await fetch(base + '/api/mp/verify-payment?' + q.toString(), { method: 'GET' });
+    const data = await r.json().catch(() => ({}));
+    return {
+      approved: Boolean(data.approved),
+      verified: data.verified !== false,
+      status: data.status || null,
+      payment_id: data.payment_id || paymentId || null,
+      external_reference: data.external_reference || externalReference || null,
+      amount: data.amount,
+      error: data.error || null
+    };
+  } catch (e) {
+    return { approved: false, verified: false, error: e.message };
+  }
+}
+
+function setPaymentLiveStatus(state, title, desc) {
+  const box = document.getElementById('payment-live-status');
+  const icon = document.getElementById('payment-live-status-icon');
+  const tEl = document.getElementById('payment-live-status-title');
+  const dEl = document.getElementById('payment-live-status-desc');
+  if (!box) return;
+  box.hidden = false;
+  box.classList.remove(
+    'payment-live-status--idle',
+    'payment-live-status--waiting',
+    'payment-live-status--approved',
+    'payment-live-status--error'
+  );
+  box.classList.add('payment-live-status--' + (state || 'idle'));
+  if (icon) {
+    icon.textContent = state === 'approved' ? '✅' : state === 'error' ? '❌' : '⏳';
+  }
+  if (tEl) tEl.textContent = title || '';
+  if (dEl) dEl.textContent = desc || '';
+}
+
+function resetPaymentApprovedUi() {
+  paymentConfirmedUi = false;
+  paymentServerVerified = false;
+  lastPaymentMeta = { payment_id: null, external_reference: null, method: null };
+  try {
+    sessionStorage.removeItem('premium_pizzaria_mp_paid');
+    sessionStorage.removeItem('premium_pizzaria_payment_id');
+    sessionStorage.removeItem('premium_pizzaria_ext_ref');
+  } catch (e) { /* ignore */ }
+  const pixAwait = document.getElementById('pix-awaiting-block');
+  const pixOk = document.getElementById('pix-approved-block');
+  const mpOk = document.getElementById('mp-approved-block');
+  const btn = document.getElementById('btn-confirm-payment-whatsapp');
+  const label = document.getElementById('btn-confirm-payment-whatsapp-label');
+  const hint = document.getElementById('pix-detect-hint');
+  const already = document.getElementById('btn-pix-already-paid');
+  if (pixAwait) pixAwait.style.display = '';
+  if (pixOk) pixOk.hidden = true;
+  if (mpOk) mpOk.hidden = true;
+  if (btn) btn.classList.remove('is-payment-ok');
+  if (label) label.textContent = 'Enviar Pedido no WhatsApp';
+  if (hint) {
+    hint.textContent = '🔄 Detectando pagamento automaticamente…';
+    hint.classList.add('is-watching');
+    hint.style.display = '';
+  }
+  // Botão "Já paguei" NÃO libera pedido como pago verificado (anti-fraude)
+  if (already) already.style.display = 'none';
+}
+
+/**
+ * Só marca "Pagamento aprovado" se o servidor confirmou no Mercado Pago.
+ * source: 'pix' | 'mercadopago' | etc.
+ * opts.forceServer — se false e serverVerified, ainda exige paymentServerVerified
+ */
+function markPaymentApproved(source, opts = {}) {
+  // Segurança: online só com verificação do servidor
+  if (!opts.serverVerified && !paymentServerVerified) {
+    console.warn('[pay] bloqueado: aprovação sem verificação do servidor', source);
+    setPaymentLiveStatus(
+      'error',
+      'Aguardando confirmação real',
+      'O sistema só libera “Pago” quando o Mercado Pago confirma. Não dá para marcar na mão.'
+    );
+    return;
+  }
+  if (paymentConfirmedUi && paymentServerVerified) return;
+  paymentConfirmedUi = true;
+  paymentServerVerified = true;
+  try {
+    sessionStorage.setItem('premium_pizzaria_mp_paid', 'true');
+    if (lastPaymentMeta.payment_id) {
+      sessionStorage.setItem('premium_pizzaria_payment_id', String(lastPaymentMeta.payment_id));
+    }
+    if (lastPaymentMeta.external_reference) {
+      sessionStorage.setItem('premium_pizzaria_ext_ref', String(lastPaymentMeta.external_reference));
+    }
+  } catch (e) { /* ignore */ }
+
+  setPaymentLiveStatus(
+    'approved',
+    'Pagamento aprovado',
+    source === 'mercadopago' || source === 'cartao'
+      ? 'Mercado Pago confirmou o pagamento. Envie o pedido no WhatsApp.'
+      : 'Pix confirmado pelo Mercado Pago. Envie o pedido no WhatsApp.'
+  );
+
+  const pixAwait = document.getElementById('pix-awaiting-block');
+  const pixOk = document.getElementById('pix-approved-block');
+  const mpOk = document.getElementById('mp-approved-block');
+  const payment = checkoutPayment ? checkoutPayment.value : '';
+  if (payment === 'pix') {
+    if (pixAwait) pixAwait.style.display = 'none';
+    if (pixOk) pixOk.hidden = false;
+  }
+  if ((payment === 'mercadopago' || payment === 'cartao') && mpOk) {
+    mpOk.hidden = false;
+    const btnPayMp = document.getElementById('btn-pay-mp');
+    if (btnPayMp) btnPayMp.style.display = 'none';
+  }
+
+  const btn = document.getElementById('btn-confirm-payment-whatsapp');
+  const label = document.getElementById('btn-confirm-payment-whatsapp-label');
+  if (btn) btn.classList.add('is-payment-ok');
+  if (label) label.textContent = '✅ Pagamento confirmado — Enviar no WhatsApp';
+
+  showPaymentToast('✅', 'Pagamento aprovado!', 'success', 6000);
+  if (typeof showToast === 'function') {
+    showToast('✅ Pagamento aprovado! Envie o pedido no WhatsApp.', 4000);
+  }
+  if (window.pizzariaTrack) {
+    window.pizzariaTrack('payment_approved', { source: source || 'unknown' });
+  }
+
+  if (btn) {
+    try {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (e) { /* ignore */ }
+  }
+}
+
+/** Cliente diz que pagou, mas o sistema NÃO marca como verificado (loja confere). */
+function markPaymentClaimedByClient() {
+  setPaymentLiveStatus(
+    'waiting',
+    'Você informou que pagou',
+    'A pizzaria ainda precisa conferir no extrato. O pedido vai no WhatsApp como “aguardando confirmação”.'
+  );
+  showToast('Aviso enviado: a loja vai conferir o pagamento.', 3500);
+  try {
+    sessionStorage.setItem('premium_pizzaria_client_claimed_paid', 'true');
+  } catch (e) { /* ignore */ }
+}
+
 function refreshPaymentDetailsScreen() {
   const payment = checkoutPayment.value;
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -2446,32 +2756,159 @@ function refreshPaymentDetailsScreen() {
   }
   if (summaryTotal) summaryTotal.textContent = formatBRL(cartTotal);
 
+  resetPaymentApprovedUi();
+
+  // Online: Pix + Mercado Pago (cartão/Pix dentro do MP). cartao/dinheiro = na entrega.
   if (payment === 'pix') {
     document.getElementById('pix-payment-container').style.display = 'block';
     document.getElementById('mp-payment-container').style.display = 'none';
 
-    // Gera txid único, monta payload Pix e renderiza QR local + timer de 15 min
+    setPaymentLiveStatus(
+      'waiting',
+      'Aguardando pagamento…',
+      'Pague o Pix. Só liberamos “Pago” quando o Mercado Pago confirmar.'
+    );
     regeneratePixCode(cartTotal);
   } else if (payment === 'mercadopago') {
     document.getElementById('pix-payment-container').style.display = 'none';
     document.getElementById('mp-payment-container').style.display = 'block';
 
-    // Configura o link do Mercado Pago com estado de carregamento
-    const btnPayMp = document.getElementById('btn-pay-mp');
-    if (btnPayMp) {
-      btnPayMp.href = '#';
-      btnPayMp.innerHTML = '<span>⏳ Gerando link de pagamento...</span>';
-      btnPayMp.style.pointerEvents = 'none';
-      btnPayMp.style.opacity = '0.7';
-
-      getMPPreferenceUrl(cart, cartTotal).then(url => {
-        btnPayMp.href = url;
-        btnPayMp.innerHTML = '💳 Pagar com Mercado Pago';
-        btnPayMp.style.pointerEvents = 'auto';
-        btnPayMp.style.opacity = '1';
-      });
-    }
+    startMercadoPagoCheckoutFlow(cart, cartTotal, payment);
+  } else {
+    document.getElementById('pix-payment-container').style.display = 'none';
+    document.getElementById('mp-payment-container').style.display = 'none';
   }
+}
+
+/**
+ * Fluxo Mercado Pago / cartão online via Checkout Pro.
+ * Em token TEST (sandbox) o MP costuma bloquear (“uma das partes é de teste”).
+ * Aí redirecionamos o cliente para Pix com confirmação real da API.
+ */
+async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
+  const btnPayMp = document.getElementById('btn-pay-mp');
+  const mpHint = document.getElementById('mp-pay-hint');
+  const cfg = mpRuntimeConfig || (await loadMpRuntimeConfig());
+
+  setPaymentLiveStatus(
+    'waiting',
+    'Preparando Mercado Pago…',
+    'Cartão, saldo MP e Pix dentro do checkout seguro.'
+  );
+
+  // Token de teste de conta real: Checkout Pro quebra com comprador teste.
+  // Caminho que FUNCIONA e ainda verifica pagamento: Pix via API.
+  if (cfg && cfg.sandbox && !cfg.checkoutProRecommended) {
+    if (btnPayMp) btnPayMp.style.display = 'none';
+    setPaymentLiveStatus(
+      'waiting',
+      'Modo teste: use Pix com confirmação',
+      'O checkout de cartão no sandbox está bloqueado pelo Mercado Pago (conta real + teste). Com token de PRODUÇÃO o cartão abre normal. Agora: Pix verificado pela API.'
+    );
+    if (mpHint) {
+      mpHint.innerHTML =
+        '<strong>Por que?</strong> Token TEST da sua conta real + comprador teste = MP bloqueia. ' +
+        'Em <strong>produção</strong> (token APP_USR) o botão abre cartão/MP completo. ' +
+        'Enquanto testa, use <strong>Pix</strong> (confirma sozinho) ou dinheiro/cartão na entrega.';
+    }
+    // Mostra Pix verificado no mesmo passo (sem burlar)
+    document.getElementById('pix-payment-container').style.display = 'block';
+    document.getElementById('mp-payment-container').style.display = 'block';
+    regeneratePixCode(cartTotal);
+    showToast('Teste: use Pix (confirmação real). Cartão MP exige token de produção.', 4500);
+    return;
+  }
+
+  if (btnPayMp) {
+    btnPayMp.style.display = '';
+    btnPayMp.removeAttribute('target');
+    btnPayMp.href = '#';
+    btnPayMp.innerHTML = '<span>⏳ Preparando pagamento…</span>';
+    btnPayMp.style.pointerEvents = 'none';
+    btnPayMp.style.opacity = '0.7';
+    if (mpHint) mpHint.textContent = '';
+  }
+
+  const extRef = `pp-${method || 'mp'}-${Date.now()}`;
+  lastPaymentMeta.external_reference = extRef;
+  lastPaymentMeta.method = method;
+
+  try {
+    const result = await getMPPreferenceUrl(cartItems, cartTotal, extRef);
+    const url = result && result.url;
+    const okUrl = isMercadoPagoCheckoutUrl(url);
+    if (!okUrl || !btnPayMp) {
+      if (btnPayMp) {
+        btnPayMp.innerHTML = '⚠️ Mercado Pago indisponível';
+        btnPayMp.style.pointerEvents = 'none';
+      }
+      setPaymentLiveStatus(
+        'error',
+        'Não foi possível abrir o Mercado Pago',
+        (result && result.error) || 'Rode node server.js com MP_ACCESS_TOKEN'
+      );
+      // Fallback seguro: Pix com verificação
+      document.getElementById('pix-payment-container').style.display = 'block';
+      regeneratePixCode(cartTotal);
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('premium_pizzaria_ext_ref', extRef);
+      sessionStorage.setItem('premium_pizzaria_mp_checkout_url', okUrl);
+    } catch (e) { /* ignore */ }
+
+    btnPayMp.href = okUrl;
+    btnPayMp.innerHTML = '💳 Pagar com cartão / Mercado Pago';
+    btnPayMp.style.pointerEvents = 'auto';
+    btnPayMp.style.opacity = '1';
+    btnPayMp.onclick = function (ev) {
+      ev.preventDefault();
+      goToMercadoPagoCheckout(okUrl);
+    };
+    if (mpHint) {
+      mpHint.textContent =
+        'Você será levado ao checkout do Mercado Pago (cartão, Pix, saldo). Ao voltar, o site confere se o pagamento foi aprovado de verdade.';
+    }
+    setPaymentLiveStatus(
+      'waiting',
+      'Checkout pronto',
+      'Abrindo Mercado Pago para você pagar o pedido…'
+    );
+    // Produção: redireciona direto
+    setTimeout(() => goToMercadoPagoCheckout(okUrl), 500);
+  } catch (e) {
+    setPaymentLiveStatus('error', 'Erro no Mercado Pago', 'Tente Pix ou pagamento na entrega.');
+  }
+}
+
+/** Só aceita URL de checkout do pedido — bloqueia home/conta. */
+function isMercadoPagoCheckoutUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  const u = url.trim();
+  if (!/^https:\/\//i.test(u)) return null;
+  // Home da conta / login genérico = NÃO é pagamento
+  if (/mercadopago\.com(\.br)?\/(home|login|hub|developers)(\/|$|\?)/i.test(u)) return null;
+  if (/mercadopago\.com(\.br)?\/?$/i.test(u)) return null;
+  // Checkout Pro / sandbox com preferência
+  const isCheckout =
+    /\/checkout\//i.test(u) ||
+    /pref_id=/i.test(u) ||
+    /preference_id=/i.test(u) ||
+    /sandbox\.mercadopago/i.test(u);
+  return isCheckout ? u : null;
+}
+
+function goToMercadoPagoCheckout(url) {
+  const ok = isMercadoPagoCheckoutUrl(url);
+  if (!ok) {
+    showToast('Link de pagamento inválido. Gere de novo o checkout.', 3500);
+    setPaymentLiveStatus('error', 'URL inválida', 'Não vamos abrir a home da conta. Toque em gerar de novo.');
+    return;
+  }
+  showToast('Abrindo pagamento do pedido…', 2000);
+  // replace evita voltar pra URL quebrada; só checkout
+  window.location.replace(ok);
 }
 
 // Input mask and validation
@@ -2519,11 +2956,17 @@ if (floatingCartBar) {
 // Next steps buttons
 if (cartNextBtn1) {
   cartNextBtn1.addEventListener('click', () => {
+    checkoutGateMode = null; // sempre reabre o gate no Avançar (exceto se logado)
     navigateCartStep('cart-step-auth');
   });
 }
 if (cartBackToItems) {
   cartBackToItems.addEventListener('click', () => {
+    // Se estava no formulário guest, volta pro gate; se no gate, volta pro carrinho
+    if (checkoutGateMode === 'guest') {
+      showCheckoutAccountGate();
+      return;
+    }
     navigateCartStep('cart-step-items');
   });
 }
@@ -2539,10 +2982,53 @@ if (cartBackToAuth) {
     if (acc && acc.name && acc.phone) {
       navigateCartStep('cart-step-items');
     } else {
+      checkoutGateMode = 'guest'; // mantém o form se já escolheu guest
       navigateCartStep('cart-step-auth');
     }
   });
 }
+
+// Gate: criar conta / entrar / continuar sem cadastro
+(function wireCheckoutAccountGate() {
+  const btnCreate = document.getElementById('gate-create-account');
+  const btnLogin = document.getElementById('gate-login');
+  const btnGuest = document.getElementById('gate-continue-guest');
+  const btnBackReg = document.getElementById('gate-back-to-register');
+
+  if (btnCreate) {
+    btnCreate.addEventListener('click', () => {
+      if (typeof trackEvent === 'function') trackEvent('checkout_gate_create_click');
+      if (window.pizzariaTrack) window.pizzariaTrack('checkout_gate_create_click', {});
+      const name = checkoutName ? checkoutName.value.trim() : '';
+      const phone = checkoutPhone ? checkoutPhone.value.trim() : '';
+      if (typeof openAuthModal === 'function') {
+        openAuthModal('register', name || phone ? { name, phone } : undefined);
+      }
+    });
+  }
+  if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      if (typeof trackEvent === 'function') trackEvent('checkout_gate_login_click');
+      if (window.pizzariaTrack) window.pizzariaTrack('checkout_gate_login_click', {});
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+    });
+  }
+  if (btnGuest) {
+    btnGuest.addEventListener('click', () => {
+      if (typeof trackEvent === 'function') trackEvent('checkout_gate_guest_click');
+      if (window.pizzariaTrack) window.pizzariaTrack('checkout_gate_guest_click', {});
+      showCheckoutIdentityGuest();
+      showToast('Sem conta: pedido ok — sem pontos/cupons de fidelidade', 3200);
+    });
+  }
+  if (btnBackReg) {
+    btnBackReg.addEventListener('click', () => {
+      if (typeof trackEvent === 'function') trackEvent('checkout_gate_back_to_register');
+      showCheckoutAccountGate();
+      if (typeof openAuthModal === 'function') openAuthModal('register');
+    });
+  }
+})();
 
 if (checkoutPhone) {
   checkoutPhone.addEventListener('input', (e) => {
@@ -2858,9 +3344,9 @@ function renderCheckoutDeliveryResult(cepData, calc) {
 }
 
 function formatPaymentLabel(payment, changeVal) {
-  if (payment === 'pix') return 'Pix';
-  if (payment === 'mercadopago') return 'Mercado Pago (Online)';
-  if (payment === 'cartao') return 'Cartão (Máquina)';
+  if (payment === 'pix') return 'Pix (online)';
+  if (payment === 'mercadopago') return 'Mercado Pago / Cartão (online)';
+  if (payment === 'cartao') return 'Cartão na entrega (máquina)';
   if (payment === 'dinheiro') return changeVal ? `Dinheiro (troco p/ ${changeVal})` : 'Dinheiro (sem troco)';
   return payment || '—';
 }
@@ -3073,6 +3559,24 @@ function finalizeOrder() {
 
   const changeVal = (payment === 'dinheiro' && checkoutChange) ? checkoutChange.value.trim() : '';
   const paymentStr = formatPaymentLabel(payment, changeVal);
+  const isOnline = payment === 'pix' || payment === 'mercadopago';
+  // Só "pago" se o servidor confirmou no MP (anti-fraude)
+  const payOk = Boolean(isOnline && paymentServerVerified && (paymentConfirmedUi || checkMpPaymentConfirmed()));
+  let clientClaimed = false;
+  try { clientClaimed = sessionStorage.getItem('premium_pizzaria_client_claimed_paid') === 'true'; } catch (e) { /* ignore */ }
+
+  let payStatusLine;
+  if (!isOnline) {
+    payStatusLine = '💵 *Status pagamento:* NA ENTREGA / RETIRADA (conferir na hora)';
+  } else if (payOk) {
+    payStatusLine =
+      '✅ *Status pagamento:* CONFIRMADO PELO MERCADO PAGO' +
+      (lastPaymentMeta.payment_id ? `\n🆔 *ID pagamento:* ${lastPaymentMeta.payment_id}` : '');
+  } else if (clientClaimed) {
+    payStatusLine = '⚠️ *Status pagamento:* CLIENTE DISSE QUE PAGOU — CONFERIR NO EXTRATO (não verificado pelo sistema)';
+  } else {
+    payStatusLine = '⏳ *Status pagamento:* AINDA NÃO CONFIRMADO no sistema — confira antes de produzir';
+  }
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   // v11: distance-based delivery — fee is the same value shown on the public calculator
@@ -3145,12 +3649,15 @@ function finalizeOrder() {
     `---------------------------------------------`,
     deliveryStr,
     `💳 *Forma de Pagamento:* ${paymentStr}`,
+    payStatusLine,
     `⏱ *Tempo estimado:* ${estimatedMinutes} min`,
     `---------------------------------------------`,
     obs ? `📝 *Observações:* ${obs}\n---------------------------------------------` : '',
     `💰 *Total Geral:* *${formatBRL(cartTotal)}*`,
     `---------------------------------------------`,
-    `Gostaria de confirmar meu pedido, obrigado!`
+    payOk
+      ? `Pagamento online OK. Pode produzir!`
+      : `Gostaria de confirmar meu pedido, obrigado!`
   ];
 
   const fullMessage = messageLines.join('\n');
@@ -3201,7 +3708,11 @@ function finalizeOrder() {
     couponCode: _usedCoupon ? _usedCoupon.code : null,
     couponName: _usedCoupon ? _usedCoupon.name : null,
     discount,
-    paymentConfirmed: payment === 'mercadopago' ? checkMpPaymentConfirmed() : false
+    paymentConfirmed: payOk,
+    paymentVerifiedServer: payOk,
+    paymentId: lastPaymentMeta.payment_id || null,
+    paymentExternalRef: lastPaymentMeta.external_reference || null,
+    paymentClientClaimed: clientClaimed && !payOk
   };
   persistOrder(order);
 
@@ -3389,27 +3900,67 @@ function startPixTimer() {
   pixTimerHandle = setInterval(tick, 1000);
 }
 
+/** Pix EMV local (chave da loja) — SEM confirmação automática (sem ID no MP). */
+function applyLocalPixFallback(total, ta, img, reason) {
+  try {
+    pixTxId = generatePixTxId(25);
+    const payload = generatePixPayload(PIX_KEY, PIX_NAME, PIX_CITY, total, pixTxId);
+    if (ta) {
+      ta.value = payload;
+      ta.placeholder = '';
+    }
+    renderPixQRCode(payload);
+    currentPixPayment = null;
+    if (reason) console.warn('[pix] fallback local:', reason);
+    const hint = document.getElementById('pix-detect-hint');
+    const already = document.getElementById('btn-pix-already-paid');
+    if (hint) {
+      hint.textContent = 'Pix da loja (chave): a loja confere no extrato. Sistema NÃO marca pago sozinho.';
+      hint.classList.remove('is-watching');
+    }
+    // Aviso à loja apenas — não libera “Pagamento aprovado” no sistema
+    if (already) {
+      already.style.display = 'block';
+      already.textContent = 'Já paguei — avisar loja (sem liberar automático)';
+    }
+    setPaymentLiveStatus(
+      'waiting',
+      'Pix da loja — confira no extrato',
+      'Sem API do MP não há como o site saber se caiu. A pizzaria confere. Não dá para burlar “pago”.'
+    );
+    showToast('Pix gerado. A loja confirma o valor no banco.', 3800);
+  } catch (e) {
+    console.error('Pix local falhou:', e);
+    if (ta) {
+      ta.value = '';
+      ta.placeholder = '⚠️ Não foi possível gerar o Pix. Use Mercado Pago ou pague na entrega.';
+    }
+    if (img) img.alt = 'QR Pix indisponível';
+  }
+}
+
 function regeneratePixCode(total) {
-  // v13 (TAA-18): the QRCode payload now comes from the Cloudflare Worker.
-  // We keep `pixTxId` / `pixExpiresAt` for the timer, but the actual BRCode
-  // is fetched via POST /api/mp/create-pix (token stays on the server).
+  // 1) Tenta API (server local / Worker) → Pix MP com confirmação automática
+  // 2) Se falhar (comum em TEST sandbox) → Pix copia-e-cola com chave da loja
   pixTxId = generatePixTxId(25);
   const externalRef = `pp-${Date.now()}-${pixTxId.slice(0, 8).toLowerCase()}`;
   pixExpiresAt = Date.now() + 15 * 60 * 1000;
   const ta = document.getElementById('pix-copia-cola');
   const img = document.getElementById('pix-qrcode-img');
-  if (ta) { ta.value = ''; ta.placeholder = 'Gerando QR Pix seguro...'; }
+  if (ta) { ta.value = ''; ta.placeholder = 'Gerando QR Pix...'; }
   if (img) { img.src = ''; img.alt = 'QR Code Pix (gerando...)'; }
   startPixTimer();
   createBackendPix(total, externalRef).then((res) => {
-    if (!res) return;
+    if (!res || !res.qr_code) {
+      applyLocalPixFallback(total, ta, img, 'resposta sem qr_code');
+      return;
+    }
     if (res.qr_code) {
       if (ta) { ta.value = res.qr_code; ta.placeholder = ''; }
     }
     if (res.qr_code_base64) {
       if (img) { img.src = `data:image/png;base64,${res.qr_code_base64}`; img.alt = 'QR Code Pix'; }
     } else if (res.qr_code) {
-      // Fallback: gera QR client-side a partir do BRCode (a lib qrcode.min.js continua aqui só pra isso).
       renderPixQRCode(res.qr_code);
     }
     if (res.expiration_date) {
@@ -3421,11 +3972,39 @@ function regeneratePixCode(total) {
       external_ref: externalRef,
       status: res.status || 'pending'
     };
-    startPixPolling();
+    lastPaymentMeta = {
+      payment_id: res.payment_id || null,
+      external_reference: externalRef,
+      method: 'pix'
+    };
+    try {
+      if (res.payment_id) sessionStorage.setItem('premium_pizzaria_payment_id', String(res.payment_id));
+      sessionStorage.setItem('premium_pizzaria_ext_ref', externalRef);
+    } catch (e) { /* ignore */ }
+    const hint = document.getElementById('pix-detect-hint');
+    const already = document.getElementById('btn-pix-already-paid');
+    if (hint) {
+      hint.textContent = '🔄 Confirmando com o Mercado Pago… (não dá para burlar)';
+      hint.classList.add('is-watching');
+      hint.style.display = '';
+    }
+    if (already) already.style.display = 'none';
+    setPaymentLiveStatus(
+      'waiting',
+      'Aguardando pagamento…',
+      'Pague o Pix. Só liberamos “Pago” quando o Mercado Pago confirmar.'
+    );
+    if (res.payment_id) startPixPolling();
+    if (res.status === 'approved' && res.payment_id) {
+      verifyPaymentOnServer({ paymentId: res.payment_id }).then((v) => {
+        if (v.approved) markPaymentApproved('pix', { serverVerified: true });
+      });
+    } else {
+      showToast('Pix gerado — pague e aguarde a confirmação automática', 2800);
+    }
   }).catch((err) => {
-    console.error('Falha ao gerar Pix no backend:', err);
-    if (ta) { ta.value = ''; ta.placeholder = '⚠️ Não foi possível gerar o QR Pix. Tente novamente ou pague na entrega.'; }
-    if (img) { img.alt = 'QR Pix indisponível'; }
+    console.warn('Pix API indisponível, usando chave local:', err && err.message);
+    applyLocalPixFallback(total, ta, img, err && err.message);
   });
 }
 
@@ -3437,8 +4016,9 @@ async function createBackendPix(amount, externalRef) {
   const timeoutMs = 12000;
   let timeoutHandle = null;
   if (ctrl) timeoutHandle = setTimeout(() => ctrl.abort(), timeoutMs);
+  const base = typeof resolveMpApiBase === 'function' ? resolveMpApiBase() : MP_BASE;
   try {
-    const res = await fetch(MP_BASE + '/api/mp/create-pix', {
+    const res = await fetch(base + '/api/mp/create-pix', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3468,38 +4048,59 @@ function startPixPolling() {
   if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
   if (!currentPixPayment || !currentPixPayment.payment_id) return;
   const startedAt = Date.now();
-  const maxMs = 15 * 60 * 1000; // 15 min, mesmo TTL do MP Pix
+  const maxMs = 15 * 60 * 1000; // 15 min
+  const base = typeof resolveMpApiBase === 'function' ? resolveMpApiBase() : MP_BASE;
   const tick = async () => {
-    if (Date.now() - startedAt > maxMs) {
-      clearInterval(pixPollingHandle); pixPollingHandle = null;
+    if (paymentConfirmedUi) {
+      if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
       return;
     }
-    if (!currentPixPayment) return;
+    if (Date.now() - startedAt > maxMs) {
+      if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+      const hint = document.getElementById('pix-detect-hint');
+      if (hint) hint.textContent = 'Tempo esgotado. Gere um novo Pix ou toque em Já paguei.';
+      const already = document.getElementById('btn-pix-already-paid');
+      if (already) already.style.display = 'block';
+      return;
+    }
+    if (!currentPixPayment || !currentPixPayment.payment_id) return;
     try {
-      const res = await fetch(`${MP_BASE}/api/mp/payment-status?ref=${encodeURIComponent(currentPixPayment.payment_id)}`, { method: 'GET' });
-      if (res.status === 404) return; // ainda processando, sem erro
+      const res = await fetch(
+        `${base}/api/mp/payment-status?ref=${encodeURIComponent(currentPixPayment.payment_id)}`,
+        { method: 'GET' }
+      );
+      if (res.status === 404) return;
       if (!res.ok) return;
       const data = await res.json();
+      currentPixPayment.status = data.status || currentPixPayment.status;
       if (data.status === 'approved') {
-        clearInterval(pixPollingHandle); pixPollingHandle = null;
-        try { sessionStorage.setItem('premium_pizzaria_mp_paid', 'true'); } catch (e) { /* ignore */ }
-        showPaymentResult('success');
+        // Dupla checagem no endpoint de verify (anti-fraude)
+        const v = await verifyPaymentOnServer({
+          paymentId: currentPixPayment.payment_id,
+          externalReference: currentPixPayment.external_ref
+        });
+        if (v.approved) {
+          if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+          lastPaymentMeta.payment_id = v.payment_id || currentPixPayment.payment_id;
+          markPaymentApproved('pix', { serverVerified: true });
+        }
       } else if (data.status === 'rejected' || data.status === 'cancelled') {
-        clearInterval(pixPollingHandle); pixPollingHandle = null;
+        if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+        setPaymentLiveStatus('error', 'Pagamento não concluído', 'Tente gerar um novo Pix ou outro método.');
         showPaymentResult('failure');
       }
-      // 'pending' / 'in_process' / 'in_mediation' / 'authorized' → continua polling
     } catch (e) {
-      // Silencioso: polling pode falhar por offline; o usuário tem o "Enviar no WhatsApp" como fallback
+      // offline: tenta de novo no próximo tick
     }
   };
-  // 1ª checagem em 2s, depois a cada 3s.
-  setTimeout(tick, 2000);
-  pixPollingHandle = setInterval(tick, 3000);
+  // 1ª checagem em 1.5s, depois a cada 2s (mais “no ponto”)
+  setTimeout(tick, 1500);
+  pixPollingHandle = setInterval(tick, 2000);
 }
 
 function stopPixPolling() {
   if (pixPollingHandle) { clearInterval(pixPollingHandle); pixPollingHandle = null; }
+  // não zera currentPixPayment se só trocar de tela por 1s — só limpa id ao sair do checkout
   currentPixPayment = null;
 }
 
@@ -3536,12 +4137,40 @@ function hidePaymentResultModal() {
 
 function showPaymentResult(status, opts = {}) {
   if (status === 'success') {
-    showPaymentToast('\ud83c\udf89', 'Pagamento aprovado pelo Mercado Pago!', 'success', 5000);
+    // NÃO confiar só no status da URL — revalida no servidor
+    const extRef =
+      opts.externalReference ||
+      (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('premium_pizzaria_ext_ref') : null) ||
+      lastPaymentMeta.external_reference;
+    const payId =
+      opts.paymentId ||
+      (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('premium_pizzaria_payment_id') : null) ||
+      lastPaymentMeta.payment_id;
+
+    setPaymentLiveStatus('waiting', 'Conferindo pagamento…', 'Validando com o Mercado Pago (segurança).');
+
+    verifyPaymentOnServer({ paymentId: payId, externalReference: extRef }).then((v) => {
+      if (v.approved) {
+        lastPaymentMeta.payment_id = v.payment_id || payId;
+        lastPaymentMeta.external_reference = v.external_reference || extRef;
+        markPaymentApproved(opts.source || 'mercadopago', { serverVerified: true });
+        showPaymentToast('✅', 'Pagamento aprovado!', 'success', 5500);
+      } else {
+        setPaymentLiveStatus(
+          'error',
+          'Pagamento ainda não confirmado',
+          'O Mercado Pago não registrou aprovação. Se você pagou, aguarde ou fale no WhatsApp — não liberamos no sistema sem confirmação.'
+        );
+        showPaymentToast('⏳', 'Aguardando confirmação do Mercado Pago', 'pending', 5000);
+      }
+    });
+
     setTimeout(() => {
       openCartDrawer();
-      // Se j\u00e1 h\u00e1 comprovante (pedido finalizado), continua nele; sen\u00e3o, segue pro WhatsApp
       const success = document.getElementById('cart-step-success');
       if (success && success.classList.contains('is-active')) return;
+      const payStep = document.getElementById('cart-step-payment-details');
+      if (payStep && payStep.classList.contains('is-active')) return;
       navigateCartStep('cart-step-payment-details');
     }, 200);
     return;
@@ -3581,7 +4210,7 @@ function showPaymentResult(status, opts = {}) {
   modal.setAttribute('aria-hidden', 'false');
 }
 
-async function getMPPreferenceUrl(cartItems, total) {
+async function getMPPreferenceUrl(cartItems, total, externalReference) {
   const items = cartItems.map(item => ({
     title: item.name,
     quantity: item.quantity,
@@ -3601,27 +4230,50 @@ async function getMPPreferenceUrl(cartItems, total) {
     });
   }
 
-  const requestBody = { items, total };
+  const discount = typeof calcOrderDiscount === 'function'
+    ? calcOrderDiscount(cartItems.reduce((s, it) => s + it.price * it.quantity, 0))
+    : 0;
+  if (discount > 0) {
+    items.push({
+      title: 'Desconto / cupom',
+      quantity: 1,
+      unit_price: -Math.round(discount * 100) / 100,
+      currency_id: 'BRL'
+    });
+  }
 
-  // 1. Tenta API serverless local (/api/create-preference)
+  const requestBody = {
+    items,
+    total,
+    external_reference: externalReference || `pp-cart-${Date.now()}`
+  };
+
+  // 1. API no mesmo host (node server.js / Vercel)
   try {
     const res = await fetch('/api/create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.init_point) return data.init_point;
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.init_point) {
+      return { url: data.init_point, sandbox: !!data.sandbox, preference_id: data.preference_id || null };
     }
+    console.warn('create-preference falhou:', res.status, data);
+    return { url: null, error: data.error || `HTTP ${res.status}` };
   } catch (e) {
-    console.log('API serverless local falhou/indisponível. Tentando CORS proxy...');
+    console.warn('API create-preference indisponível:', e);
   }
 
-  // 2. Fallback: link manual configurado no Admin (sem expor MP_TOKEN no client)
-  //    Para usar a API direta de forma segura, configure uma função serverless
-  //    em /api/create-preference (ver MERCADOPAGO_SKILL.md).
-  return MP_LINK || 'https://www.mercadopago.com.br/';
+  // 2. Link manual do admin
+  if (MP_LINK) {
+    return { url: MP_LINK, sandbox: false, manual: true };
+  }
+
+  return {
+    url: null,
+    error: 'Mercado Pago indisponível. Rode o site com node server.js e MP_ACCESS_TOKEN no .env.local, ou cole um link no admin.'
+  };
 }
 
 if (cartNextBtn3) {
@@ -3650,12 +4302,13 @@ if (cartNextBtn3) {
       }
     }
 
-    refreshPaymentDetailsScreen();
-
     const payment = checkoutPayment.value;
+    // Online: tela de pagamento + verificação. Na entrega: WhatsApp direto.
     if (payment === 'pix' || payment === 'mercadopago') {
       navigateCartStep('cart-step-payment-details');
+      refreshPaymentDetailsScreen();
     } else {
+      // cartao (máquina) e dinheiro — sem pretender que já pagou online
       finalizeOrder();
     }
   });
@@ -3851,23 +4504,41 @@ if (menuSearchClearBtn) {
 // Restaura o carrinho no floating bar caso haja itens salvos
 updateFloatingCartBar();
 
-// Verifica se retornou do Mercado Pago com status de pagamento
+// Retorno do Mercado Pago — NUNCA confiar só no querystring (anti-fraude)
 const urlParams = new URLSearchParams(window.location.search);
 const paymentStatus = urlParams.get('payment_status');
-if (paymentStatus) {
-  // Limpa o parâmetro da URL sem recarregar a página
-  const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+const extRefFromUrl = urlParams.get('ext_ref') || urlParams.get('external_reference');
+if (paymentStatus || extRefFromUrl) {
+  const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + (window.location.hash || '');
   window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
 
-  // Se pagamento foi aprovado, guarda flag em sessionStorage para confirmar o pedido
-  if (paymentStatus === 'success') {
-    try {
-      sessionStorage.setItem('premium_pizzaria_mp_paid', 'true');
-    } catch (e) { /* ignora */ }
+  if (extRefFromUrl) {
+    try { sessionStorage.setItem('premium_pizzaria_ext_ref', extRefFromUrl); } catch (e) { /* ignore */ }
+    lastPaymentMeta.external_reference = extRefFromUrl;
   }
 
-  setTimeout(() => showPaymentResult(paymentStatus), 600);
+  setTimeout(() => {
+    if (typeof openCartDrawer === 'function') openCartDrawer();
+    if (checkoutPayment) checkoutPayment.value = 'mercadopago';
+    navigateCartStep('cart-step-payment-details');
+    // Revalida no servidor — digitando ?payment_status=success na URL NÃO libera
+    showPaymentResult(paymentStatus || 'pending', {
+      source: 'mercadopago',
+      externalReference: extRefFromUrl || sessionStorage.getItem('premium_pizzaria_ext_ref')
+    });
+  }, 400);
 }
+
+// “Já paguei” = só aviso à loja, NÃO marca pago no sistema
+const btnPixAlreadyPaid = document.getElementById('btn-pix-already-paid');
+if (btnPixAlreadyPaid) {
+  btnPixAlreadyPaid.addEventListener('click', () => {
+    markPaymentClaimedByClient();
+  });
+}
+
+// Carrega config MP cedo
+loadMpRuntimeConfig();
 
 // Pré-preenche checkout com perfil salvo, se houver
 restoreCustomerProfile();
@@ -4584,8 +5255,13 @@ if (authModalEl) {
         const acc = await login(email, pwd);
         closeAuthModal();
         refreshAppbarAccount();
-        showToast(`Bem-vindo de volta, ${acc.name.split(' ')[0]}!`, 2500);
         loginForm.reset();
+        // Se estava no checkout, segue o pedido com a conta
+        if (typeof continueCheckoutAfterAccount === 'function' && continueCheckoutAfterAccount()) {
+          /* toast já no continue */
+        } else {
+          showToast(`Bem-vindo de volta, ${acc.name.split(' ')[0]}!`, 2500);
+        }
       } catch (err) {
         showAuthError(err.message);
       }
@@ -4624,7 +5300,6 @@ if (authModalEl) {
         const acc = await registerAccount(data);
         closeAuthModal();
         refreshAppbarAccount();
-        showToast(`Conta criada! Bem-vindo, ${acc.name.split(' ')[0]}.`, 2800);
         // Se cadastro veio do upsell pós-pedido, registra conversão
         if (localStorage.getItem(UPSEL_DISMISS_KEY)) {
           // Não enviar email aqui — o evento local serve só para a
@@ -4633,6 +5308,12 @@ if (authModalEl) {
           trackEvent('guest_converted_to_registered', {});
         }
         regForm.reset();
+        // Checkout aberto → preenche e avança (soft capture convertida)
+        if (typeof continueCheckoutAfterAccount === 'function' && continueCheckoutAfterAccount()) {
+          trackEvent('guest_converted_to_registered', { source: 'checkout_gate' });
+        } else {
+          showToast(`Conta criada! Bem-vindo, ${acc.name.split(' ')[0]}.`, 2800);
+        }
       } catch (err) {
         showAuthError(err.message);
       }
@@ -4926,27 +5607,26 @@ function renderAccountOrders(filter) {
 function computePizzaUnitPrice(details) {
   if (!details) return null;
   const sizeObj = pizzaSizes.find(s => s.id === (details.size && details.size.id)) || details.size;
-  const sizeExtra = sizeObj && typeof sizeObj.extra === 'number' ? sizeObj.extra : 0;
-  let flavorPrice = 0;
-  let flavorCount = 0;
+  const sizeId = (sizeObj && sizeObj.id) || 'grande';
   const first = details.firstFlavor;
   const second = details.secondFlavor;
-  if (first && typeof first.price === 'number') { flavorPrice += first.price; flavorCount++; }
-  if (second && typeof second.price === 'number') { flavorPrice += second.price; flavorCount++; }
-  if (!flavorCount) {
-    const base = (first && first.id && menu.find(m => m.id === first.id)) ||
-                 (second && second.id && menu.find(m => m.id === second.id));
-    if (base && typeof base.price === 'number') { flavorPrice = base.price; flavorCount = 1; }
-  }
-  if (!flavorCount) return null;
-  // meio a meio: cobra o sabor mais caro + 50% do segundo
+  const resolveFlavor = (f) => {
+    if (!f) return null;
+    if (f.precos || typeof f.price === 'number') return f;
+    return (f.id && menu.find(m => m.id === f.id)) || f;
+  };
+  const f1 = resolveFlavor(first);
+  const f2 = resolveFlavor(second);
+  if (!f1 && !f2) return null;
+
   let flavorUnit;
-  if (flavorCount === 2) {
-    flavorUnit = Math.max(first.price, second.price) + (Math.min(first.price, second.price) / 2);
+  if (f1 && f2) {
+    // meio a meio: sabor mais caro no tamanho escolhido
+    flavorUnit = Math.max(getFlavorPriceForSize(f1, sizeId), getFlavorPriceForSize(f2, sizeId));
   } else {
-    flavorUnit = flavorPrice;
+    flavorUnit = getFlavorPriceForSize(f1 || f2, sizeId);
   }
-  let total = flavorUnit + sizeExtra;
+  let total = flavorUnit;
   const border = details.border;
   if (border && border.id && border.id !== 'sem-borda' && typeof border.price === 'number') {
     total += border.price;

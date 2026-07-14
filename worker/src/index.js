@@ -200,17 +200,36 @@ async function safeKvPut(env, key, value, ttlSeconds) {
 }
 
 // ---- Mercado Pago calls ---------------------------------------------------
+// Ambiente: MERCADOPAGO_ENV / MP_ENV = sandbox|production
+// Token: MERCADOPAGO_ACCESS_TOKEN / MP_ACCESS_TOKEN
+// A API REST é sempre https://api.mercadopago.com — sandbox/prod é o token (TEST- vs APP_USR-).
+
+function resolveMpToken(env) {
+  return (env.MERCADOPAGO_ACCESS_TOKEN || env.MP_ACCESS_TOKEN || '').trim();
+}
+
+function resolveMpEnv(env) {
+  const raw = String(env.MERCADOPAGO_ENV || env.MP_ENV || '').toLowerCase();
+  if (raw === 'sandbox' || raw === 'production') return raw;
+  const token = resolveMpToken(env);
+  if (token.startsWith('TEST-')) return 'sandbox';
+  if (token.startsWith('APP_USR-')) return 'production';
+  return 'sandbox';
+}
+
+function resolveWebhookSecret(env) {
+  return (env.MERCADOPAGO_WEBHOOK_SECRET || env.MP_WEBHOOK_SECRET || '').trim();
+}
 
 async function mpFetch(env, path, init = {}) {
-  if (!env.MP_ACCESS_TOKEN) {
-    throw new Error('MP_ACCESS_TOKEN not configured');
+  const token = resolveMpToken(env);
+  if (!token) {
+    throw new Error('MERCADOPAGO_ACCESS_TOKEN (ou MP_ACCESS_TOKEN) not configured');
   }
-  const base = env.MP_ENV === 'sandbox'
-    ? 'https://api.mercadopago.com/sandbox'
-    : 'https://api.mercadopago.com';
+  const base = 'https://api.mercadopago.com';
   const url = base + path;
   const headers = {
-    'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'User-Agent': 'pizzaria-premium-mp-worker/1.0',
     'X-Idempotency-Key': init.idempotencyKey || crypto.randomUUID()
@@ -376,7 +395,7 @@ async function webhook(request, env) {
   const action = body.action || '';
   const isPayment = topic === 'payment' || action.startsWith('payment.');
 
-  const secret = env.MP_WEBHOOK_SECRET || '';
+  const secret = resolveWebhookSecret(env);
   const signatureHeader = request.headers.get('x-signature') || '';
   const requestId = request.headers.get('x-request-id') || '';
   const tsHeader = extractSignatureHeader(signatureHeader).ts || '';

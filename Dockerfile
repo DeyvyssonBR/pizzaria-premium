@@ -1,38 +1,28 @@
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production && cp -r node_modules /prod_modules
-RUN npm ci
-
-COPY scripts/build-images.js scripts/build-images.js
-COPY imagem/ imagem/
-COPY assets/img/ assets/img/
-
-RUN mkdir -p assets/img/cardapio && \
-    node scripts/build-images.js 2>/dev/null || echo "Image build opt-in; skipping."
-
-FROM node:18-alpine
+# Produção (Railway / Docker) — sem build pesado obrigatório
+FROM node:20-alpine
 
 RUN apk add --no-cache curl
 
 WORKDIR /app
 
-COPY --from=builder /prod_modules node_modules
+COPY package.json package-lock.json* ./
+# App não exige deps de runtime; install é no-op se vazio
+RUN npm install --omit=dev 2>/dev/null || true
 
 COPY server.js package.json ./
+COPY lib/ lib/
 COPY api/ api/
 
-COPY index.html admin.html manifest.json sitemap.xml sw.js vercel.json ./
+COPY index.html admin.html manifest.json sitemap.xml sw.js robots.txt ./
 COPY assets/ assets/
 COPY imagem/ imagem/
 
+ENV NODE_ENV=production
+ENV PORT=3000
+
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/ || exit 1
-
-ENV NODE_ENV=production
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
 
 CMD ["node", "server.js"]

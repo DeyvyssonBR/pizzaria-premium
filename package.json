@@ -1,10 +1,19 @@
 {
-  "name": "pizzaria-premium-build",
+  "name": "pizzaria-premium",
+  "version": "1.0.0",
   "private": true,
-  "description": "Build scripts for image optimization. Not shipped to GitHub Pages.",
+  "description": "Pizzaria Premium Teresina — site + APIs Mercado Pago (Node)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node -e \"console.log('No build step — static + server.js')\"",
     "build:images": "node scripts/build-images.js"
   },
+  "dependencies": {},
   "devDependencies": {
     "sharp": "^0.33.0"
   }

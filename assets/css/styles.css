@@ -3284,6 +3284,165 @@ body.has-cart-items .floating-whatsapp {
   line-height: 1.4;
 }
 
+/* ---------- Checkout: gate de conta (soft capture) ---------- */
+.checkout-account-gate,
+.checkout-identity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 18px 22px;
+  border: 1px solid rgba(35, 20, 16, 0.06);
+  box-shadow:
+    0 18px 40px rgba(58, 6, 16, 0.07),
+    0 1px 0 rgba(232, 193, 112, 0.35) inset;
+}
+
+.checkout-account-gate[hidden],
+.checkout-identity-form[hidden] {
+  display: none !important;
+}
+
+.checkout-account-gate__hero {
+  text-align: center;
+}
+
+.checkout-account-gate__emoji {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.checkout-account-gate__title {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #3a0610;
+  letter-spacing: -0.02em;
+}
+
+.checkout-account-gate__lead {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(36, 19, 15, 0.72);
+}
+
+.checkout-account-gate__benefits {
+  list-style: none;
+  margin: 4px 0 2px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(90, 10, 24, 0.04), rgba(212, 168, 83, 0.12));
+  border: 1px solid rgba(212, 168, 83, 0.28);
+}
+
+.checkout-account-gate__benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #3a1c14;
+  padding: 6px 0;
+  line-height: 1.35;
+}
+
+.checkout-account-gate__benefits li span {
+  flex-shrink: 0;
+  width: 1.4em;
+  text-align: center;
+}
+
+.checkout-account-gate__primary {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.checkout-account-gate__secondary {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.checkout-account-gate__guest {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  border: none;
+  background: transparent;
+  color: rgba(36, 19, 15, 0.55);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.checkout-account-gate__guest:hover {
+  color: #5a0a18;
+  background: rgba(90, 10, 24, 0.04);
+}
+
+.checkout-account-gate__warn {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: rgba(90, 10, 24, 0.85);
+  background: rgba(90, 10, 24, 0.06);
+  border: 1px dashed rgba(90, 10, 24, 0.18);
+  text-align: center;
+}
+
+.checkout-guest-nudge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(212, 168, 83, 0.12);
+  border: 1px solid rgba(212, 168, 83, 0.35);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(36, 19, 15, 0.75);
+}
+
+.checkout-guest-nudge strong {
+  color: #5a0a18;
+  font-size: 0.88rem;
+}
+
+.checkout-guest-nudge__link {
+  align-self: flex-start;
+  margin-top: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: #5a0a18;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.cart-drawer .checkout-identity-form .form-group + .form-group {
+  margin-top: 2px;
+}
+
+.cart-drawer .checkout-identity-form .button--checkout-next {
+  width: 100%;
+  margin-top: 6px;
+}
+
 /* Opções de Tipo de Entrega */
 .delivery-type-options {
   display: flex;
@@ -5121,6 +5280,104 @@ body.has-cart-items .floating-whatsapp {
    ======================================================================== */
 
 /* Toast pós-pagamento (success / pending / error) */
+/* Status ao vivo do pagamento (Pix / MP) */
+.payment-live-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  text-align: left;
+  border: 1px solid transparent;
+}
+.payment-live-status[hidden] { display: none !important; }
+.payment-live-status--idle,
+.payment-live-status--waiting {
+  background: rgba(240, 166, 25, 0.12);
+  border-color: rgba(240, 166, 25, 0.35);
+}
+.payment-live-status--approved {
+  background: rgba(47, 125, 74, 0.12);
+  border-color: rgba(47, 125, 74, 0.4);
+  animation: payApprovedPulse 0.6s ease;
+}
+.payment-live-status--error {
+  background: rgba(201, 8, 20, 0.08);
+  border-color: rgba(201, 8, 20, 0.25);
+}
+.payment-live-status__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.payment-live-status__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.payment-live-status__text strong {
+  font-size: 1rem;
+  color: #24130f;
+}
+.payment-live-status__text span {
+  font-size: 0.82rem;
+  color: rgba(36, 19, 15, 0.7);
+  line-height: 1.35;
+}
+.payment-live-status--approved .payment-live-status__text strong {
+  color: #1e5c35;
+  font-size: 1.12rem;
+}
+
+@keyframes payApprovedPulse {
+  0% { transform: scale(0.96); opacity: 0.6; }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pix-detect-hint {
+  margin: 14px 0 0;
+  font-size: 0.82rem;
+  color: rgba(36, 19, 15, 0.55);
+  font-weight: 600;
+}
+.pix-detect-hint.is-watching {
+  color: #a67c00;
+}
+.pix-detect-hint.is-watching::before {
+  content: '';
+}
+
+.pix-approved-block {
+  padding: 28px 16px 18px;
+  text-align: center;
+}
+.pix-approved-block[hidden] { display: none !important; }
+.pix-approved-block__check {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.pix-approved-block__title {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e5c35;
+  letter-spacing: -0.02em;
+}
+.pix-approved-block__desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(36, 19, 15, 0.72);
+}
+
+.button--whatsapp-send.is-payment-ok {
+  background: linear-gradient(135deg, #1faa59, #128c45) !important;
+  box-shadow: 0 6px 20px rgba(18, 140, 69, 0.35);
+  animation: payApprovedPulse 0.5s ease;
+}
+
 .pay-toast {
   position: fixed;
   left: 50%;

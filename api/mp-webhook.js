@@ -15,9 +15,9 @@
  *   - Replay protection: rejeita `ts` fora de ±5 min.
  *   - Manifesto: `id:<resourceId>;topic:<topic>;ts:<ts>;` (formato MP).
  *
- * Variáveis de ambiente:
- *   MP_ACCESS_TOKEN     — token privado de produção
- *   MP_WEBHOOK_SECRET   — segredo configurado no painel MP (Webhooks)
+ * Variáveis de ambiente (via lib/mercadoPago.js):
+ *   MERCADOPAGO_ACCESS_TOKEN / MP_ACCESS_TOKEN
+ *   MERCADOPAGO_WEBHOOK_SECRET / MP_WEBHOOK_SECRET
  *
  * Opcional — Vercel KV para persistência:
  *   1. Vercel Dashboard → Storage → Create KV Database
@@ -26,6 +26,7 @@
  */
 
 const crypto = require('crypto');
+const { getConfig, mpFetch } = require('../lib/mercadoPago');
 
 const REPLAY_WINDOW_MS = 5 * 60 * 1000;
 
@@ -90,7 +91,7 @@ module.exports = async (req, res) => {
   const action = body.action || '';
 
   // ---- Signature validation ---------------------------------------------
-  const secret = process.env.MP_WEBHOOK_SECRET;
+  const secret = getConfig().webhookSecret;
   const signatureHeader = req.headers['x-signature'] || '';
   const requestId = req.headers['x-request-id'] || '';
   const manifest = `id:${dataId};request-id:${requestId};ts:${extractSignatureHeader(signatureHeader).ts || ''};`;
@@ -101,18 +102,15 @@ module.exports = async (req, res) => {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
-  console.log('[MP-Webhook]', JSON.stringify({ topic, resourceId, action }));
+  console.log('[MP-Webhook]', JSON.stringify({ topic, resourceId, action, env: getConfig().env }));
 
   const isPayment = topic === 'payment' || action.startsWith('payment.');
   if (isPayment && resourceId) {
-    const token = process.env.MP_ACCESS_TOKEN;
-    if (token) {
+    if (getConfig().hasToken) {
       try {
-        const resp = await fetch(`https://api.mercadopago.com/v1/payments/${resourceId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (resp.ok) {
-          const pay = await resp.json();
+        const resp = await mpFetch(`/v1/payments/${resourceId}`);
+        if (resp.ok && resp.json) {
+          const pay = resp.json;
           const snap = {
             id: pay.id, status: pay.status, statusDetail: pay.status_detail,
             externalReference: pay.external_reference, preferenceId: pay.preference_id,
@@ -125,7 +123,7 @@ module.exports = async (req, res) => {
           const stored = await tryStoreKv(key, snap);
           console.log('[MP-Webhook] KV:', stored ? 'armazenado' : 'indisponivel');
         } else {
-          console.error('[MP-Webhook] Erro ao buscar payment:', await resp.text());
+          console.error('[MP-Webhook] Erro ao buscar payment:', resp.raw || resp.status);
         }
       } catch (err) {
         console.error('[MP-Webhook] Erro:', err.message);

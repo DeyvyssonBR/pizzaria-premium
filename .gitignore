@@ -9,6 +9,24 @@ CHANGELOG_LOCAL.md
 docs-local/
 *.local.md
 
+# Credenciais Mercado Pago / secrets (NUNCA commitar)
+.env
+.env.*
+!.env.example
+!.env.production.example
+worker/.dev.vars
+worker/.dev.vars.*
+**/*credentials*
+**/*secret*
+
+# Temp / local noise
+.h.txt
+.he.txt
+.rw-*.txt
+.mp-*.txt
+.t-*.txt
+.boot*.txt
+
 # opencode config (local API keys)
 opencode.json
 

@@ -1,0 +1,13 @@
+# Railway — Pizzaria Premium (produção)
+# Root Directory no painel: pasta PaperClip (ou monorepo root se for só este app)
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

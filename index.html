@@ -749,16 +749,60 @@
           </div>
         </div>
 
-        <!-- Step 2: Identifique-se -->
+        <!-- Step 2: Conta (opcional) + Identifique-se -->
         <div class="cart-step" id="cart-step-auth">
           <div class="cart-drawer__header">
             <button class="cart-drawer__back" type="button" id="cart-back-to-items">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              <span>Identifique-se</span>
+              <span id="cart-auth-header-title">Quase lá</span>
             </button>
           </div>
           <div class="cart-drawer__body">
-            <div class="auth-form">
+            <!-- Gate: cadastro opcional com incentivo (soft capture) -->
+            <div class="checkout-account-gate" id="checkout-account-gate" hidden>
+              <div class="checkout-account-gate__hero">
+                <span class="checkout-account-gate__emoji" aria-hidden="true">🍕</span>
+                <h3 class="checkout-account-gate__title">Como deseja continuar?</h3>
+                <p class="checkout-account-gate__lead">
+                  <strong>Não é obrigatório</strong> criar conta para pedir.
+                  Com conta fica melhor pra você — e pra gente te avisar de promoções.
+                </p>
+              </div>
+
+              <ul class="checkout-account-gate__benefits">
+                <li><span>🎟️</span> Cupons e descontos exclusivos</li>
+                <li><span>⭐</span> Pontos a cada pedido</li>
+                <li><span>📍</span> Endereços salvos (pede mais rápido)</li>
+                <li><span>🔥</span> Promoções e novidades da casa</li>
+              </ul>
+
+              <button class="button button--checkout-next checkout-account-gate__primary" type="button" id="gate-create-account">
+                Criar conta grátis
+              </button>
+              <button class="button button--ghost checkout-account-gate__secondary" type="button" id="gate-login">
+                Já tenho conta — Entrar
+              </button>
+              <button class="checkout-account-gate__guest" type="button" id="gate-continue-guest">
+                Continuar sem cadastro
+              </button>
+
+              <p class="checkout-account-gate__warn" id="gate-guest-warn">
+                Sem conta você <strong>não acumula pontos</strong> e pode
+                <strong>perder cupons e promoções</strong> de cliente cadastrado.
+                Dá pra criar a conta depois, se quiser.
+              </p>
+            </div>
+
+            <!-- Identidade guest (nome + WhatsApp) — visível após escolher “sem cadastro” -->
+            <div class="checkout-identity-form" id="checkout-identity-form" hidden>
+              <div class="checkout-guest-nudge" id="checkout-guest-nudge">
+                <strong>Pedido sem conta</strong>
+                <span>Você segue normalmente. Só lembra: sem cadastro não vale pontos nem cupons de fidelidade.</span>
+                <button type="button" class="checkout-guest-nudge__link" id="gate-back-to-register">
+                  Prefiro criar conta
+                </button>
+              </div>
+
               <div class="form-group">
                 <label for="checkout-phone">Seu número de WhatsApp é:</label>
                 <input type="tel" id="checkout-phone" placeholder="(__) _____-____" autocomplete="tel">
@@ -767,13 +811,13 @@
                 <label for="checkout-name">Seu nome e sobrenome:</label>
                 <input type="text" id="checkout-name" placeholder="Nome e sobrenome" autocomplete="name">
               </div>
-              
+
               <button class="button button--checkout-next" type="button" id="cart-next-btn-2" disabled>
                 Avançar
               </button>
 
               <p class="auth-subtext">
-                Para realizar seu pedido vamos precisar de suas informações, este é um ambiente protegido.
+                Só precisamos do WhatsApp e do nome para o pedido. Ambiente seguro · sem spam.
               </p>
             </div>
           </div>
@@ -848,8 +892,8 @@
                       <img src="imagem/mercado pago.svg" alt="Mercado Pago" width="42" height="32" loading="lazy">
                     </span>
                     <span class="payment-card__text">
-                      <strong>Mercado Pago</strong>
-                      <small>Cartão ou Pix Online</small>
+                      <strong>Mercado Pago / Cartão</strong>
+                      <small>Abre o MP: cartão, Pix, saldo</small>
                     </span>
                     <span class="payment-card__check" aria-hidden="true">✓</span>
                   </button>
@@ -877,7 +921,7 @@
                     </span>
                     <span class="payment-card__text">
                       <strong>Cartão na entrega</strong>
-                      <small>Crédito ou Débito</small>
+                      <small>Máquina na hora (sem online)</small>
                     </span>
                     <span class="payment-card__check" aria-hidden="true">✓</span>
                   </button>
@@ -972,56 +1016,90 @@
               <!-- Sweet recommendation block (inserted dynamically) -->
               <div id="sweet-recommendation-checkout" style="display: none;"></div>
               
+              <!-- Status unificado: aguardando / aprovado -->
+              <div id="payment-live-status" class="payment-live-status payment-live-status--idle" hidden>
+                <span class="payment-live-status__icon" id="payment-live-status-icon">⏳</span>
+                <div class="payment-live-status__text">
+                  <strong id="payment-live-status-title">Aguardando pagamento…</strong>
+                  <span id="payment-live-status-desc">Assim que o Pix for confirmado, avisamos aqui.</span>
+                </div>
+              </div>
+
               <!-- PIX Container -->
               <div id="pix-payment-container" style="display: none; text-align: center;">
                 <div class="pix-badge">PIX IMEDIATO</div>
-                <p class="payment-instructions">Escaneie o QR Code abaixo com o app do seu banco ou copie o código Pix abaixo:</p>
+                <p class="payment-instructions" id="pix-payment-instructions">Escaneie o QR ou copie o código. O site detecta o pagamento sozinho.</p>
 
-                <div class="pix-qrcode-wrapper">
-                  <img id="pix-qrcode-img" src="" alt="QR Code Pix" style="width: 220px; height: 220px; border-radius: 8px; border: 6px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: #fff;">
+                <div id="pix-awaiting-block">
+                  <div class="pix-qrcode-wrapper">
+                    <img id="pix-qrcode-img" src="" alt="QR Code Pix" style="width: 220px; height: 220px; border-radius: 8px; border: 6px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: #fff;">
+                  </div>
+
+                  <div id="pix-timer-badge" class="pix-timer pix-timer--valid">
+                    <span class="pix-timer__icon">⏱</span>
+                    <span>Código válido por <strong id="pix-timer-text">15:00</strong></span>
+                  </div>
+
+                  <div id="pix-expired-card" class="pix-expired" style="display: none;">
+                    <strong>⚠️ Código Pix expirado</strong>
+                    <p>Gere um novo código para finalizar o pagamento com segurança.</p>
+                    <button class="button button--ghost" type="button" id="btn-regen-pix">🔄 Gerar novo código</button>
+                  </div>
+
+                  <div class="form-group" style="margin-top: 16px; text-align: left;">
+                    <label for="pix-copia-cola">Código Pix Copia e Cola:</label>
+                    <textarea id="pix-copia-cola" readonly style="width: 100%; height: 80px; font-family: monospace; font-size: 0.78rem; padding: 10px; border-radius: 8px; border: 1px solid rgba(35, 20, 16, 0.15); background: rgba(35, 20, 16, 0.03); resize: none; color: #24130f;"></textarea>
+                  </div>
+
+                  <button class="button button--copy-pix" type="button" id="btn-copy-pix">
+                    <span class="copy-pix-icon">📋</span>
+                    <span>Copiar Código Pix</span>
+                  </button>
+
+                  <p id="pix-detect-hint" class="pix-detect-hint">
+                    🔄 Detectando pagamento automaticamente…
+                  </p>
+                  <button class="button button--ghost" type="button" id="btn-pix-already-paid" style="display:none; width:100%; margin-top:8px;">
+                    Já paguei — confirmar
+                  </button>
                 </div>
 
-                <div id="pix-timer-badge" class="pix-timer pix-timer--valid">
-                  <span class="pix-timer__icon">⏱</span>
-                  <span>Código válido por <strong id="pix-timer-text">15:00</strong></span>
+                <div id="pix-approved-block" class="pix-approved-block" hidden>
+                  <div class="pix-approved-block__check">✅</div>
+                  <h3 class="pix-approved-block__title">Pagamento aprovado</h3>
+                  <p class="pix-approved-block__desc">Recebemos a confirmação do Pix. Agora envie o pedido no WhatsApp para a cozinha preparar.</p>
                 </div>
-
-                <div id="pix-expired-card" class="pix-expired" style="display: none;">
-                  <strong>⚠️ Código Pix expirado</strong>
-                  <p>Gere um novo código para finalizar o pagamento com segurança.</p>
-                  <button class="button button--ghost" type="button" id="btn-regen-pix">🔄 Gerar novo código</button>
-                </div>
-
-                <div class="form-group" style="margin-top: 16px; text-align: left;">
-                  <label for="pix-copia-cola">Código Pix Copia e Cola:</label>
-                  <textarea id="pix-copia-cola" readonly style="width: 100%; height: 80px; font-family: monospace; font-size: 0.78rem; padding: 10px; border-radius: 8px; border: 1px solid rgba(35, 20, 16, 0.15); background: rgba(35, 20, 16, 0.03); resize: none; color: #24130f;"></textarea>
-                </div>
-
-                <button class="button button--copy-pix" type="button" id="btn-copy-pix">
-                  <span class="copy-pix-icon">📋</span>
-                  <span>Copiar Código Pix</span>
-                </button>
               </div>
 
               <!-- Mercado Pago Container -->
               <div id="mp-payment-container" style="display: none; text-align: center;">
                 <div class="mp-badge">MERCADO PAGO</div>
-                <p class="payment-instructions">Clique no botão abaixo para pagar com segurança via Mercado Pago (Pix ou Cartão):</p>
+                <p class="payment-instructions" id="mp-payment-instructions">
+                  Você vai para a tela de <strong>pagar o pedido</strong> (checkout).
+                  Se abrir a <strong>conta / saldo</strong>, está no lugar errado — volte e toque no botão azul de novo.
+                </p>
                 
-                <a id="btn-pay-mp" class="button button--mp" href="#" target="_blank" rel="noopener noreferrer" style="width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; background: #009ee3; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(0, 158, 227, 0.3); margin: 20px 0;">
-                  💳 Pagar com Mercado Pago
+                <a id="btn-pay-mp" class="button button--mp" href="#" rel="noopener noreferrer" style="width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; background: #009ee3; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(0, 158, 227, 0.3); margin: 12px 0 8px;">
+                  💳 Pagar este pedido agora
                 </a>
+                <p id="mp-pay-hint" style="font-size: 0.78rem; line-height: 1.4; color: rgba(36,19,15,0.65); margin: 0 0 8px; text-align: left;"></p>
+                <div id="mp-approved-block" class="pix-approved-block" hidden>
+                  <div class="pix-approved-block__check">✅</div>
+                  <h3 class="pix-approved-block__title">Pagamento aprovado</h3>
+                  <p class="pix-approved-block__desc">Mercado Pago confirmou. Envie o pedido no WhatsApp para a pizzaria.</p>
+                </div>
               </div>
 
-              <div class="payment-note-box">
-                <p style="font-size: 0.8rem; line-height: 1.4; color: #24130f; margin: 0;">
-                  ⚠️ <strong>Atenção:</strong> Após pagar, clique no botão <strong>"Enviar Pedido no WhatsApp"</strong> abaixo para enviar seu comprovante e confirmar seu pedido.
+              <div class="payment-note-box" id="payment-note-box">
+                <p style="font-size: 0.8rem; line-height: 1.4; color: #24130f; margin: 0;" id="payment-note-text">
+                  Depois de <strong>Pagamento aprovado</strong>, toque em
+                  <strong>Enviar Pedido no WhatsApp</strong> — a cozinha só recebe o pedido por lá.
                 </p>
               </div>
               
               <button class="button button--whatsapp-send" type="button" id="btn-confirm-payment-whatsapp">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20" height="20" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
-                <span>Enviar Pedido no WhatsApp</span>
+                <span id="btn-confirm-payment-whatsapp-label">Enviar Pedido no WhatsApp</span>
               </button>
 
               <button class="button button--ghost" type="button" id="btn-back-to-payment-method" style="width: 100%; margin-top: 10px;">

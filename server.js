@@ -3,6 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
+// Env + Mercado Pago centralizados
+const { loadEnv } = require('./lib/loadEnv');
+loadEnv(__dirname);
+const { logBootStatus } = require('./lib/mercadoPago');
+
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.resolve(__dirname);
 
@@ -137,31 +142,78 @@ const server = http.createServer((req, res) => {
   const parsed = url.parse(req.url, true);
   const pathname = parsed.pathname;
 
-  if (pathname === '/api/create-preference' || pathname === '/api/mp-webhook' || pathname === '/api/payment-status') {
+  // Health checks (Railway / Docker / load balancers)
+  if (pathname === '/health' || pathname === '/api/health') {
+    const { publicConfig } = require('./lib/mercadoPago');
+    const pub = publicConfig();
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store'
+    });
+    res.end(
+      JSON.stringify({
+        ok: true,
+        service: 'pizzaria-premium',
+        uptime_s: Math.floor(process.uptime()),
+        node: process.version,
+        env: process.env.NODE_ENV || 'development',
+        mercadopago: {
+          env: pub.env,
+          isSandbox: pub.isSandbox,
+          isProduction: pub.isProduction,
+          hasToken: pub.hasToken,
+          hasPublicKey: pub.hasPublicKey
+          // Access Token NUNCA aqui
+        }
+      })
+    );
+    return;
+  }
+
+  // APIs de pagamento (Mercado Pago) — token só no servidor (env do host)
+  const apiRoutes = {
+    '/api/create-preference': () => MP_HANDLER,
+    '/api/mp-webhook': () => require('./api/mp-webhook'),
+    '/api/payment-status': () => require('./api/payment-status'),
+    '/api/mp/create-pix': () => require('./api/create-pix'),
+    '/api/mp/payment-status': () => require('./api/payment-status-local'),
+    '/api/mp/config': () => require('./api/mp-config'),
+    '/api/mp/verify-payment': () => require('./api/verify-payment'),
+    '/api/create-pix': () => require('./api/create-pix')
+  };
+
+  if (Object.prototype.hasOwnProperty.call(apiRoutes, pathname)) {
     const ip = clientIp(req);
-    const r = rateCheck(ip, pathname);
+    const r = rateCheck(ip, pathname.startsWith('/api/mp/') ? '/api/create-preference' : pathname);
     if (!r.ok) {
       res.setHeader('Retry-After', Math.ceil(r.retryAfterMs / 1000).toString());
       res.status(429).json({ error: 'Rate limit exceeded' });
       return;
     }
     if (req.method === 'OPTIONS') {
-      const handler = pathname === '/api/mp-webhook' ? require('./api/mp-webhook') : MP_HANDLER;
-      handler(req, res);
+      apiRoutes[pathname]()(req, res);
       return;
     }
     if (pathname === '/api/mp-webhook' && req.method !== 'POST') {
       res.status(405).json({ error: 'Use POST' });
       return;
     }
+    // GET sem body
+    if (
+      (pathname === '/api/mp/payment-status' ||
+        pathname === '/api/payment-status' ||
+        pathname === '/api/mp/config' ||
+        pathname === '/api/mp/verify-payment') &&
+      req.method === 'GET'
+    ) {
+      apiRoutes[pathname]()(req, res);
+      return;
+    }
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       req.body = body;
-      const handler = pathname === '/api/mp-webhook' ? require('./api/mp-webhook')
-                    : pathname === '/api/payment-status' ? require('./api/payment-status')
-                    : MP_HANDLER;
-      handler(req, res);
+      apiRoutes[pathname]()(req, res);
     });
     return;
   }
@@ -180,4 +232,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Pizzaria Premium Server rodando em http://0.0.0.0:${PORT}`);
+  logBootStatus('Mercado Pago');
 });
