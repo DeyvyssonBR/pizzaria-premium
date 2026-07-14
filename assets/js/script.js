@@ -2782,42 +2782,26 @@ function refreshPaymentDetailsScreen() {
 
 /**
  * Fluxo Mercado Pago / cartão online via Checkout Pro.
- * Em token TEST (sandbox) o MP costuma bloquear (“uma das partes é de teste”).
- * Aí redirecionamos o cliente para Pix com confirmação real da API.
+ * NÃO redireciona para a tela de Pix — métodos ficam separados:
+ *  - pix → QR/copia-cola
+ *  - mercadopago → checkout MP (cartão, saldo, etc.)
  */
 async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
   const btnPayMp = document.getElementById('btn-pay-mp');
   const mpHint = document.getElementById('mp-pay-hint');
-  const cfg = mpRuntimeConfig || (await loadMpRuntimeConfig());
+  // Garante UI só do MP (nunca mostra container Pix neste fluxo)
+  const pixBox = document.getElementById('pix-payment-container');
+  const mpBox = document.getElementById('mp-payment-container');
+  if (pixBox) pixBox.style.display = 'none';
+  if (mpBox) mpBox.style.display = 'block';
+
+  await loadMpRuntimeConfig();
 
   setPaymentLiveStatus(
     'waiting',
     'Preparando Mercado Pago…',
-    'Cartão, saldo MP e Pix dentro do checkout seguro.'
+    'Você vai pagar com cartão (ou outras opções) no checkout do Mercado Pago.'
   );
-
-  // Token de teste de conta real: Checkout Pro quebra com comprador teste.
-  // Caminho que FUNCIONA e ainda verifica pagamento: Pix via API.
-  if (cfg && cfg.sandbox && !cfg.checkoutProRecommended) {
-    if (btnPayMp) btnPayMp.style.display = 'none';
-    setPaymentLiveStatus(
-      'waiting',
-      'Modo teste: use Pix com confirmação',
-      'O checkout de cartão no sandbox está bloqueado pelo Mercado Pago (conta real + teste). Com token de PRODUÇÃO o cartão abre normal. Agora: Pix verificado pela API.'
-    );
-    if (mpHint) {
-      mpHint.innerHTML =
-        '<strong>Por que?</strong> Token TEST da sua conta real + comprador teste = MP bloqueia. ' +
-        'Em <strong>produção</strong> (token APP_USR) o botão abre cartão/MP completo. ' +
-        'Enquanto testa, use <strong>Pix</strong> (confirma sozinho) ou dinheiro/cartão na entrega.';
-    }
-    // Mostra Pix verificado no mesmo passo (sem burlar)
-    document.getElementById('pix-payment-container').style.display = 'block';
-    document.getElementById('mp-payment-container').style.display = 'block';
-    regeneratePixCode(cartTotal);
-    showToast('Teste: use Pix (confirmação real). Cartão MP exige token de produção.', 4500);
-    return;
-  }
 
   if (btnPayMp) {
     btnPayMp.style.display = '';
@@ -2826,6 +2810,7 @@ async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
     btnPayMp.innerHTML = '<span>⏳ Preparando pagamento…</span>';
     btnPayMp.style.pointerEvents = 'none';
     btnPayMp.style.opacity = '0.7';
+    btnPayMp.onclick = null;
     if (mpHint) mpHint.textContent = '';
   }
 
@@ -2839,17 +2824,25 @@ async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
     const okUrl = isMercadoPagoCheckoutUrl(url);
     if (!okUrl || !btnPayMp) {
       if (btnPayMp) {
-        btnPayMp.innerHTML = '⚠️ Mercado Pago indisponível';
-        btnPayMp.style.pointerEvents = 'none';
+        btnPayMp.innerHTML = '🔄 Tentar de novo';
+        btnPayMp.style.pointerEvents = 'auto';
+        btnPayMp.style.opacity = '1';
+        btnPayMp.onclick = function (ev) {
+          ev.preventDefault();
+          startMercadoPagoCheckoutFlow(cartItems, cartTotal, method);
+        };
       }
       setPaymentLiveStatus(
         'error',
         'Não foi possível abrir o Mercado Pago',
-        (result && result.error) || 'Rode node server.js com MP_ACCESS_TOKEN'
+        (result && result.error) ||
+          'Verifique o servidor e as credenciais. Use o botão Tentar de novo — não abriremos Pix no lugar do cartão.'
       );
-      // Fallback seguro: Pix com verificação
-      document.getElementById('pix-payment-container').style.display = 'block';
-      regeneratePixCode(cartTotal);
+      if (mpHint) {
+        mpHint.textContent =
+          'Método cartão/MP não muda para Pix. Se falhar, volte e escolha Pix manualmente se quiser pagar com QR.';
+      }
+      showToast('Checkout Mercado Pago indisponível. Tente de novo.', 4000);
       return;
     }
 
@@ -2859,7 +2852,7 @@ async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
     } catch (e) { /* ignore */ }
 
     btnPayMp.href = okUrl;
-    btnPayMp.innerHTML = '💳 Pagar com cartão / Mercado Pago';
+    btnPayMp.innerHTML = '💳 Pagar com cartão no Mercado Pago';
     btnPayMp.style.pointerEvents = 'auto';
     btnPayMp.style.opacity = '1';
     btnPayMp.onclick = function (ev) {
@@ -2867,18 +2860,33 @@ async function startMercadoPagoCheckoutFlow(cartItems, cartTotal, method) {
       goToMercadoPagoCheckout(okUrl);
     };
     if (mpHint) {
-      mpHint.textContent =
-        'Você será levado ao checkout do Mercado Pago (cartão, Pix, saldo). Ao voltar, o site confere se o pagamento foi aprovado de verdade.';
+      const sand = result.sandbox || (mpRuntimeConfig && mpRuntimeConfig.isSandbox);
+      mpHint.textContent = sand
+        ? 'Checkout de teste do Mercado Pago. No app MP use conta/comprador de teste. Cartão e outras opções ficam dentro do checkout.'
+        : 'Você será levado ao Mercado Pago para pagar com cartão (e outras formas do MP). Ao voltar, o site confere se foi aprovado.';
     }
     setPaymentLiveStatus(
       'waiting',
-      'Checkout pronto',
-      'Abrindo Mercado Pago para você pagar o pedido…'
+      'Checkout Mercado Pago pronto',
+      'Abrindo pagamento com cartão / Mercado Pago…'
     );
-    // Produção: redireciona direto
-    setTimeout(() => goToMercadoPagoCheckout(okUrl), 500);
+    // Redireciona para o checkout do MP (não para Pix)
+    setTimeout(() => goToMercadoPagoCheckout(okUrl), 400);
   } catch (e) {
-    setPaymentLiveStatus('error', 'Erro no Mercado Pago', 'Tente Pix ou pagamento na entrega.');
+    setPaymentLiveStatus(
+      'error',
+      'Erro no Mercado Pago',
+      (e && e.message) || 'Tente novamente. O método Pix fica só se você escolher Pix no passo anterior.'
+    );
+    if (btnPayMp) {
+      btnPayMp.innerHTML = '🔄 Tentar de novo';
+      btnPayMp.style.pointerEvents = 'auto';
+      btnPayMp.style.opacity = '1';
+      btnPayMp.onclick = function (ev) {
+        ev.preventDefault();
+        startMercadoPagoCheckoutFlow(cartItems, cartTotal, method);
+      };
+    }
   }
 }
 
